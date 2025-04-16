@@ -1,0 +1,34 @@
+Midnight-Meowers_EXE101_Artjourney/
+├── Artjouney_BE/                 # ASP.NET Core Web API
+│   ├── bin
+│   ├── obj
+│   ├── Properties
+│   ├── Controllers/
+│   ├── ConfigService.cs
+│   ├── Program.cs
+│   ├── appsettings.json
+│   ├── ArtJouney_BE.csproj
+│   ├── ArtJouney_BE.csproj.user
+├── BusinessObjects/             # Model, Enum
+│   ├── Models/
+│   ├── Enums/
+│   ├── BusinessObjects.csproj
+├── DAOs/                        # Data access layer (EF context nếu dùng DB-first)
+│   ├── ApplicationDbContext.cs
+│   ├── Migrations
+│   ├── DAOs.csproj
+├── Helpers/                     # Helper classes, DTOs, SignalR hubs
+│   ├── DTOs/
+│   ├── HelperClasses/
+│   ├── SignalR/
+│   ├── Helpers.csproj
+├── Repositories/                # Repository pattern
+│   ├── Interfaces/
+│   ├── Implements/
+│   ├── Queries/
+│   ├── Repositories.csproj
+├── Services/                    # Business logic layer
+│   ├── Interfaces/
+│   ├── Implements/
+│   ├── Services.csproj
+├── Midnight-Meowers_EXE201_Artjourney.sln
