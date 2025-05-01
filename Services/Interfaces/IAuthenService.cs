@@ -1,4 +1,6 @@
-﻿using Helpers.DTOs.Authentication;
+﻿using BusinessObjects.Models;
+using Helpers.DTOs.Authentication;
+using Helpers.HelperClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IAuthenticationService
+    public interface IAuthenService
     {
         Task<AuthenticationResponse?> Register(RegisterDTO registerDto);
         Task<AuthenticationResponse?> Login(LoginDTO loginDto);
+        Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar);
     }
 }

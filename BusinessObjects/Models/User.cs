@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace BusinessObjects.Models
 {
@@ -33,6 +34,7 @@ namespace BusinessObjects.Models
         public string Email { get; set; } = string.Empty;
 
         [Column("password")]
+        [JsonIgnore]
         public string Password { get; set; } = String.Empty;
 
         [Column("birthday")]
@@ -52,5 +54,8 @@ namespace BusinessObjects.Models
 
         [Column("status")]
         public AccountStatus Status { get; set; } = AccountStatus.Pending;  // enum → string
+
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
     }
 }

@@ -1,7 +1,15 @@
 ﻿using Helpers.DTOs.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using System.Security.Claims;
+using Helpers.HelperClasses;
+using BusinessObjects.Models;
+using BusinessObjects.Enums;
+using NuGet.Common;
+using PayPalCheckoutSdk.Orders;
 
 namespace Artjouney_BE.Controllers
 {
@@ -9,12 +17,12 @@ namespace Artjouney_BE.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthenService _authenticationService;
         private readonly IMailSenderService _mailSender;
         private readonly ICurrentUserService _currentUserService;
 
         public AuthenticationController(
-            IAuthenticationService authenticationService,
+            IAuthenService authenticationService,
             IMailSenderService emailSender,
             ICurrentUserService currentUserService
         )
@@ -44,6 +52,7 @@ namespace Artjouney_BE.Controllers
 
             return Ok(result);
         }
+
         [HttpPost("sign-in")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
@@ -65,6 +74,59 @@ namespace Artjouney_BE.Controllers
 
             return Ok(new { message = "Login successful" });
         }
+
+        [HttpGet("google-signin")]
+        public IActionResult LoginWithGoogle()
+        {
+            // B4: Tạo state và RedirectUri
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleCallback"),
+                IsPersistent = true
+            };
+
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpPost("google-callback")]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            // B8: Middleware đã xác thực, lấy thông tin người dùng
+            var authResult = await HttpContext.AuthenticateAsync();
+
+            if (!authResult.Succeeded || authResult.Principal == null)
+            {
+                return Unauthorized("Xác thực thất bại.");
+            }
+
+            var claims = authResult.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var googleId = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var avatar = claims?.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(googleId))
+                return BadRequest("Không lấy được thông tin người dùng từ Google");
+
+            // B12–B15: Kiểm tra và cập nhật hoặc tạo người dùng trong DB
+            ApiResponse<User> response = await _authenticationService.CreateOrUpdateUserByEmailAsync(email, name, avatar);
+            if (response.Status.Equals(ResponseStatus.Error))
+            {
+                return StatusCode(response.Code, response);
+            } else
+            {
+                Response.Cookies.Append("TK", response.Message, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.UtcNow.AddHours(3)
+                });
+                response.Message = "2001";
+                return StatusCode(response.Code, response);
+            }
+        }
+
 
         [HttpPost("logout")]
         public IActionResult Logout()

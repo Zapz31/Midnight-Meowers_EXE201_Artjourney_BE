@@ -1,4 +1,6 @@
 ﻿using DAOs;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -50,9 +52,9 @@ namespace Artjouney_BE
                         ),
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero
-                };
+                    };
 
-                // read token from cookie
+                    // read token from cookie
                     options.Events = new JwtBearerEvents
                     {
                         OnMessageReceived = context =>
@@ -63,6 +65,17 @@ namespace Artjouney_BE
                         }
                     };
                 });
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddGoogle(options =>
+                {
+                    options.ClientId = _configuration["Google:ClientId"];
+                    options.ClientSecret = _configuration["Google:ClientSecret"];
+                    options.CallbackPath = "/signin-google";
+            });
 
             // Repository
             services.AddScoped<IUserRepository, UserRepository>();
@@ -71,7 +84,7 @@ namespace Artjouney_BE
 
 
             // Services
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IAuthenService, AuthenService>();
             services.AddScoped<IMailSenderService, MailSenderService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();

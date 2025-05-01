@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+﻿ using BusinessObjects.Models;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -23,14 +23,20 @@ namespace Repositories.Implements
             return createdUser;
         }
 
-        public Task<User?> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
             var queryOptions = new QueryBuilder<User>()
                 .WithTracking(false)
                 .WithPredicate(u => u.Email.Equals(email))
                 .Build();
-            var foundUser = _unitOfWork.GetRepo<User>().GetSingleAsync(queryOptions);
+            var foundUser = await _unitOfWork.GetRepo<User>().GetSingleAsync(queryOptions);
             return foundUser;
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await _unitOfWork.GetRepo<User>().UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
