@@ -88,7 +88,7 @@ namespace Artjouney_BE.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-        [HttpPost("google-callback")]
+        [HttpGet("google-callback")]
         public async Task<IActionResult> GoogleCallback()
         {
             // B8: Middleware đã xác thực, lấy thông tin người dùng

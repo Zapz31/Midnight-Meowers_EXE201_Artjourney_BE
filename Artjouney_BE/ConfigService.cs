@@ -1,4 +1,5 @@
 ﻿using DAOs;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -70,10 +71,13 @@ namespace Artjouney_BE
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddGoogle(options =>
                 {
                     options.ClientId = _configuration["Google:ClientId"];
                     options.ClientSecret = _configuration["Google:ClientSecret"];
+                    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+                    options.Scope.Add("profile");
                     options.CallbackPath = "/signin-google";
             });
 

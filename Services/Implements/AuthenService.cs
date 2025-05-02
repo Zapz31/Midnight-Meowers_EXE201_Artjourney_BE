@@ -3,7 +3,6 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.User;
 using Helpers.HelperClasses;
-using Microsoft.EntityFrameworkCore;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -77,6 +76,19 @@ namespace Services.Implements
                 }
                 else
                 {
+                    // Check if this email has already registered by another user
+                    if (!string.IsNullOrWhiteSpace(user.Password))
+                    {
+                        return new ApiResponse<User>
+                        {
+                            Status = ResponseStatus.Error,
+                            Code = 404,
+                            Errors =
+                            [
+                                new ApiError {Code = 1006}
+                            ]
+                        };
+                    }
                     NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO
                     {
                         Email = email,
