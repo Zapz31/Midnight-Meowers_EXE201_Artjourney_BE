@@ -12,7 +12,7 @@ namespace Services.Interfaces
     public interface IAuthenService
     {
         Task<AuthenticationResponse?> Register(RegisterDTO registerDto);
-        Task<AuthenticationResponse?> Login(LoginDTO loginDto);
+        Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto);
         Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar);
     }
 }

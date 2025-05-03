@@ -1,6 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
-using Helpers.DTOs.User;
+using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
-using Helpers.DTOs.User;
+using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Repositories.Interfaces;
 using Services.Interfaces;

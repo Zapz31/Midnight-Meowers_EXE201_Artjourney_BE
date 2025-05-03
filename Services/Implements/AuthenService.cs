@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
-using Helpers.DTOs.User;
+using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Services.Interfaces;
 using System;
@@ -35,12 +35,23 @@ namespace Services.Implements
             };
         }
 
-        public async Task<AuthenticationResponse?> Login(LoginDTO loginDto)
+        public async Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto)
         {
             var account = await _userService.GetUserByEmailAsync(loginDto.Email);
 
             if (account == null)
-                return null;
+            {
+                return new ApiResponse<AuthenticationResponse>()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 404,
+                    Errors =
+                    [
+                        new ApiError{Code = 1007}
+                    ]
+                };
+            }
+                
 
             bool isPasswordValid = PasswordHasher.VerifyPassword(
                 loginDto.Password,
@@ -48,10 +59,46 @@ namespace Services.Implements
             );
 
             if (!isPasswordValid)
-                return null;
+            {
+                return new ApiResponse<AuthenticationResponse>()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 404,
+                    Errors =
+                    [
+                        new ApiError{Code = 1007}
+                    ]
+                };
+            }
             if (account.Status == AccountStatus.Banned)
-                return null;
-            return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
+            {
+                return new ApiResponse<AuthenticationResponse>()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 404,
+                    Errors =
+                    [
+                        new ApiError{Code = 1008}
+                    ]
+                };
+            }
+
+            string jwt = _tokenService.CreateToken(account);
+            NewUpdateUserDTO user = new(account);
+            AuthenticationResponse data = new AuthenticationResponse()
+            {
+                Token = jwt,
+                UserDTO = user
+            };
+
+
+            return new ApiResponse<AuthenticationResponse>()
+            { 
+                Status = ResponseStatus.Success,
+                Code = 200,
+                Data = data,
+                Message = "2001"
+            };
         }
 
         public async Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar)

@@ -59,12 +59,12 @@ namespace Artjouney_BE.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var token = await _authenticationService.Login(loginDto);
-            if (token == null)
+            ApiResponse<AuthenticationResponse> response = await _authenticationService.Login(loginDto);
+            if (response.Status.Equals(ResponseStatus.Error))
             {
-                return Unauthorized("Email, password incorrect or account is banned");
+                return StatusCode(response.Code, response);
             }
-            Response.Cookies.Append("TK", token.Token, new CookieOptions
+            Response.Cookies.Append("TK", response.Data.Token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
@@ -72,7 +72,7 @@ namespace Artjouney_BE.Controllers
                 Expires = DateTime.UtcNow.AddHours(3)
             });
 
-            return Ok(new { message = "Login successful" });
+            return StatusCode(response.Code, response);
         }
 
         [HttpGet("google-signin")]
@@ -123,7 +123,8 @@ namespace Artjouney_BE.Controllers
                     Expires = DateTime.UtcNow.AddHours(3)
                 });
                 response.Message = "2001";
-                return StatusCode(response.Code, response);
+                //return StatusCode(response.Code, response);
+                return Redirect("http://localhost:5173/");
             }
         }
 
