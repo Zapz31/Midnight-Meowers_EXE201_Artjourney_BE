@@ -48,6 +48,44 @@ namespace Services.Implements
             return foundUser;
         }
 
+        public async Task<ApiResponse<NewUpdateUserDTO?>> GetUserByIDAsynce(long userId)
+        {
+            try
+            {
+                var founduser = await _userRepository.GetUserByIDAsync(userId);
+                if (founduser == null)
+                {
+                    return new ApiResponse<NewUpdateUserDTO?>()
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 404,
+                        Errors =
+                        [
+                            new ApiError{Code = 1009}
+                        ]
+                    };
+                }
+                NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO(founduser);
+                return new ApiResponse<NewUpdateUserDTO?>()
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = newUpdateUserDTO,
+                    Message = "2002"
+                };
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new ApiResponse<NewUpdateUserDTO?>() 
+                { 
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+            
+        }
+
         public async Task<ApiResponse<User>> UpdateUserAsync(NewUpdateUserDTO newUpdateUser)
         {
             try 

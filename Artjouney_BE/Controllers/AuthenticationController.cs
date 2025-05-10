@@ -10,6 +10,9 @@ using BusinessObjects.Models;
 using BusinessObjects.Enums;
 using NuGet.Common;
 using PayPalCheckoutSdk.Orders;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Helpers.DTOs.Users;
 
 namespace Artjouney_BE.Controllers
 {
@@ -69,7 +72,7 @@ namespace Artjouney_BE.Controllers
                 HttpOnly = true,
                 Secure = false,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddHours(3)
+                Expires = DateTime.UtcNow.AddDays(30)
             });
 
             return StatusCode(response.Code, response);
@@ -112,7 +115,7 @@ namespace Artjouney_BE.Controllers
             ApiResponse<User> response = await _authenticationService.CreateOrUpdateUserByEmailAsync(email, name, avatar);
             if (response.Status.Equals(ResponseStatus.Error))
             {
-                return StatusCode(response.Code, response);
+                return Redirect("http://localhost:5173/signin?issignin=false&errormsg=1006");
             } else
             {
                 Response.Cookies.Append("TK", response.Message, new CookieOptions
@@ -120,11 +123,11 @@ namespace Artjouney_BE.Controllers
                     HttpOnly = true,
                     Secure = false,
                     SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddHours(3)
+                    Expires = DateTime.UtcNow.AddDays(30)
                 });
                 response.Message = "2001";
                 //return StatusCode(response.Code, response);
-                return Redirect("http://localhost:5173/");
+                return Redirect("http://localhost:5173?issignin=true");
             }
         }
 
@@ -163,9 +166,11 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpGet("check-cookie-middleware")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult CheckCookieMidd()
         {
             var cookieEmail = _currentUserService.Email;
+            var cookieId = _currentUserService.AccountId;
             
             if (string.IsNullOrEmpty(cookieEmail))
             {
@@ -179,9 +184,31 @@ namespace Artjouney_BE.Controllers
             return Ok(new
             {
                 Message = "Check cookie throw middleware success !!!",
-                Email = cookieEmail
+                Email = cookieEmail,
+                CookieId = cookieId
             });
         }
 
+        [HttpGet("protected")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult ProtectedEndpoint()
+        {
+            // Chỉ người dùng có token hợp lệ mới có thể truy cập endpoint này
+            return Ok(new { message = "Xin chào người dùng đã xác thực!" });
+        }
+
+        [HttpGet("me")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserByIDAuthAsync()
+        {
+            var userId = _currentUserService.AccountId;
+
+            ApiResponse<NewUpdateUserDTO?> response = await _authenticationService.getUserByIdAuthAsync(userId);
+            if (response.Status.Equals(ResponseStatus.Error))
+            {
+                return StatusCode(response.Code, response);
+            }
+            return StatusCode(response.Code, response);
+        }
     }
 }

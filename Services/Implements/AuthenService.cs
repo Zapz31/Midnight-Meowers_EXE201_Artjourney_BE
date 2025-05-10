@@ -101,6 +101,12 @@ namespace Services.Implements
             };
         }
 
+        public async Task<ApiResponse<NewUpdateUserDTO?>> getUserByIdAuthAsync(long userId)
+        {
+            ApiResponse<NewUpdateUserDTO?> response = await _userService.GetUserByIDAsynce(userId);
+            return response;
+        }
+
         public async Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar)
         {
             try
@@ -177,6 +183,8 @@ namespace Services.Implements
                     ]
                 };
             }
+
+
         }
 
     }

@@ -15,7 +15,7 @@ if (app.Environment.IsDevelopment())
         builder.AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials()
-               .WithOrigins("http://localhost:5173"));
+               .WithOrigins("http://localhost:5173", "http://localhost:8080"));
 }
 
 app.UseHttpsRedirection();

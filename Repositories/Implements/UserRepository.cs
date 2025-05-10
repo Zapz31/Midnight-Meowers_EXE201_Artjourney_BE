@@ -33,6 +33,16 @@ namespace Repositories.Implements
             return foundUser;
         }
 
+        public async Task<User?> GetUserByIDAsync(long userId)
+        {
+            var queryOptions = new QueryBuilder<User>()
+                .WithTracking(false)
+                .WithPredicate(u => u.UserId == userId)
+                .Build();
+            var foundUser = await _unitOfWork.GetRepo<User>().GetSingleAsync(queryOptions);
+            return foundUser;
+        }
+
         public async Task UpdateUserAsync(User user)
         {
             await _unitOfWork.GetRepo<User>().UpdateAsync(user);

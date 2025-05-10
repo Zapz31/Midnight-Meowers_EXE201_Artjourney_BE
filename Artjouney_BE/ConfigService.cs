@@ -38,48 +38,59 @@ namespace Artjouney_BE
             services.AddHttpContextAccessor();
 
             // Add jwt authentication
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = _configuration["JWT:Issuer"],
-                        ValidateAudience = true,
-                        ValidAudience = _configuration["JWT:Audience"],
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"] ?? "Error when getting JWT SigningKey")
-                        ),
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero
-                    };
-
-                    // read token from cookie
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
-                        {
-                            // Tên của cookie chứa JWT token
-                            context.Token = context.Request.Cookies["TK"];
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddGoogle(options =>
-                {
-                    options.ClientId = _configuration["Google:ClientId"];
-                    options.ClientSecret = _configuration["Google:ClientSecret"];
-                    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                    options.Scope.Add("profile");
-                    options.CallbackPath = "/signin-google";
-            });
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = _configuration["JWT:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = _configuration["JWT:Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"] ?? "Error when getting JWT SigningKey")
+        ),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["TK"]; // Lấy token từ cookie
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            {
+                context.Response.Headers.Add("Token-Expired", "true");
+                // Thêm xử lý cho token hết hạn
+                //context.Response.StatusCode = 401; // Unauthorized
+                //context.Response.ContentType = "application/json";
+                //var result = System.Text.Json.JsonSerializer.Serialize(new { message = "Token đã hết hạn" });
+                //context.Response.WriteAsync(result);
+            }
+            return Task.CompletedTask;
+        }
+    };
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+{
+    options.ClientId = _configuration["Google:ClientId"];
+    options.ClientSecret = _configuration["Google:ClientSecret"];
+    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+    options.Scope.Add("profile");
+    options.CallbackPath = "/signin-google";
+});
 
             // Repository
             services.AddScoped<IUserRepository, UserRepository>();

@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
+using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace Services.Interfaces
         Task<AuthenticationResponse?> Register(RegisterDTO registerDto);
         Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto);
         Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar);
+        Task<ApiResponse<NewUpdateUserDTO?>> getUserByIdAuthAsync(long userId);
     }
 }
