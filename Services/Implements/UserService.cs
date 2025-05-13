@@ -16,10 +16,15 @@ namespace Services.Implements
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ILoginHistoryRepository _loginHistoryRepository;
         public UserService(
-            IUserRepository userRepository) 
+                IUserRepository userRepository,
+                ILoginHistoryRepository loginHistoryRepository
+            )
+        
         {
             _userRepository = userRepository;
+            _loginHistoryRepository = loginHistoryRepository;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -66,6 +71,7 @@ namespace Services.Implements
                     };
                 }
                 NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO(founduser);
+                newUpdateUserDTO.LoginCount = await _loginHistoryRepository.GetMaxLoginHistoryIdAsync();
                 return new ApiResponse<NewUpdateUserDTO?>()
                 {
                     Status = ResponseStatus.Success,
@@ -219,5 +225,7 @@ namespace Services.Implements
                 };
             }
         }
+
+        //public async Task<Boolean> 
     }
 }

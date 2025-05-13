@@ -102,4 +102,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         }
         return false;
     }
+
+    public async Task<TResult?> MaxAsync<TResult>(System.Linq.Expressions.Expression<Func<T, TResult>> selector)
+    {
+        return await _dbSet.MaxAsync(selector);
+    }
 }

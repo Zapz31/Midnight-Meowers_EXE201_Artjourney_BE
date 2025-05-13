@@ -16,10 +16,12 @@ namespace Services.Implements
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
-        public AuthenService(IUserService userService, ITokenService tokenService) 
+        private readonly ILoginHistoryService _loginHistoryService;
+        public AuthenService(IUserService userService, ITokenService tokenService, ILoginHistoryService loginHistoryService) 
         {
             _userService = userService;
             _tokenService = tokenService;
+            _loginHistoryService = loginHistoryService;
         }
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
         {
@@ -35,7 +37,7 @@ namespace Services.Implements
             };
         }
 
-        public async Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto)
+        public async Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto, string ipAddress, string? userAgent)
         {
             var account = await _userService.GetUserByEmailAsync(loginDto.Email);
 
@@ -82,6 +84,18 @@ namespace Services.Implements
                     ]
                 };
             }
+            ApiResponse<long> maxLoginHistoryId = await _loginHistoryService.GetMaxLoginHistoryIdAsync();
+            LoginHistory loginHistory = new LoginHistory()
+            {
+                UserId = account.UserId,
+                LoginHistoryId = maxLoginHistoryId.Data + 1,
+                LoginTimestamp = DateTime.UtcNow,
+                IPAddress = ipAddress,
+                UserAgent = userAgent,
+                LoginResult = LoginResult.Success,
+            };
+
+            await _loginHistoryService.CreateLoginHistoryAsync( loginHistory );
 
             string jwt = _tokenService.CreateToken(account);
             NewUpdateUserDTO user = new(account);

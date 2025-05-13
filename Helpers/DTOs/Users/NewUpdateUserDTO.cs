@@ -21,6 +21,8 @@ namespace Helpers.DTOs.Users
         public DateTime? Birthday { get; set; }
         public AccountStatus? Status { get; set; }
         public string? AvatarUrl { get; set; }
+        public AccountRole? Role { get; set; }
+        public long LoginCount { get; set; }
 
         public NewUpdateUserDTO(User user) 
         {
@@ -31,6 +33,7 @@ namespace Helpers.DTOs.Users
             PhoneNumber = user.PhoneNumber;
             Birthday = user.Birthday;
             Status = user.Status;
+            Role = user.Role;
             AvatarUrl = user.AvatarUrl;
         }
 

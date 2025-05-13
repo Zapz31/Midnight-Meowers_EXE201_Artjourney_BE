@@ -62,7 +62,9 @@ namespace Artjouney_BE.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            ApiResponse<AuthenticationResponse> response = await _authenticationService.Login(loginDto);
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            string? userAgent = Request.Headers.UserAgent.ToString();
+            ApiResponse<AuthenticationResponse> response = await _authenticationService.Login(loginDto, ipAddress, userAgent);
             if (response.Status.Equals(ResponseStatus.Error))
             {
                 return StatusCode(response.Code, response);

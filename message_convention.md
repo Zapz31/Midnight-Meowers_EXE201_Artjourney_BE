@@ -8,4 +8,9 @@
 |error|404|1006|Email này đã được sử dụng bởi một tài khoản khác|
 |error|404|1007|Email hoặc password không hợp lệ|
 |error|404|1008|Tài khoản của bạn đã bị ban|
+|error|404|1009|Không tìm thấy tài khoản với id này|
+|error|500|1010|Có lỗi xảy ra khi tạo LoginHistory||
+|error|500|1011|Có lỗi xảy ra khi lấy id lớn nhất trong bảng LoginHistory||
 |success|200|2001| Đăng nhập thành công | Login successful |
+|success|200|2002| Truy xuất tài khoản thành công | Account retrieved successfully |
+|success|201|2003| Tạo LoginHistory thành công | |

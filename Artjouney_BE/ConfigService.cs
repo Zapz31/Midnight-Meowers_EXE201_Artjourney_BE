@@ -96,6 +96,7 @@ namespace Artjouney_BE
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
 
 
             // Services
@@ -104,6 +105,7 @@ namespace Artjouney_BE
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ILoginHistoryService, LoginHistoryService>();
         }
     }
 }

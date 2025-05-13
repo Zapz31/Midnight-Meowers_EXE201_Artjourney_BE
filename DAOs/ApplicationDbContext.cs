@@ -20,6 +20,7 @@ namespace DAOs
 
         //table declare
         public DbSet<User> Users { get; set; }
+        public DbSet<LoginHistory> LoginHistories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

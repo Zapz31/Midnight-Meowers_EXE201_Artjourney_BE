@@ -1,4 +1,5 @@
 using Repositories.Queries;
+using System.Linq.Expressions;
 
 namespace Repositories.Interfaces
 {
@@ -13,5 +14,6 @@ namespace Repositories.Interfaces
         public Task<IEnumerable<T>> GetAllAsync(QueryOptions<T> options);
         public Task<T?> GetSingleAsync(QueryOptions<T> options);
         public Task<bool> AnyAsync(QueryOptions<T> options);
+        public Task<TResult?> MaxAsync<TResult>(Expression<Func<T, TResult>> selector);
     }
 }

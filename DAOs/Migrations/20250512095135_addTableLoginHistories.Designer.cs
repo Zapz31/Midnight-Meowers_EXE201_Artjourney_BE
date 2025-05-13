@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250512095135_addTableLoginHistories")]
+    partial class addTableLoginHistories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,46 +24,6 @@ namespace DAOs.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BusinessObjects.Models.LoginHistory", b =>
-                {
-                    b.Property<long>("LoginHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("login_history_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("LoginHistoryId"));
-
-                    b.Property<string>("IPAddress")
-                        .HasColumnType("text")
-                        .HasColumnName("ip_address");
-
-                    b.Property<string>("LoginResult")
-                        .HasColumnType("text")
-                        .HasColumnName("login_result");
-
-                    b.Property<DateTime>("LoginTimestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("login_timestamp");
-
-                    b.Property<string>("SessionId")
-                        .HasColumnType("text")
-                        .HasColumnName("session_id");
-
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("text")
-                        .HasColumnName("user_agent");
-
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("LoginHistoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("login_histories");
-                });
 
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
                 {
@@ -134,15 +97,6 @@ namespace DAOs.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.LoginHistory", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
