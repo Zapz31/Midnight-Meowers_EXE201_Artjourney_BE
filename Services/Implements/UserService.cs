@@ -71,7 +71,7 @@ namespace Services.Implements
                     };
                 }
                 NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO(founduser);
-                newUpdateUserDTO.LoginCount = await _loginHistoryRepository.GetMaxLoginHistoryIdAsync();
+                newUpdateUserDTO.LoginCount = await _loginHistoryRepository.CountLoginHistoriesByUserIdAsync(userId);
                 return new ApiResponse<NewUpdateUserDTO?>()
                 {
                     Status = ResponseStatus.Success,

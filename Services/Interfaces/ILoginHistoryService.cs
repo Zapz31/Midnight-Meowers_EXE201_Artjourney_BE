@@ -12,5 +12,7 @@ namespace Services.Interfaces
     {
         Task<ApiResponse<LoginHistory?>> CreateLoginHistoryAsync(LoginHistory loginHistory);
         Task<ApiResponse<long>> GetMaxLoginHistoryIdAsync();
+
+        Task<ApiResponse<long>> CountLoginHistoriesByUserIdAsync(long userId);
     }
 }

@@ -21,6 +21,7 @@ namespace DAOs
         //table declare
         public DbSet<User> Users { get; set; }
         public DbSet<LoginHistory> LoginHistories { get; set; }
+        public DbSet<VerificationInfo> VerificationInfos { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,6 +35,10 @@ namespace DAOs
 
             modelBuilder.Entity<User>()
                 .Property(u => u.Gender)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<LoginHistory>()
+                .Property(l => l.LoginResult)
                 .HasConversion<string>();
         }
 

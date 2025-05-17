@@ -15,6 +15,5 @@ namespace Helpers.HelperClasses
 
             return Enum.TryParse<T>(value.Trim(), ignoreCase: true, out _);
         }
-
     }
 }

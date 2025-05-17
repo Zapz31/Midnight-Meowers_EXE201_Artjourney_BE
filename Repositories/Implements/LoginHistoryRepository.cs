@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,26 @@ namespace Repositories.Implements
 
         public async Task<long> GetMaxLoginHistoryIdAsync()
         {
+            var queryOptions = new QueryBuilder<LoginHistory>()
+                .WithPredicate(lh => lh.UserId != null)   
+                .WithTracking(false)                      
+                .Build();
             var maxId = await _unitOfWork.GetRepo<LoginHistory>()
-                .MaxAsync(lh => (long?)lh.LoginHistoryId);
+                .MaxAsync(queryOptions, lh => (long?)lh.LoginHistoryId);
 
             return maxId ?? 0;
         }
+
+        public async Task<long> CountLoginHistoriesByUserIdAsync(long userId)
+        {
+            var queryOptions = new QueryBuilder<LoginHistory>()
+                .WithTracking(false)
+                .WithPredicate(lh => lh.UserId == userId)
+                .Build();
+
+            var count = await _unitOfWork.GetRepo<LoginHistory>()
+                .CountAsync(queryOptions);
+            return count;
+        } 
     }
 }

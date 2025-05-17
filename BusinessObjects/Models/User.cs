@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using System.Collections;
 
 namespace BusinessObjects.Models
 {
@@ -55,8 +56,14 @@ namespace BusinessObjects.Models
         [Column("status")]
         public AccountStatus Status { get; set; } = AccountStatus.Pending;  // enum → string
 
+        [Column("is_surveyed")]
+        public bool IsSurveyed { get; set; } = false;
+
         [Column("updated_at")]
         public DateTime? UpdatedAt { get; set; }
+
+        //navigate properties
+        public virtual ICollection<LoginHistory> LoginHistories { get; set; } = new List<LoginHistory>();
 
     }
 }

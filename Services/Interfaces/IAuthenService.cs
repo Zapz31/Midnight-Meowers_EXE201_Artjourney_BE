@@ -16,5 +16,8 @@ namespace Services.Interfaces
         Task<ApiResponse<AuthenticationResponse>> Login(LoginDTO loginDto, string ipAddress, string? userAgent);
         Task<ApiResponse<User>> CreateOrUpdateUserByEmailAsync(string email, string? name, string? avatar);
         Task<ApiResponse<NewUpdateUserDTO?>> getUserByIdAuthAsync(long userId);
+        Task<ApiResponse<int>> TestDeleteVerificationInfosByEmail(string email);
+        public Task<ApiResponse<string>> SendVerificationEmail();
+        public Task<ApiResponse<string>> VerifyEmail(string token);
     }
 }

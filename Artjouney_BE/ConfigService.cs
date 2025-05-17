@@ -97,7 +97,7 @@ namespace Artjouney_BE
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
-
+            services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();

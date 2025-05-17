@@ -2,6 +2,7 @@ using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
+using System.Linq.Expressions;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
@@ -103,8 +104,59 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return false;
     }
 
-    public async Task<TResult?> MaxAsync<TResult>(System.Linq.Expressions.Expression<Func<T, TResult>> selector)
+    public async Task<TResult?> MaxAsync<TResult>(QueryOptions<T> options, Expression<Func<T, TResult>> selector)
     {
-        return await _dbSet.MaxAsync(selector);
+        var query = Get(options); 
+        return await query.MaxAsync(selector);
+    }
+
+    public async Task<TResult?> MinAsync<TResult>(QueryOptions<T> options, Expression<Func<T, TResult>> selector)
+    {
+        var query = Get(options);
+        return await query.MaxAsync(selector);
+    }
+
+    public async Task<int> CountAsync(QueryOptions<T> options)
+    {
+        var query = Get(options);
+        return await query.CountAsync();
+    }
+
+    public async Task<decimal?> SumAsync(Expression<Func<T, decimal?>> selector)
+    {
+        return await _dbSet.SumAsync(selector);
+    }
+
+    public async Task<double?> SumAsync(Expression<Func<T, double?>> selector)
+    {
+        return await _dbSet.SumAsync(selector);
+    }
+
+    public async Task<int?> SumAsync(Expression<Func<T, int?>> selector)
+    {
+        return await _dbSet.SumAsync(selector);
+    }
+
+    public async Task<long?> SumAsync(Expression<Func<T, long?>> selector)
+    {
+        return await _dbSet.SumAsync(selector);
+    }
+
+    public async Task<int> ExecuteDeleteAsync(QueryOptions<T> options)
+    {
+        if (options == null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
+        if (options.Predicate == null)
+        {
+            throw new ArgumentNullException(nameof(options.Predicate),
+                "Predicate cannot null");
+        }
+
+        IQueryable<T> query = _dbSet;
+        query = query.Where(options.Predicate);
+        return await query.ExecuteDeleteAsync();
     }
 }

@@ -427,7 +427,7 @@ namespace Services.Implements
         {
             try
             {
-                string url = $"{_config["ClientUrl"]}/authentication/verify-gmail?token={token}";
+                string url = $"{_config["ClientUrl"]}/authentication/verify-email?v={token}";
                 var message = new MailMessage()
                 {
                     From = new MailAddress(_config["Mail:Address"], _config["Mail:DisplayName"]),

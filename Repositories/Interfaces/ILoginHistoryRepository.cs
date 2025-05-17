@@ -10,7 +10,7 @@ namespace Repositories.Interfaces
     public interface ILoginHistoryRepository
     {
         Task<LoginHistory> CreateLoginHistory(LoginHistory loginHistory);
-
         public Task<long> GetMaxLoginHistoryIdAsync();
+        public Task<long> CountLoginHistoriesByUserIdAsync(long userId);
     }
 }

@@ -18,6 +18,35 @@ namespace Services.Implements
         {
             _loginHistoryRepository = loginHistoryRepository;
         }
+
+        public async Task<ApiResponse<long>> CountLoginHistoriesByUserIdAsync(long userId)
+        {
+            try
+            {
+                var count = await _loginHistoryRepository.CountLoginHistoriesByUserIdAsync(userId);
+                ApiResponse<long> response = new()
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = count
+                };
+                return response;
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                ApiResponse<long> response = new()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Errors =
+                    [
+                        new ApiError{ Code = 1012}
+                    ]
+                };
+                return response;
+            }
+        }
+
         public async Task<ApiResponse<LoginHistory?>> CreateLoginHistoryAsync(LoginHistory loginHistory)
         {
             try

@@ -11,6 +11,13 @@
 |error|404|1009|Không tìm thấy tài khoản với id này|
 |error|500|1010|Có lỗi xảy ra khi tạo LoginHistory||
 |error|500|1011|Có lỗi xảy ra khi lấy id lớn nhất trong bảng LoginHistory||
+|error|500|1012|Có lỗi xảy ra khi đếm số record trong bảng LoginHistory theo field userId||
+|error|404|1013|Tài khoản này đã được xác thực trước đó||
+|error|404|1014|Thời hạn xác thực email đã hết hạn hoặc thông tin xác thực không hợp lệ||
+|error|500|1015|Có lỗi xảy ra trong quá trình xác thực email người dùng||
+|error|500|1014|Gửi email thất bại||
+
 |success|200|2001| Đăng nhập thành công | Login successful |
 |success|200|2002| Truy xuất tài khoản thành công | Account retrieved successfully |
 |success|201|2003| Tạo LoginHistory thành công | |
+|success|201|2004| Xác thực email người dùng thành công | |

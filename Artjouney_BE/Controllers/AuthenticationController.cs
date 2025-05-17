@@ -117,7 +117,7 @@ namespace Artjouney_BE.Controllers
             ApiResponse<User> response = await _authenticationService.CreateOrUpdateUserByEmailAsync(email, name, avatar);
             if (response.Status.Equals(ResponseStatus.Error))
             {
-                return Redirect("http://localhost:5173/signin?issignin=false&errormsg=1006");
+                return Redirect("http://localhost:5173/signin-google?issignin=false&errormsg=1006");
             } else
             {
                 Response.Cookies.Append("TK", response.Message, new CookieOptions
@@ -129,7 +129,7 @@ namespace Artjouney_BE.Controllers
                 });
                 response.Message = "2001";
                 //return StatusCode(response.Code, response);
-                return Redirect("http://localhost:5173?issignin=true");
+                return Redirect("http://localhost:5173/signin-google?issignin=true");
             }
         }
 
@@ -212,5 +212,23 @@ namespace Artjouney_BE.Controllers
             }
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("email-verification")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> SendVerificationEmail()
+        {
+            //ApiResponse<int> response = await _authenticationService.TestDeleteVerificationInfosByEmail(newUpdateUserDTO.Email);
+            ApiResponse<string> response = await _authenticationService.SendVerificationEmail();
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string v)
+        {
+            ApiResponse<string> response = await _authenticationService.VerifyEmail(v);
+            return StatusCode(response.Code, response);
+
+        }
+
     }
 }
