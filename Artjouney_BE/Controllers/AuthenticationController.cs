@@ -45,15 +45,8 @@ namespace Artjouney_BE.Controllers
             if (verifyGmailToken == null)
             {
                 return Unauthorized("Email already be used");
-            }
-            var result = _mailSender.SendVerifyEmail(
-                registerDto.Email,
-                string.Empty,
-                verifyGmailToken.Token,
-                "[ArtJourney] – Email verification"
-            );
-
-            return Ok(result);
+            }     
+            return Ok();
         }
 
         [HttpPost("sign-in")]

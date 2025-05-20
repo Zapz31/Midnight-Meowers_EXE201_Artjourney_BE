@@ -263,7 +263,7 @@ namespace Services.Implements
 
                 //generate token and expire time
                 var token = Uuid.NewRandom().ToString();
-                var expiresAt = DateTime.UtcNow.AddMinutes(1);
+                var expiresAt = DateTime.UtcNow.AddMinutes(17);
                 VerificationInfo verificationInfo = new()
                 {
                     Token = token,
