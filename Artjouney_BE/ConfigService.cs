@@ -10,6 +10,7 @@ using Repositories.Interfaces;
 using Services.Implements;
 using Services.Interfaces;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Artjouney_BE
 {
@@ -25,8 +26,12 @@ namespace Artjouney_BE
         public void ConfigureServices(IServiceCollection services)
         {
             // Add services to the container.
-
-            services.AddControllers();
+            // Ignore Cycles when converting Json objects which has foreign key
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -90,6 +95,7 @@ namespace Artjouney_BE
     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
     options.Scope.Add("profile");
     options.CallbackPath = "/signin-google";
+    options.BackchannelTimeout = TimeSpan.FromSeconds(60);
 });
 
             // Repository

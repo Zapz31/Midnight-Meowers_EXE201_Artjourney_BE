@@ -247,7 +247,7 @@ namespace Services.Implements
                     ApiResponse<string> errorStatusResponse = new()
                     {
                         Status = ResponseStatus.Error,
-                        Code = 404,
+                        Code = 400,
                         Data = null,
                         Errors = 
                             [

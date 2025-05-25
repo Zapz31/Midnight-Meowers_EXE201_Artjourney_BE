@@ -86,7 +86,7 @@ namespace Artjouney_BE.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("google-callback")]
+        [HttpGet("signin-google")]
         public async Task<IActionResult> GoogleCallback()
         {
             // B8: Middleware đã xác thực, lấy thông tin người dùng
@@ -115,7 +115,7 @@ namespace Artjouney_BE.Controllers
             {
                 Response.Cookies.Append("TK", response.Message, new CookieOptions
                 {
-                    HttpOnly = true,
+                    HttpOnly = false,
                     Secure = false,
                     SameSite = SameSiteMode.Lax,
                     Expires = DateTime.UtcNow.AddDays(30)
@@ -194,6 +194,7 @@ namespace Artjouney_BE.Controllers
 
         [HttpGet("me")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> GetUserByIDAuthAsync()
         {
             var userId = _currentUserService.AccountId;

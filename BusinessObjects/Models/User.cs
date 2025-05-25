@@ -65,5 +65,38 @@ namespace BusinessObjects.Models
         //navigate properties
         public virtual ICollection<LoginHistory> LoginHistories { get; set; } = new List<LoginHistory>();
 
+        [InverseProperty("CreatedByUser")]
+        public virtual ICollection<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<UserOptionChoice> UserOptionChoices { get; set; } = new List<UserOptionChoice>();
+
+        [InverseProperty("CreatedUser")]
+        public virtual ICollection<Region> CreatedRegions { get; set; } = new List<Region>();
+
+        [InverseProperty("CreatedUser")]
+        public virtual ICollection<HistoricalPeriod> CreatedHistoricalPeriods { get; set; } = new List<HistoricalPeriod>();
+
+        [InverseProperty("CreatedCourseUser")]
+        public virtual ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<UserCourseInfo> UserCourseInfos { get; set; } = new List<UserCourseInfo>();
+
+        [InverseProperty("UserPremium")]
+        public virtual ICollection<UserPremiumInfo> UserPremiumInfos { get; set; } = new List<UserPremiumInfo>();
+
+        [InverseProperty("ModuleCreator")]
+        public virtual ICollection<Module> Modules { get; set; } = new List<Module>();
+
+        [InverseProperty("ModuleUser")]
+        public virtual ICollection<UserModuleInfo> UserModuleInfos { get; set; } = new List<UserModuleInfo>();
+
+        [InverseProperty("LearningContentCreator")]
+        public virtual ICollection<LearningContent> LearningContents { get; set; } = new List<LearningContent>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<UserLearningProgress> UserLearningProgresses { get; set; } = new List<UserLearningProgress>();
+
     }
 }

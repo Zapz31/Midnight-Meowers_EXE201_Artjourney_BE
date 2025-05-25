@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250524141139_AddSubModulesTable")]
+    partial class AddSubModulesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,46 +24,6 @@ namespace DAOs.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BusinessObjects.Models.ChallengeItem", b =>
-                {
-                    b.Property<long>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("challenge_item_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("UserId"));
-
-                    b.Property<string>("AdditionalData")
-                        .HasColumnType("text")
-                        .HasColumnName("additional_data");
-
-                    b.Property<string>("Hint")
-                        .HasColumnType("text")
-                        .HasColumnName("hint");
-
-                    b.Property<string>("ItemContent")
-                        .HasColumnType("text")
-                        .HasColumnName("item_content");
-
-                    b.Property<int?>("ItemOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("item_order");
-
-                    b.Property<string>("ItemTypes")
-                        .HasColumnType("text")
-                        .HasColumnName("item_type");
-
-                    b.Property<long>("LearningContentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("learning_content_id");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("LearningContentId");
-
-                    b.ToTable("challenge_items");
-                });
 
             modelBuilder.Entity("BusinessObjects.Models.Course", b =>
                 {
@@ -236,76 +199,6 @@ namespace DAOs.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.ToTable("historical_periods");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
-                {
-                    b.Property<long>("LearningContentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("learning_content_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("LearningContentId"));
-
-                    b.Property<string>("ChallengeType")
-                        .HasColumnType("text")
-                        .HasColumnName("challenge_type");
-
-                    b.Property<decimal?>("CompleteCriteria")
-                        .HasColumnType("decimal(4,1)")
-                        .HasColumnName("complete_criteria");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<string>("ContentType")
-                        .HasColumnType("text")
-                        .HasColumnName("content_type");
-
-                    b.Property<string>("CorrectAnswer")
-                        .HasColumnType("text")
-                        .HasColumnName("correct_answer");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CreatedBy")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("display_order");
-
-                    b.Property<int>("LikesCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("likes_count");
-
-                    b.Property<long>("SubModuleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("sub_module_id");
-
-                    b.Property<TimeSpan?>("TimeLimit")
-                        .HasColumnType("interval")
-                        .HasColumnName("time_limit");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text")
-                        .HasColumnName("title");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("LearningContentId");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("SubModuleId");
-
-                    b.ToTable("learning_contents");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.LoginHistory", b =>
@@ -710,61 +603,6 @@ namespace DAOs.Migrations
                     b.ToTable("user_course_infos");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.UserLearningProgress", b =>
-                {
-                    b.Property<long>("ProgressId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("progress_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ProgressId"));
-
-                    b.Property<int>("Attempts")
-                        .HasColumnType("integer")
-                        .HasColumnName("attempts");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("LastAttemptAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_attempt_at");
-
-                    b.Property<long>("LearningContentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("learning_content_id");
-
-                    b.Property<decimal>("Score")
-                        .HasColumnType("decimal(4,1)")
-                        .HasColumnName("score");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("ProgressId");
-
-                    b.HasIndex("LearningContentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("user_learning_progresses");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.UserModuleInfo", b =>
                 {
                     b.Property<long>("InfoId")
@@ -903,17 +741,6 @@ namespace DAOs.Migrations
                     b.ToTable("verification_info");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.ChallengeItem", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.LearningContent", "LearningContent")
-                        .WithMany("ChallengeItems")
-                        .HasForeignKey("LearningContentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("LearningContent");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Course", b =>
                 {
                     b.HasOne("BusinessObjects.Models.User", "CreatedCourseUser")
@@ -950,25 +777,6 @@ namespace DAOs.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedUser");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.User", "LearningContentCreator")
-                        .WithMany("LearningContents")
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.SubModule", "ContentSubModule")
-                        .WithMany("LearningContents")
-                        .HasForeignKey("SubModuleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("ContentSubModule");
-
-                    b.Navigation("LearningContentCreator");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.LoginHistory", b =>
@@ -1062,25 +870,6 @@ namespace DAOs.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.UserLearningProgress", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.LearningContent", "LearningContent")
-                        .WithMany("UserLearningProgresses")
-                        .HasForeignKey("LearningContentId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany("UserLearningProgresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("LearningContent");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.UserModuleInfo", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Module", "Module")
@@ -1142,13 +931,6 @@ namespace DAOs.Migrations
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
-                {
-                    b.Navigation("ChallengeItems");
-
-                    b.Navigation("UserLearningProgresses");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Module", b =>
                 {
                     b.Navigation("SubModules");
@@ -1159,11 +941,6 @@ namespace DAOs.Migrations
             modelBuilder.Entity("BusinessObjects.Models.Region", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.SubModule", b =>
-                {
-                    b.Navigation("LearningContents");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SurveyOption", b =>
@@ -1184,8 +961,6 @@ namespace DAOs.Migrations
 
                     b.Navigation("CreatedRegions");
 
-                    b.Navigation("LearningContents");
-
                     b.Navigation("LoginHistories");
 
                     b.Navigation("Modules");
@@ -1193,8 +968,6 @@ namespace DAOs.Migrations
                     b.Navigation("SurveyQuestions");
 
                     b.Navigation("UserCourseInfos");
-
-                    b.Navigation("UserLearningProgresses");
 
                     b.Navigation("UserModuleInfos");
 

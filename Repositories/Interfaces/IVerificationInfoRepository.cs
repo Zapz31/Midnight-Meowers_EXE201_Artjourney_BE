@@ -11,6 +11,6 @@ namespace Repositories.Interfaces
     {
         public Task<int> DeleteVerificationInfosByEmail(string email);
         public Task<VerificationInfo> CreateVerificationInfo(VerificationInfo verificationInfo);
-        public Task<VerificationInfo?> GetVerificationInfoByEmail(string email);
+        public Task<VerificationInfo?> GetVerificationInfoByEmail(string token);
     }
 }
