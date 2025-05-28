@@ -23,11 +23,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    //app.UseCors(builder =>
-    //    builder.AllowAnyMethod()
-    //           .AllowAnyHeader()
-    //           .AllowCredentials()
-    //           .WithOrigins("http://localhost:5173", "http://localhost:8080"));
 }
 
 app.UseCors("CorsPolicy");

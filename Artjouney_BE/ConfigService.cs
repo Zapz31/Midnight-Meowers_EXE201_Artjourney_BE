@@ -1,10 +1,12 @@
 ﻿using DAOs;
+using Helpers.BackgroundService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Minio;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Implements;
@@ -97,6 +99,19 @@ namespace Artjouney_BE
     options.CallbackPath = "/signin-google";
     options.BackchannelTimeout = TimeSpan.FromSeconds(60);
 });
+            // minio setting
+            services.AddSingleton<IMinioClient>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                return new MinioClient()
+                    .WithEndpoint(config["MinIO:Endpoint"])
+                    .WithCredentials(config["MinIO:AccessKey"], config["MinIO:SecretKey"])
+                    .WithSSL(false) // Set to true if using HTTPS
+                    .Build();
+            });
+
+            // hosted service
+            services.AddHostedService<MinioBucketInitializer>();
 
             // Repository
             services.AddScoped<IUserRepository, UserRepository>();
@@ -112,6 +127,8 @@ namespace Artjouney_BE
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ILoginHistoryService, LoginHistoryService>();
+            services.AddScoped<IMinioService, MinioService>();
+            services.AddScoped<IFileHandlerService, FileHandlerService>();
         }
     }
 }
