@@ -46,5 +46,7 @@ namespace Artjouney_BE.Controllers
             apiResponse.Data = r;
             return StatusCode(apiResponse.Code, apiResponse);
         }
+
+
     }
 }

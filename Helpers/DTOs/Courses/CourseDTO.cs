@@ -13,6 +13,9 @@ namespace Helpers.DTOs.Courses
         [Display(Name = "title")]
         public string Title { get; set; } = string.Empty;
 
+        [Display(Name = "thumbnail_url")]
+        public string? ThumbnailUrl { get; set; }
+
         [Display(Name = "description")]
         public string? Description { get; set; }
 

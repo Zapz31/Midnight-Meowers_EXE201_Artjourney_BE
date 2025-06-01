@@ -3,6 +3,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
+using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -25,11 +26,15 @@ namespace Services.Implements
         private readonly IVerificationInfoRepository _verificationInfoRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMailSenderService _mailSender;
+        private readonly ILogger<AuthenService> _logger;
         public AuthenService(IUserService userService,
             ITokenService tokenService,
             ILoginHistoryService loginHistoryService,
             IVerificationInfoRepository verificationInfoRepository,
-            ICurrentUserService currentUserService, IMailSenderService mailSender) 
+            ICurrentUserService currentUserService, 
+            IMailSenderService mailSender,
+            ILogger<AuthenService> logger
+            )
         {
             _userService = userService;
             _tokenService = tokenService;
@@ -37,6 +42,7 @@ namespace Services.Implements
             _verificationInfoRepository = verificationInfoRepository;
             _currentUserService = currentUserService;
             _mailSender = mailSender;
+            _logger = logger;
         }
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
         {
@@ -140,27 +146,38 @@ namespace Services.Implements
         {
             try
             {
+                _logger.LogInformation("Đã vào hàm CreateOrUpdateUserByEmailAsync với Email={Email}, name = {Name}, avatar = {Avatar}", email, name, avatar);
                 ApiResponse<User> response = new()
                 {
                     Status = ResponseStatus.Success,
                     Code = 200,
                 };
+                _logger.LogInformation("1. Go to GetUserByEmailAsync function with parameter email: email={Email}", email);
                 var user = await _userService.GetUserByEmailAsync(email);
                 if (user == null)
                 {
+                    _logger.LogInformation("1.1.1 Sau khi thực hiện call _userService.GetUserByEmailAsync() thì user = null");
                     user = new User
                     {
                         Email = email,
                         Fullname = name ?? "",
                         AvatarUrl = avatar ?? ""
                     };
+                    _logger.LogInformation("1.1.2 Thực hiện tạo user mới chưa có trong hệ thống _userService.CreateCompleteAccount");
                     response.Data = await _userService.CreateCompleteAccount(user); // B13: Tạo mới người dùng
+                    if (response.Data  == null)
+                    {
+                        _logger.LogError("Hàm _userService.CreateCompleteAccount(user) sau khi tạo user thì không trả về user này");
+                    }
                 }
                 else
                 {
+                    _logger.LogInformation("1.2. Đã tìm thấy user ở (1) trong hàm _userService.GetUserByEmailAsync(email) với email={Email}", email);
+                    _logger.LogInformation("1.2.1 Kiểm tra tài khoản này đã được tạo trên hệ thống trước đó hay chưa");
                     // Check if this email has already registered by another user
                     if (!string.IsNullOrWhiteSpace(user.Password))
                     {
+                        _logger.LogError("Email này đã được tạo bằng system account trước đó, email={Email}", email);
                         return new ApiResponse<User>
                         {
                             Status = ResponseStatus.Error,
@@ -171,22 +188,30 @@ namespace Services.Implements
                             ]
                         };
                     }
+                    
                     NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO
                     {
                         Email = email,
                         FullName = name,
                         AvatarUrl = avatar
                     };
+                    _logger.LogInformation("1.2.2 gg account đã được tạo trước đó, tiến hành cập nhật thông tin nếu có thay đổi");
                     ApiResponse<User> updatedUserResponse = await _userService.UpdateUserAsync(newUpdateUserDTO);
                     if (updatedUserResponse.Status.Equals(ResponseStatus.Error))
                     {
+                        _logger.LogInformation("1.2.3 Error trong quá trình _userService.UpdateUserAsync(newUpdateUserDTO)");
                         return updatedUserResponse;
+                    }
+                    if (updatedUserResponse.Data == null)
+                    {
+                        _logger.LogInformation("_userService.UpdateUserAsync(newUpdateUserDTO); thành công nhưng không trả về đối tượng User (updatedUserResponse.Data == null)");
                     }
                     response.Data = updatedUserResponse.Data;
                 }
 
                 if (response.Data == null)
                 {
+                    _logger.LogError("Cập nhật hoặc tạo user thành công nhưng không trả về (Login bằng gmail)");
                     response.Status = ResponseStatus.Error;
                     response.Code = 500;
                     response.Errors =
@@ -197,6 +222,7 @@ namespace Services.Implements
                     return response;
                 }
 
+                _logger.LogInformation("Thực hiện _loginHistoryService.GetMaxLoginHistoryIdAsync();");
                 ApiResponse<long> maxLoginHistoryId = await _loginHistoryService.GetMaxLoginHistoryIdAsync();
                 LoginHistory loginHistory = new LoginHistory()
                 {
@@ -205,13 +231,17 @@ namespace Services.Implements
                     LoginTimestamp = DateTime.UtcNow,                   
                     LoginResult = LoginResult.Success,
                 };
+                _logger.LogInformation("Thực hiện _loginHistoryService.CreateLoginHistoryAsync(loginHistory)");
                 await _loginHistoryService.CreateLoginHistoryAsync(loginHistory);
 
                 response.Message = _tokenService.CreateToken(response.Data);
+
+                _logger.LogInformation("Chuyển hướng lên contronller");
                 return response;
             }
             catch (Exception ex)
             {
+                _logger.LogError("CreateOrUpdateUserByEmailAsync has 500 error: {Exmess}", ex.Message);
                 return new ApiResponse<User> 
                 {
                     Status = ResponseStatus.Error,

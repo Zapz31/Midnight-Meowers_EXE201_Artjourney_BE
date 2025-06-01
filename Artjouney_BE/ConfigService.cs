@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Minio;
@@ -48,6 +49,7 @@ namespace Artjouney_BE
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
@@ -89,15 +91,24 @@ namespace Artjouney_BE
         }
     };
 })
+//.AddCookie("ExternalCookies", options =>
+//{
+//    options.Cookie.Name = ".AspNetCore.External";
+//    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+//})
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
+    //options.SignInScheme = "ExternalCookies";
     options.ClientId = _configuration["Google:ClientId"];
     options.ClientSecret = _configuration["Google:ClientSecret"];
     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
     options.Scope.Add("profile");
     options.CallbackPath = "/signin-google";
     options.BackchannelTimeout = TimeSpan.FromSeconds(60);
+    //options.CorrelationCookie.Path = "/";
+    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
             // minio setting
             services.AddSingleton<IMinioClient>(sp =>
@@ -119,6 +130,8 @@ namespace Artjouney_BE
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
             services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IHistoricalPeriodRepository, HistoricalPeriodRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
@@ -129,6 +142,16 @@ namespace Artjouney_BE
             services.AddScoped<ILoginHistoryService, LoginHistoryService>();
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFileHandlerService, FileHandlerService>();
+            services.AddScoped<IHistoricalPeriodService, HistoricalPeriodService>();
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                                          ForwardedHeaders.XForwardedProto |
+                                          ForwardedHeaders.XForwardedHost;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear(); // Tin tưởng tất cả proxy
+            });
         }
     }
 }

@@ -13,6 +13,7 @@ using PayPalCheckoutSdk.Orders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Helpers.DTOs.Users;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Artjouney_BE.Controllers
 {
@@ -23,16 +24,22 @@ namespace Artjouney_BE.Controllers
         private readonly IAuthenService _authenticationService;
         private readonly IMailSenderService _mailSender;
         private readonly ICurrentUserService _currentUserService;
+        private readonly ILogger<AuthenticationController> _logger;
+        private readonly IConfiguration _configuration;
 
         public AuthenticationController(
             IAuthenService authenticationService,
             IMailSenderService emailSender,
-            ICurrentUserService currentUserService
+            ICurrentUserService currentUserService,
+            ILogger<AuthenticationController> logger,
+            IConfiguration configuration
         )
         {
             _authenticationService = authenticationService;
             _mailSender = emailSender;
             _currentUserService = currentUserService;
+            _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -77,12 +84,13 @@ namespace Artjouney_BE.Controllers
         public IActionResult LoginWithGoogle()
         {
             // B4: Tạo state và RedirectUri
+            _logger.LogInformation("Bắt đầu yêu cầu đăng nhập Google OAuth");
             var properties = new AuthenticationProperties
             {
-                RedirectUri = Url.Action("GoogleCallback"),
+                RedirectUri = _configuration["Google:RedirectURI"],
                 IsPersistent = true
             };
-
+            _logger.LogInformation("Chuyển hướng đến Google với RedirectUri: {RedirectUri}", properties.RedirectUri);
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
@@ -90,29 +98,44 @@ namespace Artjouney_BE.Controllers
         public async Task<IActionResult> GoogleCallback()
         {
             // B8: Middleware đã xác thực, lấy thông tin người dùng
+            _logger.LogInformation("Nhận callback từ Google OAuth");
             var authResult = await HttpContext.AuthenticateAsync();
 
             if (!authResult.Succeeded || authResult.Principal == null)
             {
+                _logger.LogError("Xác thực Google thất bại. Succeeded: {Succeeded}, Principal: {Principal}",
+                    authResult.Succeeded, authResult.Principal == null ? "null" : "not null");
                 return Unauthorized("Xác thực thất bại.");
             }
 
+            _logger.LogInformation("Xác thực Google thành công, lấy thông tin người dùng");
             var claims = authResult.Principal.Identities.FirstOrDefault()?.Claims;
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             var googleId = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var avatar = claims?.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
 
+            _logger.LogInformation("Thông tin người dùng từ Google: Email={Email}, Name={Name}, GoogleId={GoogleId}, Avatar={Avatar}",
+                email, name, googleId, avatar);
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(googleId))
+            {
+                _logger.LogError("Không lấy được thông tin người dùng từ Google. Email: {Email}, GoogleId: {GoogleId}", email, googleId);
                 return BadRequest("Không lấy được thông tin người dùng từ Google");
+            }
+
 
             // B12–B15: Kiểm tra và cập nhật hoặc tạo người dùng trong DB
+            _logger.LogInformation("Gọi dịch vụ CreateOrUpdateUserByEmailAsync với Email={Email}", email);
             ApiResponse<User> response = await _authenticationService.CreateOrUpdateUserByEmailAsync(email, name, avatar);
             if (response.Status.Equals(ResponseStatus.Error))
             {
-                return Redirect("http://localhost:5173/signin-google?issignin=false&errormsg=1006");
+                _logger.LogError("Tạo hoặc cập nhật người dùng thất bại. Status: {Status}, Code: {Code}, Message: {Message}",
+                    response.Status, response.Code, response.Message);
+                return Redirect("https://tnhaan20.github.io/ArtJourney/signin-google?issignin=false&errormsg=1006");
             } else
             {
+                _logger.LogInformation("Tạo hoặc cập nhật người dùng thành công. Lưu token vào cookie");
                 Response.Cookies.Append("TK", response.Message, new CookieOptions
                 {
                     HttpOnly = false,
@@ -122,7 +145,8 @@ namespace Artjouney_BE.Controllers
                 });
                 response.Message = "2001";
                 //return StatusCode(response.Code, response);
-                return Redirect("http://localhost:5173/signin-google?issignin=true");
+                _logger.LogInformation("Chuyển hướng về frontend với issignin=true");
+                return Redirect("https://tnhaan20.github.io/ArtJourney/signin-google?issignin=true");
             }
         }
 

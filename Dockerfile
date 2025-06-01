@@ -34,6 +34,9 @@ COPY --from=build /app/publish .
 # Expose port for the API
 EXPOSE 8083
 
+# Tạo thư mục logs trong container
+RUN mkdir -p /app/logs && chmod -R 777 /app/logs
+
 # Configure environment variables
 # ENV ASPNETCORE_ENVIRONMENT=Production
 # ENV ASPNETCORE_URLS=http://+:8080

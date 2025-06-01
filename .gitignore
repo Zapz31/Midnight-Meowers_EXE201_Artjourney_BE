@@ -399,3 +399,10 @@ global.json
 
 # JetBrains Rider
 *.sln.iml
+
+## ASP.NET Core environment files
+appsettings.Development.json
+appsettings.*.local.json
+secrets.json
+appsettings.json
+appsettings.Production.json
