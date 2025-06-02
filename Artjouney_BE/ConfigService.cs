@@ -132,6 +132,7 @@ namespace Artjouney_BE
             services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<IHistoricalPeriodRepository, HistoricalPeriodRepository>();
+            services.AddScoped<IRegionRepository, RegionRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
@@ -143,6 +144,7 @@ namespace Artjouney_BE
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFileHandlerService, FileHandlerService>();
             services.AddScoped<IHistoricalPeriodService, HistoricalPeriodService>();
+            services.AddScoped<IRegionService, RegionService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
