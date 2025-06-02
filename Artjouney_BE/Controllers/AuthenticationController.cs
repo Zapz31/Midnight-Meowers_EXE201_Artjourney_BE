@@ -72,8 +72,8 @@ namespace Artjouney_BE.Controllers
             Response.Cookies.Append("TK", response.Data.Token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Lax,
+                Secure = true,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(30)
             });
 
@@ -138,9 +138,9 @@ namespace Artjouney_BE.Controllers
                 _logger.LogInformation("Tạo hoặc cập nhật người dùng thành công. Lưu token vào cookie");
                 Response.Cookies.Append("TK", response.Message, new CookieOptions
                 {
-                    HttpOnly = false,
-                    Secure = false,
-                    SameSite = SameSiteMode.Lax,
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTime.UtcNow.AddDays(30)
                 });
                 response.Message = "2001";

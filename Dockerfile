@@ -31,15 +31,19 @@ WORKDIR /app
 # Copy published output from build stage
 COPY --from=build /app/publish .
 
-# Expose port for the API
-EXPOSE 8083
-
-# Tạo thư mục logs trong container
+# Create logs directory
 RUN mkdir -p /app/logs && chmod -R 777 /app/logs
 
-# Configure environment variables
-# ENV ASPNETCORE_ENVIRONMENT=Production
-# ENV ASPNETCORE_URLS=http://+:8080
+# Expose port 8083
+EXPOSE 8083
+
+# Configure ASP.NET Core to listen on port 8083
+ENV ASPNETCORE_URLS=http://+:8083
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+   CMD curl -f http://localhost:8083/api/Test/ping || exit 1
 
 # Run the application
 ENTRYPOINT ["dotnet", "Artjouney_BE.dll"]

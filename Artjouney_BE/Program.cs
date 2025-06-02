@@ -52,11 +52,15 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.Use((context, next) =>
+if (app.Environment.IsProduction())
 {
-    context.Request.Scheme = "https";
-    return next();
-});
+    app.Use((context, next) =>
+    {
+        context.Request.Scheme = "https";
+        return next();
+    });
+}
+
 
 //Check all cookie was send to backend
 app.Use(async (context, next) =>
@@ -86,10 +90,10 @@ context.Response.Body = originalResponse;
 
 //app.UseHttpsRedirection();
 
-app.UseCookiePolicy(new CookiePolicyOptions
-{
-    MinimumSameSitePolicy = SameSiteMode.Lax
-});
+//app.UseCookiePolicy(new CookiePolicyOptions
+//{
+//    MinimumSameSitePolicy = SameSiteMode.Lax
+//});
 
 app.UseAuthentication();
 
