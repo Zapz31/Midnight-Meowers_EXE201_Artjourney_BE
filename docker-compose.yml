@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  artjourney-be:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: artjourney:latest
+    container_name: artjourney-be
+    ports:
+      - "8083:8083"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - /home/coffee/zapz/artjourney_logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/api/Test/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

@@ -145,6 +145,7 @@ namespace Artjouney_BE
             services.AddScoped<IFileHandlerService, FileHandlerService>();
             services.AddScoped<IHistoricalPeriodService, HistoricalPeriodService>();
             services.AddScoped<IRegionService, RegionService>();
+            services.AddScoped<ICourseService, CourseService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

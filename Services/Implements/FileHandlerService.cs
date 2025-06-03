@@ -61,7 +61,8 @@ namespace Services.Implements
                     try
                     {
                         var host = _configuration["MinIO:Endpoint"];
-                        presignedUrl = $"http://{host}/{bucketName}/{storedFileName}";
+                        var schema = _configuration["Minio:Schema"];
+                        presignedUrl = $"{schema}://{host}/{bucketName}/{storedFileName}";
                     }
                     catch (Exception ex)
                     {

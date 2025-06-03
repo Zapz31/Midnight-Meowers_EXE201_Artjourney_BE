@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,19 +12,35 @@ namespace Helpers.DTOs.Courses
 {
     public class CourseDTO
     {
-        [Display(Name = "title")]
+        [BindNever]
+        public long CourseId { get; set; }
+
+        [Required]
+        [Display(Name = "title")] 
         public string Title { get; set; } = string.Empty;
 
-        [Display(Name = "thumbnail_url")]
-        public string? ThumbnailUrl { get; set; }
+        [Display(Name = "thumbnail_image")] 
+        public IFormFile? ThumbnailImage { get; set; }
 
-        [Display(Name = "description")]
+        [Display(Name = "description")] 
         public string? Description { get; set; }
 
-        [Display(Name = "videos")]
+        [Display(Name = "videos")] //--
         public List<IFormFile>? Videos { get; set; }
 
-        [Display(Name = "course_images")]
+        [Display(Name = "course_images")] // --
         public List<IFormFile>? CourseImages { get; set; }
+
+        [Display(Name = "course_level")] 
+        public CourseLevel Level { get; set; } = CourseLevel.Easy;
+
+        [Display(Name = "status")]
+        public CourseStatus Status { get; set; } = CourseStatus.Draft;
+
+        [Display(Name = "historical_period_id")]
+        public long HistoricalPeriodId { get; set; }
+
+        [Display(Name = "region_id")]
+        public long RegionId { get; set; }
     }
 }
