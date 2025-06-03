@@ -19,14 +19,14 @@ namespace Artjouney_BE.Controllers
             _historicalPeriodService = historicalPeriodService;
         }
 
-        [HttpGet("/historical-periods")]
+        [HttpGet("/api/historical-periods")]
         public async Task<IActionResult> GetPagedHistoricalPeriodsAsync([FromQuery] int page, [FromQuery] int size)
         {
             ApiResponse<PaginatedResult<HistoricalPeriodDTO>> response = await _historicalPeriodService.GetPagedHistoricalPeriodsAsync(page, size);
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/historical-periods")]
+        [HttpPost("/api/historical-periods")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateHistoricalPeriod ([FromBody] HistoricalPeriodDTO historicalPeriodDto)
         {

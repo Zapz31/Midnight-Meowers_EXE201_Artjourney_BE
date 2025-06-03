@@ -22,14 +22,14 @@ namespace Artjouney_BE.Controllers
             _regionService = regionService;
         }
 
-        [HttpGet("/regions")]
+        [HttpGet("/api/regions")]
         public async Task<IActionResult> GetPagedRegionsAsync([FromQuery] int page, [FromQuery] int size)
         {
             ApiResponse<PaginatedResult<RegionDTO>> response = await _regionService.GetPagedRegionsAsync(page, size);
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/regions")]
+        [HttpPost("/api/regions")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateRegion([FromBody] RegionDTO regionDto)
         {

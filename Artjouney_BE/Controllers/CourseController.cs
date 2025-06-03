@@ -20,7 +20,7 @@ namespace Artjouney_BE.Controllers
             _courseService = courseService;
         }
 
-        [HttpPost("/courses")]
+        [HttpPost("/api/courses")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateCourse([FromForm] CourseDTO registerDto)
         {
