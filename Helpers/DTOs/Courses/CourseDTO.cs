@@ -22,6 +22,8 @@ namespace Helpers.DTOs.Courses
         [Display(Name = "thumbnail_image")] 
         public IFormFile? ThumbnailImage { get; set; }
 
+        public string? ThumbnailImageUrl { get; set; }
+
         [Display(Name = "description")] 
         public string? Description { get; set; }
 
@@ -38,9 +40,14 @@ namespace Helpers.DTOs.Courses
         public CourseStatus Status { get; set; } = CourseStatus.Draft;
 
         [Display(Name = "historical_period_id")]
+        [Required]
         public long HistoricalPeriodId { get; set; }
+        public string? HistoricalPeriodName { get; set; }
 
         [Display(Name = "region_id")]
+        [Required]
         public long RegionId { get; set; }
+
+        public string? RegionName { get; set; }
     }
 }

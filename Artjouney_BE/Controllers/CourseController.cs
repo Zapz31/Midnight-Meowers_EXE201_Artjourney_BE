@@ -29,5 +29,12 @@ namespace Artjouney_BE.Controllers
             ApiResponse<Course> response = await _courseService.CreateCourse(registerDto);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/courses")]
+        public async Task<IActionResult> CreateCourse()
+        {
+            ApiResponse<List<CourseDTO>> response = await _courseService.GetAllPublishedCoursesAsync();
+            return StatusCode(response.Code, response);
+        }
     }
 }

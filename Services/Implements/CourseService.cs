@@ -102,8 +102,33 @@ namespace Services.Implements
                 };
                 return errorResponse;
             }
+        }
 
-            
+        public async Task<ApiResponse<List<CourseDTO>>> GetAllPublishedCoursesAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Start GetAllPublishedCoursesAsync in CourseService.cs");
+                var data = await _courseRepository.GetAllPublishedCoursesAsync();
+                ApiResponse<List<CourseDTO>> response = new()
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Get all course success"
+                };
+                return response;
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetAllPublishedCoursesAsync in CourseService.cs: {ex}", ex.Message);
+                ApiResponse<List<CourseDTO>> errorResponse = new ApiResponse<List<CourseDTO>>()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "Server error"
+                };
+                return errorResponse;
+            }
         }
     }
 }

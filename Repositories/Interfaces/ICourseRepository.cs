@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Courses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace Repositories.Interfaces
     public interface ICourseRepository
     {
         public Task<Course> CreateCourseAsync(Course course);
+        public Task<List<CourseDTO>> GetAllPublishedCoursesAsync();
     }
 }
