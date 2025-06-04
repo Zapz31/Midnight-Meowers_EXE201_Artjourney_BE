@@ -12,6 +12,6 @@ namespace Services.Interfaces
     public interface ICourseService
     {
         public Task<ApiResponse<Course>> CreateCourse(CourseDTO courseDTO);
-        public Task<ApiResponse<List<CourseDTO>>> GetAllPublishedCoursesAsync();
+        public Task<ApiResponse<List<LearnPageCourseReginDTO>>> GetAllPublishedCoursesGroupedByRegionAsync();
     }
 }

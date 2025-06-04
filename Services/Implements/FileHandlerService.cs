@@ -61,8 +61,8 @@ namespace Services.Implements
                     try
                     {
                         var host = _configuration["MinIO:Endpoint"];
-                        var schema = _configuration["Minio:Schema"];
-                        presignedUrl = $"{schema}://{host}/{bucketName}/{storedFileName}";
+                        //var schema = _configuration["Minio:Schema"];
+                        presignedUrl = $"http://{host}/{bucketName}/{storedFileName}";
                     }
                     catch (Exception ex)
                     {
@@ -78,7 +78,8 @@ namespace Services.Implements
                         FileSize = file.Length,
                         ContentType = file.ContentType ?? "application/octet-stream",
                         UploadedAt = DateTime.UtcNow,
-                        PresignedUrl = presignedUrl
+                        PresignedUrl = presignedUrl,
+                        UploadField = fileType
                     };
 
                     _logger.LogInformation("Successfully uploaded {FileName} as {StoredFileName}", file.FileName, storedFileName);

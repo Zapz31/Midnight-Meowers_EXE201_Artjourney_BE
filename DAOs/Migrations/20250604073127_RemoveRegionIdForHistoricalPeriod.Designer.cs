@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250604073127_RemoveRegionIdForHistoricalPeriod")]
+    partial class RemoveRegionIdForHistoricalPeriod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -450,32 +453,6 @@ namespace DAOs.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.ToTable("regions");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.RegionHisoricalPeriod", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("HistoricalPeriodId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("historical_period_id");
-
-                    b.Property<long>("RegionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("region_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HistoricalPeriodId");
-
-                    b.HasIndex("RegionId");
-
-                    b.ToTable("region_historical_period");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SubModule", b =>
@@ -1036,25 +1013,6 @@ namespace DAOs.Migrations
                     b.Navigation("CreatedUser");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.RegionHisoricalPeriod", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.HistoricalPeriod", "HistoricalPeriod")
-                        .WithMany("RegionHisoricalPeriods")
-                        .HasForeignKey("HistoricalPeriodId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.Region", "Region")
-                        .WithMany("RegionHisoricalPeriods")
-                        .HasForeignKey("RegionId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("HistoricalPeriod");
-
-                    b.Navigation("Region");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.SubModule", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Module", "Module")
@@ -1185,8 +1143,6 @@ namespace DAOs.Migrations
             modelBuilder.Entity("BusinessObjects.Models.HistoricalPeriod", b =>
                 {
                     b.Navigation("Courses");
-
-                    b.Navigation("RegionHisoricalPeriods");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
@@ -1206,8 +1162,6 @@ namespace DAOs.Migrations
             modelBuilder.Entity("BusinessObjects.Models.Region", b =>
                 {
                     b.Navigation("Courses");
-
-                    b.Navigation("RegionHisoricalPeriods");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SubModule", b =>

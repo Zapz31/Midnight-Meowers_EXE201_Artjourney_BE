@@ -54,6 +54,9 @@ namespace BusinessObjects.Models
         // 1 - N
         [InverseProperty("CourseHistoricalPeriod")]
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+        [InverseProperty("HistoricalPeriod")]
+        public virtual ICollection<RegionHisoricalPeriod> RegionHisoricalPeriods { get; set; } = new List<RegionHisoricalPeriod>();
     }
 }
 

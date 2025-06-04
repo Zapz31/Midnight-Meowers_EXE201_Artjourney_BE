@@ -49,5 +49,11 @@ namespace Helpers.DTOs.Courses
         public long RegionId { get; set; }
 
         public string? RegionName { get; set; }
+        public string? LearningOutcomes { get; set; } // +
+        public TimeSpan? EstimatedDuration { get; set; } // +
+        public bool? IsPremium { get; set; } //+
+
+        public IFormFile? CoverImage { get; set; } // +
+        public string? CoverImageUrl { get; set; }
     }
 }

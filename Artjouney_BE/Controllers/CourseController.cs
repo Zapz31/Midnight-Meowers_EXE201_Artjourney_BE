@@ -31,9 +31,9 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpGet("/api/courses")]
-        public async Task<IActionResult> CreateCourse()
+        public async Task<IActionResult> GetAllPublishedCoursesGroupedByRegionAsync()
         {
-            ApiResponse<List<CourseDTO>> response = await _courseService.GetAllPublishedCoursesAsync();
+            ApiResponse<List<LearnPageCourseReginDTO>> response = await _courseService.GetAllPublishedCoursesGroupedByRegionAsync();
             return StatusCode(response.Code, response);
         }
     }

@@ -222,6 +222,19 @@ namespace DAOs
                 .WithMany(lc => lc.UserLearningProgresses)
                 .HasForeignKey(ulp => ulp.LearningContentId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RegionHisoricalPeriod>()
+                .HasOne(rhp => rhp.Region)
+                .WithMany(r => r.RegionHisoricalPeriods)
+                .HasForeignKey(rhp => rhp.RegionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RegionHisoricalPeriod>()
+                .HasOne(rhp => rhp.HistoricalPeriod)
+                .WithMany(hp => hp.RegionHisoricalPeriods)
+                .HasForeignKey(rhp => rhp.HistoricalPeriodId)
+                .OnDelete(DeleteBehavior.SetNull);
+
         }
 
     }

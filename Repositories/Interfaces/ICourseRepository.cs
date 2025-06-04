@@ -11,6 +11,6 @@ namespace Repositories.Interfaces
     public interface ICourseRepository
     {
         public Task<Course> CreateCourseAsync(Course course);
-        public Task<List<CourseDTO>> GetAllPublishedCoursesAsync();
+        public Task<List<LearnPageCourseReginDTO>> GetAllPublishedCoursesGroupedByRegionAsync();
     }
 }

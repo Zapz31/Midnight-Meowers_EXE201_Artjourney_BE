@@ -13,5 +13,7 @@ namespace Services.Interfaces
     {
         public Task<ApiResponse<PaginatedResult<HistoricalPeriodDTO>>> GetPagedHistoricalPeriodsAsync(int pageNumber, int pageSize);
         public Task<ApiResponse<HistoricalPeriod>> CreateHistoricalPeriod(HistoricalPeriodDTO historicalPeriodDto);
+
+        public Task<ApiResponse<List<HistoricalPeriodDTO>>> GetAllHistoricalPeriodsDropdownByRegionIdAsync(long regionId);
     }
 }

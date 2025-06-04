@@ -15,5 +15,6 @@ namespace Helpers.DTOs.FileHandler
         public string ContentType { get; set; } = string.Empty;
         public DateTime UploadedAt { get; set; }
         public string? PresignedUrl { get; set; }
+        public string? UploadField { get; set; }
     }
 }

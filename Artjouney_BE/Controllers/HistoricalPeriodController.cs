@@ -34,5 +34,12 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
+        [HttpGet("/api/historical-periods/region/{regionId}")]
+        public async Task<IActionResult> GetPagedHistoricalPeriodsAsync(int regionId)
+        {
+            ApiResponse<List<HistoricalPeriodDTO>> response = await _historicalPeriodService.GetAllHistoricalPeriodsDropdownByRegionIdAsync(regionId);
+            return StatusCode(response.Code, response);
+        }
+
     }
 }

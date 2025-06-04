@@ -18,11 +18,40 @@ namespace Repositories.Implements
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<HistoricalPeriod> CreateUserAsync(HistoricalPeriod historicalPeriod)
+        public async Task<HistoricalPeriod> CreateUserAsync(HistoricalPeriod historicalPeriod, List<long> regionIds)
         {
-            var createdHistoricalPeriod = await _unitOfWork.GetRepo<HistoricalPeriod>().CreateAsync(historicalPeriod);
-            await _unitOfWork.SaveChangesAsync();
-            return createdHistoricalPeriod;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                var createdHisroticalPeriod = await _unitOfWork.GetRepo<HistoricalPeriod>().CreateAsync(historicalPeriod);
+                await _unitOfWork.SaveChangesAsync();
+
+                List<RegionHisoricalPeriod> requestRegionHistoricalPeriods = new List<RegionHisoricalPeriod>();
+                foreach (long regionId in regionIds)
+                {
+                    RegionHisoricalPeriod regionHistoricalPeriod = new RegionHisoricalPeriod()
+                    {
+                        RegionId = regionId,
+                        HistoricalPeriodId = createdHisroticalPeriod.HistoricalPeriodId
+                    };
+                    requestRegionHistoricalPeriods.Add(regionHistoricalPeriod);
+                }
+
+                if (requestRegionHistoricalPeriods.Count > 0)
+                {
+                    var regionHistoricalPeriodRepo = _unitOfWork.GetRepo<RegionHisoricalPeriod>();
+                    await regionHistoricalPeriodRepo.CreateAllAsync(requestRegionHistoricalPeriods);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+                await _unitOfWork.CommitTransactionAsync();
+
+                return createdHisroticalPeriod;
+            } catch (Exception ex)
+            {
+                await _unitOfWork.RollBackAsync();
+                throw new Exception($"Error creating historical period with regions in historicalPeriodRepository: {ex.Message}", ex);
+            }
+            
         }
 
         /// <summary>
@@ -58,6 +87,27 @@ namespace Repositories.Implements
             );
 
             return pagedResult;
+        }
+
+        public async Task<List<HistoricalPeriodDTO>> GetAllHistoricalPeriodsDropdownByRegionIdAsync(long regionId)
+        {
+            var options = new QueryBuilder<HistoricalPeriod>()
+                .WithTracking(false)
+                .WithPredicate(hp => hp.DeletedAt == null)
+                .WithOrderBy(q => q.OrderBy(hp => hp.HistoricalPeriodName))
+                .Build();
+
+            var historicalPeriods = await _unitOfWork.GetRepo<HistoricalPeriod>().GetAllAsync(options);
+
+            var result = historicalPeriods.Select(hp => new HistoricalPeriodDTO
+            {
+                HistoricalPeriodId = hp.HistoricalPeriodId,
+                HistoricalPeriodName = hp.HistoricalPeriodName,
+                Description = hp.Description,
+                StartYear = hp.StartYear,
+                EndYear = hp.EndYear,
+            }).ToList();
+            return result;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Services.Implements
         private readonly IHistoricalPeriodRepository _historicalRepository;
         private readonly ILogger<HistoricalPeriodService> _logger;
         private readonly ICurrentUserService _currentUserService;
-        private static readonly Regex YearEraRegex = new Regex(@"^[1-9]\d*\s(BC|AD)$", RegexOptions.Compiled);
+        private static readonly Regex YearEraRegex = new Regex(@"^[1-9]\d*\s(BCE|CE)$", RegexOptions.Compiled);
         public HistoricalPeriodService(IHistoricalPeriodRepository historicalRepository,
             ILogger<HistoricalPeriodService> logger,
             ICurrentUserService currentUserService
@@ -92,7 +92,8 @@ namespace Services.Implements
                 historicalPeriod.EndYear = historicalPeriodDto.EndYear;
                 historicalPeriod.CreatedAt = DateTime.UtcNow;
                 historicalPeriod.CreatedBy = createdBy;
-                var data = await _historicalRepository.CreateUserAsync(historicalPeriod);
+                
+                var data = await _historicalRepository.CreateUserAsync(historicalPeriod, historicalPeriodDto.CreateRequestRegionIds);
 
                 ApiResponse<HistoricalPeriod> response = new()
                 {
@@ -145,7 +146,7 @@ namespace Services.Implements
                 {
                     Code = 400,
                     Field = "start_year",
-                    Message = " start_year must follow this format: integer + space + AD or BC"
+                    Message = " start_year must follow this format: integer + space + BCE or CE"
                 };
                 errors.Add(error);
             }
@@ -160,16 +161,6 @@ namespace Services.Implements
                 };
                 errors.Add(error);
             }
-            else if (!YearEraRegex.IsMatch(historicalPeriod.EndYear))
-            {
-                ApiError error = new()
-                {
-                    Code = 400,
-                    Field = "end_year",
-                    Message = "end_year must follow this format: integer + space + AD or BC"
-                };
-                errors.Add(error);
-            }
 
             ApiResponse<HistoricalPeriod> validateResponse = new()
             {
@@ -177,6 +168,32 @@ namespace Services.Implements
             };
             return validateResponse;
 
+        }
+
+        public async Task<ApiResponse<List<HistoricalPeriodDTO>>> GetAllHistoricalPeriodsDropdownByRegionIdAsync(long regionId)
+        {
+            try
+            {
+                _logger.LogInformation("Start GetAllHistoricalPeriodsDropdownByRegionId at HistoricalPeriodService.cs");
+                List<HistoricalPeriodDTO> data = await _historicalRepository.GetAllHistoricalPeriodsDropdownByRegionIdAsync(regionId);
+                ApiResponse<List<HistoricalPeriodDTO>> response = new()
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data
+                };
+                return response;
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetAllHistoricalPeriodsDropdownByRegionId at HistoricalPeriodService.cs: {ex}", ex.Message);
+                ApiResponse<List<HistoricalPeriodDTO>> errorResponse = new()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "GetAllHistoricalPeriodsDropdownByRegionId failed: " + ex.Message
+                };
+                return errorResponse;
+            }
         }
 
     }
