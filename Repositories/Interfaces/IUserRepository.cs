@@ -14,5 +14,8 @@ namespace Repositories.Interfaces
         Task<User?> GetUserByEmailAsync(string email);
         Task UpdateUserAsync(User user);
         Task<User?> GetUserByIDAsync(long userId);
+        public Task CreateUserCourseStreak(UserCourseStreak userCourseStreak);
+        public Task UpdateUserCourseInfo(UserCourseInfo userCourseInfo);
+        public Task UpdateCourseStreakAsync(long userId, long courseId, DateOnly today);
     }
 }

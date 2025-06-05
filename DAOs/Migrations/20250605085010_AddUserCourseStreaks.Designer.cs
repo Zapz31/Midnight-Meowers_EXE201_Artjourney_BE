@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250605085010_AddUserCourseStreaks")]
+    partial class AddUserCourseStreaks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -745,25 +748,13 @@ namespace DAOs.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime>("CheckInTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("checkin_time");
+
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint")
                         .HasColumnName("course_id");
-
-                    b.Property<int>("CurrentStreak")
-                        .HasColumnType("integer")
-                        .HasColumnName("current_streak");
-
-                    b.Property<DateTime>("LastAccessDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_access_date");
-
-                    b.Property<int>("LongestStreak")
-                        .HasColumnType("integer")
-                        .HasColumnName("longest_streak");
-
-                    b.Property<int>("TotalDaysAccessed")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_days_accessed");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")

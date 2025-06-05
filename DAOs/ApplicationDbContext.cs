@@ -36,6 +36,7 @@ namespace DAOs
         public DbSet<LearningContent> LearningContents { get; set; }
         public DbSet<ChallengeItem> ChallengeItems { get; set; }
         public DbSet<UserLearningProgress> UserLearningProgresses { get; set; }
+        public DbSet<UserCourseStreak> userCourseStreaks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -234,6 +235,13 @@ namespace DAOs
                 .WithMany(hp => hp.RegionHisoricalPeriods)
                 .HasForeignKey(rhp => rhp.HistoricalPeriodId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserCourseStreak>()
+                .Property(cs => cs.LastAccessDate)
+                .HasConversion(
+                    v => DateTime.SpecifyKind(v.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
+                    v => DateOnly.FromDateTime(v)
+                );
 
         }
 

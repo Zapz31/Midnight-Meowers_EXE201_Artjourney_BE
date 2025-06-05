@@ -3,6 +3,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
+using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -17,14 +18,20 @@ namespace Services.Implements
     {
         private readonly IUserRepository _userRepository;
         private readonly ILoginHistoryRepository _loginHistoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<UserService> _logger;
         public UserService(
                 IUserRepository userRepository,
-                ILoginHistoryRepository loginHistoryRepository
+                ILoginHistoryRepository loginHistoryRepository,
+                IUnitOfWork unitOfWork,
+                ILogger<UserService> logger
             )
         
         {
             _userRepository = userRepository;
             _loginHistoryRepository = loginHistoryRepository;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -222,6 +229,32 @@ namespace Services.Implements
                     [
                         new ApiError {Code = 1003}
                     ]
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> LogCourseAccessAsync(UserCourseStreak courseStreak)
+        {
+            try
+            {
+                var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+                _logger.LogInformation("Start LogCourseAccessAsync at UserService.cs");
+                await _userRepository.UpdateCourseStreakAsync(courseStreak.UserId, courseStreak.CourseId, todayUtc);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = true,
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at LogCourseAccessAsync at UserService.cs: {ex}", ex.Message);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
                 };
             }
         }

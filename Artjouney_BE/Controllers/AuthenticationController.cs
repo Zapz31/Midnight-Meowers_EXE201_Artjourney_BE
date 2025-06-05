@@ -26,13 +26,15 @@ namespace Artjouney_BE.Controllers
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IHostEnvironment _hostEnvironment;
 
         public AuthenticationController(
             IAuthenService authenticationService,
             IMailSenderService emailSender,
             ICurrentUserService currentUserService,
             ILogger<AuthenticationController> logger,
-            IConfiguration configuration
+            IConfiguration configuration,
+            IHostEnvironment hostEnvironment
         )
         {
             _authenticationService = authenticationService;
@@ -40,6 +42,7 @@ namespace Artjouney_BE.Controllers
             _currentUserService = currentUserService;
             _logger = logger;
             _configuration = configuration;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpPost("register")]
@@ -157,8 +160,8 @@ namespace Artjouney_BE.Controllers
             Response.Cookies.Delete("TK", new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Lax
+                Secure = _hostEnvironment.IsProduction(),
+                SameSite = _hostEnvironment.IsProduction() ? SameSiteMode.None : SameSiteMode.Lax
             });
 
             return Ok(new { message = "Logged out successfully" });
