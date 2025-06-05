@@ -86,7 +86,9 @@ namespace Repositories.Implements
                         {
                             CourseId = cd.Course.CourseId,
                             Title = cd.Course.Title,
-                            ThumbnailImageUrl = cd.Course.ThumbnailUrl
+                            ThumbnailImageUrl = cd.Course.ThumbnailUrl,
+                            RegionId = cd.RegionId,
+                            HistoricalPeriodId = cd.Course.HistoricalPeriodId
                         })
                         .ToList()
                 })
