@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.HistoricalPeriod;
+using Helpers.HelperClasses;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
@@ -26,6 +27,12 @@ namespace Repositories.Implements
             var createdCourse = await _unitOfWork.GetRepo<Course>().CreateAsync(course);
             await _unitOfWork.SaveChangesAsync();
             return createdCourse;
+        }
+
+        public async Task UpdateCourseAsync(Course course)
+        {
+            await _unitOfWork.GetRepo<Course>().UpdateAsync(course);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<List<LearnPageCourseReginDTO>> GetAllPublishedCoursesGroupedByRegionAsync()
@@ -96,5 +103,64 @@ namespace Repositories.Implements
 
             return result;
         }
+
+        
+
+        public async Task<PaginatedResult<SearchResultCourseDTO>> SearchCoursesAsync(string? input, int pageNumber = 1, int pageSize = 10)
+        {
+
+            IQueryable<Course>? baseQuery = null;
+            if (input != null)
+            {
+                baseQuery = _unitOfWork.GetRepo<Course>().Get(new QueryBuilder<Course>()
+                .WithPredicate(c => c.Status == CourseStatus.Published &&
+                           c.Title.ToLower().Contains(input.ToLower()))
+                .WithOrderBy(q => q.OrderByDescending(c => c.AverageRating))
+                .WithTracking(false)
+                .Build());
+            } else
+            {
+                baseQuery = _unitOfWork.GetRepo<Course>().Get(new QueryBuilder<Course>()
+                .WithPredicate(c => c.Status == CourseStatus.Published)
+                .WithOrderBy(q => q.OrderByDescending(c => c.AverageRating))
+                .WithTracking(false)
+                .Build());
+            }
+
+            // Mapping từ Course sang SearchResultCourseDTO
+            var paginatedResult = await Pagination.ApplyPaginationAsync(
+                baseQuery,
+                pageNumber,
+                pageSize,
+                course => new SearchResultCourseDTO
+            {
+                CourseId = course.CourseId,
+                Title = course.Title,
+                ThumbnailUrl = course.ThumbnailUrl,
+                AverageRating = course.AverageRating,
+                TotalFeedbacks = course.TotalFeedbacks
+            });
+
+            return paginatedResult;
+        }
+
+        public async Task<Course?> GetSingleCourseAsync(long courseId)
+        {
+            var option = new QueryBuilder<Course>()
+                .WithTracking(false)
+                .WithPredicate(c => c.CourseId == courseId)
+                .Build();
+            return await _unitOfWork.GetRepo<Course>().GetSingleAsync(option);
+        }
+
+        public Task<bool> UpdateTotalFeedBackAndAverageRatingAsync(long courseId, int newTotalFeeback, decimal newAverageRating)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<bool> UpdateTotalFeedBackAndAverageRatingAsync(long courseId, int newTotalFeeback, decimal newAverageRating)
+        //{
+
+        //}
     }
 }

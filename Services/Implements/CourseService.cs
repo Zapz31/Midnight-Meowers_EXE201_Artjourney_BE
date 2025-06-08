@@ -152,5 +152,30 @@ namespace Services.Implements
                 return errorResponse;
             }
         }
+
+        public async Task<ApiResponse<PaginatedResult<SearchResultCourseDTO>>> SearchCoursesAsync(string? input, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                _logger.LogInformation("Start SearchCoursesAsync at CourseService.cs ");
+                var data = await _courseRepository.SearchCoursesAsync(input, pageNumber, pageSize);
+                return new ApiResponse<PaginatedResult<SearchResultCourseDTO>>()
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Retrive course success"
+                };
+            }catch (Exception ex)
+            {
+                _logger.LogError("Error at SearchCoursesAsync at CourseService.cs: {ex}", ex.Message);
+                return new ApiResponse<PaginatedResult<SearchResultCourseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

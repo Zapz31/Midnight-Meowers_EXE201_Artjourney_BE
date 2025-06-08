@@ -84,6 +84,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return Task.CompletedTask;
     }
 
+    public async Task<int> ExecuteRawSqlAsync(string sql, params object[] parameters)
+    {
+        return await _context.Database.ExecuteSqlRawAsync(sql, parameters);
+    }
+
     public async Task<IEnumerable<T>> GetAllAsync(QueryOptions<T> options)
     {
         return await Get(options).ToListAsync();

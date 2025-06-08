@@ -80,6 +80,14 @@ namespace BusinessObjects.Models
         [Column("prerequisite_course_id")]
         public long? PrerequisiteCourseId { get; set; }
 
+        [Column("total_rating")]
+        public int TotalRating { get; set; } = 0;
+
+        [Column("average_rating", TypeName = "decimal(3,2)")]
+        public decimal AverageRating { get; set; } = 0;
+
+        [Column("total_feedback")]
+        public int TotalFeedbacks { get; set; } = 0;
 
         // navigation properties
         [Column("created_by")]

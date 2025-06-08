@@ -36,5 +36,12 @@ namespace Artjouney_BE.Controllers
             ApiResponse<List<LearnPageCourseReginDTO>> response = await _courseService.GetAllPublishedCoursesGroupedByRegionAsync();
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/courses/search")]
+        public async Task<IActionResult> SearchCoursesAsync([FromQuery] string? input, [FromQuery] int page, [FromQuery] int size)
+        {
+            ApiResponse<PaginatedResult<SearchResultCourseDTO>> response = await _courseService.SearchCoursesAsync(input, page, size);
+            return StatusCode(response.Code, response);
+        }
     }
 }

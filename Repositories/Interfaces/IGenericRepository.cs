@@ -8,6 +8,8 @@ namespace Repositories.Interfaces
         public Task<T> CreateAsync(T entity);
         public Task CreateAllAsync(List<T> entities);
         public Task UpdateAsync(T entity);
+
+        public Task<int> ExecuteRawSqlAsync(string sql, params object[] parameters);
         public Task DeleteAsync(T entity);
 
         public Task<int> ExecuteDeleteAsync(QueryOptions<T> options);

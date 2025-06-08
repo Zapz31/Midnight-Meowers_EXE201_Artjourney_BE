@@ -37,6 +37,7 @@ namespace DAOs
         public DbSet<ChallengeItem> ChallengeItems { get; set; }
         public DbSet<UserLearningProgress> UserLearningProgresses { get; set; }
         public DbSet<UserCourseStreak> userCourseStreaks { get; set; }
+        public DbSet<CourseReview> CourseReviews { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
