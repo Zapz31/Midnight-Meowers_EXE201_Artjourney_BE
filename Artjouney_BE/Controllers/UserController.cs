@@ -1,5 +1,8 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.UserLearningProgress;
 using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -20,6 +23,14 @@ namespace Artjouney_BE.Controllers
         public async Task<IActionResult> LogCourseAccessAsync([FromBody] UserCourseStreak courseStreak)
         {
             ApiResponse<bool> response = await _userService.LogCourseAccessAsync(courseStreak);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpPost("/users/user-learning-progress")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CreateUserLearningProgress([FromBody] CreateULPRequestDTO createULPRequestDTO)
+        {
+            ApiResponse<bool> response = await _userService.CreateUserLearningProgress(createULPRequestDTO);
             return StatusCode(response.Code, response);
         }
     }

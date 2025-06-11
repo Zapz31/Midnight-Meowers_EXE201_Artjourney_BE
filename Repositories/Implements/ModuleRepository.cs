@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,5 +23,17 @@ namespace Repositories.Implements
             await _unitOfWork.SaveChangesAsync();
             return createdModule;
         }
+
+        public async Task<IEnumerable<Module>> GetModulesByCourseId(long courseId)
+        {
+            var moduleQuery = new QueryBuilder<Module>()
+                .WithPredicate(m => m.CourseId == courseId && m.DeletedAt == null)
+                .WithOrderBy(query => query.OrderBy(m => m.ModuleId))
+                .Build();
+
+            var modules = await _unitOfWork.GetRepo<Module>().GetAllAsync(moduleQuery);
+            return modules;
+        }
+        
     }
 }

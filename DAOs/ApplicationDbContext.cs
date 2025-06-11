@@ -13,7 +13,7 @@ namespace DAOs
         /*
          use those commands when you want update database 
         dotnet ef migrations add InitCreate --project DAOs --startup-project Artjouney_BE
-        dotnet ef database update --project DAOs --startup-project Artjouney_BE 
+        dotnet ef database update --project DAOs --startup-project Artjouney_BE
 
          */
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -205,6 +205,12 @@ namespace DAOs
                 .HasOne(lc => lc.ContentSubModule)
                 .WithMany(sm => sm.LearningContents)
                 .HasForeignKey(lc => lc.SubModuleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<LearningContent>()
+                .HasOne(lc => lc.Course)
+                .WithMany(c => c.LearningContents)
+                .HasForeignKey(lc => lc.CourseId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<ChallengeItem>()

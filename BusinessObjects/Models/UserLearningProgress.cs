@@ -27,7 +27,7 @@ namespace BusinessObjects.Models
         public TimeSpan CompletionTime = TimeSpan.Zero;
 
         [Column("attempts")]
-        public int Attempts { get; set; } = 1;
+        public int Attempts { get; set; } = 0;
 
         [Column("last_attempt_at")]
         public DateTime? LastAttemptAt { get; set; }

@@ -20,7 +20,7 @@ namespace Artjouney_BE.Controllers
             _subModuleService = subModuleService;
         }
 
-        [HttpPost("/modules")]
+        [HttpPost("/api/modules")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateModuleAsync([FromBody] CreateModuleRequestDTO requestDTO)
         {
@@ -28,7 +28,7 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/modules/sub-modules")]
+        [HttpPost("/api/modules/sub-modules")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateSubModuleAsync([FromBody] CreateSubModuleRequestDTO requestDTO)
         {

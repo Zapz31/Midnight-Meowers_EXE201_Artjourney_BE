@@ -113,6 +113,8 @@ namespace BusinessObjects.Models
         [InverseProperty("ModuleCourse")]
         public virtual ICollection<Module> Modules { get; set; } = new List<Module>();
 
+        [InverseProperty("Course")]
+        public virtual ICollection<LearningContent> LearningContents { get; set; } = new List<LearningContent>();
     }
 }
 

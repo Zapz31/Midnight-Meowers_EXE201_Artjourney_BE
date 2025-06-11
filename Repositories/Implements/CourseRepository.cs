@@ -103,9 +103,7 @@ namespace Repositories.Implements
 
             return result;
         }
-
-        
-
+       
         public async Task<PaginatedResult<SearchResultCourseDTO>> SearchCoursesAsync(string? input, int pageNumber = 1, int pageSize = 10)
         {
 
@@ -138,7 +136,9 @@ namespace Repositories.Implements
                 Title = course.Title,
                 ThumbnailUrl = course.ThumbnailUrl,
                 AverageRating = course.AverageRating,
-                TotalFeedbacks = course.TotalFeedbacks
+                TotalFeedbacks = course.TotalFeedbacks,
+                Level = course.Level,
+                Price = course.Price,
             });
 
             return paginatedResult;
@@ -148,7 +148,7 @@ namespace Repositories.Implements
         {
             var option = new QueryBuilder<Course>()
                 .WithTracking(false)
-                .WithPredicate(c => c.CourseId == courseId)
+                .WithPredicate(c => c.CourseId == courseId && c.Status == CourseStatus.Published)
                 .Build();
             return await _unitOfWork.GetRepo<Course>().GetSingleAsync(option);
         }
@@ -158,9 +158,58 @@ namespace Repositories.Implements
             throw new NotImplementedException();
         }
 
-        //public async Task<bool> UpdateTotalFeedBackAndAverageRatingAsync(long courseId, int newTotalFeeback, decimal newAverageRating)
-        //{
+        public async Task<CourseLearningStatisticsDTO> GetCourseLearningStatisticsOptimizedAsync(long courseId)
+        {
+            var moduleRepo = _unitOfWork.GetRepo<Module>();
+            var subModuleRepo = _unitOfWork.GetRepo<SubModule>();
+            var learningContentRepo = _unitOfWork.GetRepo<LearningContent>();
 
-        //}
+            // Tạo query với điều kiện filter giống SQL
+            var moduleQuery = moduleRepo.Get(new QueryOptions<Module>
+            {
+                Predicate = m => m.CourseId == courseId && m.DeletedAt == null,
+                Tracked = false
+            });
+
+            var subModuleQuery = subModuleRepo.Get(new QueryOptions<SubModule>
+            {
+                Predicate = sm => sm.IsActive == true,
+                Tracked = false
+            });
+
+            var learningContentQuery = learningContentRepo.Get(new QueryOptions<LearningContent>
+            {
+                
+                Predicate = lc => lc.IsActive == true, 
+                Tracked = false
+            });
+
+            var joinedQuery = from m in moduleQuery
+                              join sm in subModuleQuery on m.ModuleId equals sm.ModuleId into smGroup
+                              from sm in smGroup.DefaultIfEmpty()
+                              join lc in learningContentQuery on sm != null ? sm.SubModuleId : 0 equals lc.SubModuleId into lcGroup
+                              from lc in lcGroup.DefaultIfEmpty()
+                              select new
+                              {
+                                  TimeLimit = lc != null ? lc.TimeLimit : null,
+                                  LearningContentId = lc != null ? lc.LearningContentId : (long?)null
+                              };
+
+            var results = await joinedQuery.ToListAsync();
+
+            var totalLearningTime = results
+                .Where(r => r.TimeLimit.HasValue)
+                .Sum(r => r.TimeLimit?.Ticks ?? 0);
+
+            var totalLearningContent = results
+                .Count(r => r.LearningContentId.HasValue);
+
+            return new CourseLearningStatisticsDTO
+            {
+                TotalLearningTime = new TimeSpan(totalLearningTime),
+                TotalLearningContent = totalLearningContent
+            };
+        }
+
     }
 }

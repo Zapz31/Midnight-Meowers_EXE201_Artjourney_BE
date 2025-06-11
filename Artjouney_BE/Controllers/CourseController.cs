@@ -43,5 +43,13 @@ namespace Artjouney_BE.Controllers
             ApiResponse<PaginatedResult<SearchResultCourseDTO>> response = await _courseService.SearchCoursesAsync(input, page, size);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/courses/{courseId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetCourseDetailByCourseIdAsync(int courseId)
+        {
+            var response = await _courseService.GetCourseDetailAsync(courseId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

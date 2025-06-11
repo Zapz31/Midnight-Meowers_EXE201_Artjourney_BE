@@ -17,5 +17,6 @@ namespace Repositories.Interfaces
         public Task<bool> UpdateTotalFeedBackAndAverageRatingAsync(long courseId, int newTotalFeeback, decimal newAverageRating);
         public Task<Course?> GetSingleCourseAsync(long courseId);
         public Task UpdateCourseAsync(Course course);
+        public Task<CourseLearningStatisticsDTO> GetCourseLearningStatisticsOptimizedAsync(long courseId);
     }
 }

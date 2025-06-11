@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
+using Helpers.DTOs.UserLearningProgress;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Services.Implements
 {
@@ -20,11 +22,17 @@ namespace Services.Implements
         private readonly ILoginHistoryRepository _loginHistoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<UserService> _logger;
+        private readonly IUserLearningProgressRepository _userLearningProgressRepository;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly ILearningContentRepository _learningContentRepository;
         public UserService(
                 IUserRepository userRepository,
                 ILoginHistoryRepository loginHistoryRepository,
                 IUnitOfWork unitOfWork,
-                ILogger<UserService> logger
+                ILogger<UserService> logger,
+                IUserLearningProgressRepository userLearningProgressRepository,
+                ICurrentUserService currentUserService,
+                ILearningContentRepository learningContentRepository
             )
         
         {
@@ -32,6 +40,9 @@ namespace Services.Implements
             _loginHistoryRepository = loginHistoryRepository;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _userLearningProgressRepository = userLearningProgressRepository;
+            _currentUserService = currentUserService;
+            _learningContentRepository = learningContentRepository;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -259,6 +270,96 @@ namespace Services.Implements
             }
         }
 
-        //public async Task<Boolean> 
+        public async Task<ApiResponse<bool>> CreateUserLearningProgress (CreateULPRequestDTO requestDTO)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+
+                UserLearningProgress userLearningProgress = new();
+                var existULP = await _userLearningProgressRepository.GetUserLearningProgressByUserIdAndLNCId(userId, requestDTO.LearningContentId);
+                if (existULP == null)
+                {
+                    userLearningProgress.Status = requestDTO.Status ?? UserLearningProgressStatus.NotStarted;
+                    userLearningProgress.Score = requestDTO.Score ?? 0;
+                    userLearningProgress.Attempts = 1;
+                    userLearningProgress.LastAttemptAt = DateTime.UtcNow;
+                    userLearningProgress.CreatedAt = DateTime.UtcNow;
+                    userLearningProgress.LearningContentId = requestDTO.LearningContentId;
+                    userLearningProgress.UserId = userId;
+                } else
+                {
+                    userLearningProgress.Status = requestDTO.Status ?? UserLearningProgressStatus.NotStarted;
+                    userLearningProgress.Score = requestDTO.Score ?? 0;
+                    userLearningProgress.Attempts += 1;
+                    userLearningProgress.LastAttemptAt = DateTime.UtcNow;
+                    userLearningProgress.LearningContentId = requestDTO.LearningContentId;
+                    userLearningProgress.UserId = userId;
+                }
+                var createdDate = await _userLearningProgressRepository.CreateUserLearningProgressAsync(userLearningProgress);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 201,
+                    Data = true,
+                };
+
+                //UserLearningProgress userLearningProgress = new() 
+                //{
+                //    Status = requestDTO.Status ?? UserLearningProgressStatus.NotStarted,
+                //    Score = requestDTO.Score ?? 0,
+                //    LearningContentId = requestDTO.LearningContentId,
+
+                //};
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at CreateUserLearningProgress at UserService.cs: {ex}", ex.Message);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Data = false,
+                    Message = ex.Message             
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> CreateUserLearningProgressesByUserIdAndLNId(long courseId, long userId)
+        {
+            try
+            {
+                //var user_id = _currentUserService.AccountId;
+                // get all learning_content_id of a course
+                var learningContentIdsByCourseIds = await _learningContentRepository.GetLearningContentContentIdsByCourseIdAsync(courseId);
+                var existLearningContentIdsByUserId = await _userLearningProgressRepository.GetExistLCIdsByUserId(userId, learningContentIdsByCourseIds, null);
+                var newLearningContentIds = learningContentIdsByCourseIds.Except(existLearningContentIdsByUserId).ToList();
+                var newProgresses = newLearningContentIds.Select(contentId => new UserLearningProgress
+                {
+                    UserId = userId,
+                    LearningContentId = contentId,
+                    Status = UserLearningProgressStatus.InProgress,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList();
+                await _userLearningProgressRepository.CreateAllUserLearningProgressAsync(newProgresses);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 201,
+                    Data = true,
+                    Message = "Create progresses success"
+                };
+
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at CreateUserLearningProgressesByUserIdAndLNId at UserService.cs: {ex}", ex.Message);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Data = false,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

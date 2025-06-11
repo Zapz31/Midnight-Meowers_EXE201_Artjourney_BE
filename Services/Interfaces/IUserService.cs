@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
+using Helpers.DTOs.UserLearningProgress;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using System;
@@ -18,5 +19,7 @@ namespace Services.Interfaces
         Task<ApiResponse<User>> UpdateUserAsync(NewUpdateUserDTO newUpdateUser);
         Task<ApiResponse<NewUpdateUserDTO?>> GetUserByIDAsynce(long userId);
         public Task<ApiResponse<bool>> LogCourseAccessAsync(UserCourseStreak courseStreak);
+        public Task<ApiResponse<bool>> CreateUserLearningProgress(CreateULPRequestDTO requestDTO);
+        public Task<ApiResponse<bool>> CreateUserLearningProgressesByUserIdAndLNId(long courseId, long userId);
     }
 }

@@ -1,6 +1,9 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Courses;
+using Helpers.DTOs.LearningContent;
+using Helpers.DTOs.Module;
+using Helpers.DTOs.SubModule;
 using Helpers.HelperClasses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -8,6 +11,7 @@ using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,16 +24,29 @@ namespace Services.Implements
         private readonly ILogger<CourseService> _logger;
         private readonly ICurrentUserService _currentUserService;
         private readonly IFileHandlerService _fileHandlerService;
+        private readonly IModuleRepository _moduleRepository;
+        private readonly ISubModuleRepository _subModuleRepository;
+        private readonly ILearningContentRepository _learningContentRepository;
+        private readonly IUserLearningProgressRepository _userLearningProgressRepository;
 
         public CourseService(ICourseRepository courseRepository, 
             ILogger<CourseService> logger, 
             ICurrentUserService currentUserService,
-            IFileHandlerService fileHandlerService)
+            IFileHandlerService fileHandlerService,
+            IModuleRepository moduleRepository,
+            ISubModuleRepository subModuleRepository,
+            ILearningContentRepository learningContentRepository,
+            IUserLearningProgressRepository userLearningProgressRepository
+            )
         {
             _courseRepository = courseRepository;
             _logger = logger;
             _currentUserService = currentUserService;
             _fileHandlerService = fileHandlerService;
+            _moduleRepository = moduleRepository;
+            _subModuleRepository = subModuleRepository;
+            _learningContentRepository = learningContentRepository;
+            _userLearningProgressRepository = userLearningProgressRepository;
         }
 
         public async Task<ApiResponse<Course>> CreateCourse(CourseDTO courseDTO)
@@ -170,6 +187,135 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at SearchCoursesAsync at CourseService.cs: {ex}", ex.Message);
                 return new ApiResponse<PaginatedResult<SearchResultCourseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailAsync(long courseId)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                var role = _currentUserService.Role;
+                var course = await _courseRepository.GetSingleCourseAsync(courseId);
+                if (course == null)
+                {
+                    return new ApiResponse<CourseDetailResponseDTO>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = $"Cannot fine course with id:{courseId}"
+                    };
+                }
+                CourseDetailResponseDTO responseData = new()
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    Description = course.Description,
+                    CoverImageUrl = course.CoverImageUrl,
+                    CourseLevel = course.Level,
+                    LearningOutcomes = course.LearningOutcomes,
+                };
+
+                // Get total time limit and total quantity of learning content of a course
+                var totalCourseStatic = await _courseRepository.GetCourseLearningStatisticsOptimizedAsync(courseId);
+
+                List<ModuleCourseDetailScreenResponseDTO> moduleResponseDTOs = new List<ModuleCourseDetailScreenResponseDTO>();
+
+                // Get modules
+                var modules = await _moduleRepository.GetModulesByCourseId(courseId);
+                if (!modules.Any()) 
+                {
+
+                    return new ApiResponse<CourseDetailResponseDTO>
+                    {
+                        Status = ResponseStatus.Success,
+                        Code = 200,
+                        Data = responseData,
+                        Message = "Course detail retrive success"
+                    };
+                }
+
+                var moduleIds = modules.Select(m => m.ModuleId).ToList();
+
+                // Get submodules
+                var subModules = await _subModuleRepository.GetSubModulesByModuleIds(moduleIds);
+                var subModuleIds = subModules.Select(sm => sm.SubModuleId).ToList();
+
+                // Get learning content
+                var learningContents = await _learningContentRepository.GetLearningContentsBySubmoduleIds(subModuleIds);
+                var learningContentIds = learningContents.Select(lc => lc.LearningContentId).ToList();
+
+                // Get user learning progress
+                var userProgresses = await _userLearningProgressRepository.GetLearningProgressByUserIdAndLNCIds(userId, learningContentIds);
+
+                var progressLookup = userProgresses.ToLookup(p => p.LearningContentId);
+                var contentsBySubModule = learningContents.ToLookup(lc => lc.SubModuleId);
+                var subModulesByModule = subModules.ToLookup(sm => sm.ModuleId);
+
+                moduleResponseDTOs = modules.Select(module => new ModuleCourseDetailScreenResponseDTO
+                {
+                    ModuleId = module.ModuleId.ToString(),
+                    ModuleTitle = module.ModuleTitle,
+                    subModuleCourseDetailScreenResponseDTOs = subModulesByModule[module.ModuleId]
+                        .OrderBy(sm => sm.DisplayOrder)
+                        .Select(subModule => new SubModuleCourseDetailScreenResponseDTO
+                            {
+                                SubModuleTitle = subModule.SubModuleTitle,
+                                learningContentDetailScreenResponseDTOs = contentsBySubModule[subModule.SubModuleId]
+                                    .OrderBy(lc => lc.DisplayOrder)
+                                    .Select(learningContent => new LearningContentDetailScreenResponseDTO
+                                    {
+                                        LearningContentTitle = learningContent.Title,
+                                        userLearningProgressStatus = progressLookup[learningContent.LearningContentId]
+                                            .FirstOrDefault()?.Status ?? UserLearningProgressStatus.NotStarted
+                                    }).ToList()
+                            }).ToList()
+                }).ToList();
+
+                var totalLearningContents = learningContents.Count();
+                var completedLearningContents = userProgresses.Count(ulp => ulp.Status == UserLearningProgressStatus.Completed);
+
+                var courseCompletionPercentage = totalLearningContents > 0
+                    ? (int)Math.Round((double)completedLearningContents / totalLearningContents * 100)
+                    : 0;
+
+                // Tính thời gian dựa trên time_limit
+                var totalTimeMinutes = learningContents
+                    .Where(lc => lc.TimeLimit.HasValue)
+                    .Sum(lc => lc.TimeLimit.Value.TotalMinutes);
+
+                var completedTimeMinutes = learningContents
+                    .Where(lc => lc.TimeLimit.HasValue &&
+                                progressLookup[lc.LearningContentId].Any(p => p.Status == UserLearningProgressStatus.Completed))
+                    .Sum(lc => lc.TimeLimit.Value.TotalMinutes);
+
+                var remainingTimeMinutes = Math.Max(0, totalTimeMinutes - completedTimeMinutes);
+                var timeSpentPercentage = totalTimeMinutes > 0
+                    ? (int)Math.Round(completedTimeMinutes / totalTimeMinutes * 100)
+                    : 0;
+
+                responseData.TotalModule = modules.Count();
+                responseData.ModuleCourseDetailScreenResponseDTOs = moduleResponseDTOs;
+                responseData.CourseCompletionPercentage = courseCompletionPercentage;
+                responseData.TimeSpentPercentage = timeSpentPercentage;
+                responseData.RemainingTime = TimeSpan.FromMinutes(remainingTimeMinutes);
+                return new ApiResponse<CourseDetailResponseDTO>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                    Message = "Course Detail retrive success"
+
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetCourseDetailAsync at CourseService.cs: {ex}", ex.Message);
+                return new ApiResponse<CourseDetailResponseDTO>
                 {
                     Status = ResponseStatus.Error,
                     Code = 500,

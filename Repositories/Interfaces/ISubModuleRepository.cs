@@ -10,5 +10,6 @@ namespace Repositories.Interfaces
     public interface ISubModuleRepository
     {
         public Task<SubModule> CreateUserAsync(SubModule subModule);
+        public Task<IEnumerable<SubModule>> GetSubModulesByModuleIds(List<long> moduleIds);
     }
 }

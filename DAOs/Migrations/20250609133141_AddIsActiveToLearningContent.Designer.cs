@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609133141_AddIsActiveToLearningContent")]
+    partial class AddIsActiveToLearningContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,10 +324,6 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("correct_answer");
 
-                    b.Property<long?>("CourseId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("course_id");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -362,8 +361,6 @@ namespace DAOs.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("LearningContentId");
-
-                    b.HasIndex("CourseId");
 
                     b.HasIndex("CreatedBy");
 
@@ -1082,11 +1079,6 @@ namespace DAOs.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
                 {
-                    b.HasOne("BusinessObjects.Models.Course", "Course")
-                        .WithMany("LearningContents")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("BusinessObjects.Models.User", "LearningContentCreator")
                         .WithMany("LearningContents")
                         .HasForeignKey("CreatedBy")
@@ -1100,8 +1092,6 @@ namespace DAOs.Migrations
                         .IsRequired();
 
                     b.Navigation("ContentSubModule");
-
-                    b.Navigation("Course");
 
                     b.Navigation("LearningContentCreator");
                 });
@@ -1286,8 +1276,6 @@ namespace DAOs.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.Course", b =>
                 {
-                    b.Navigation("LearningContents");
-
                     b.Navigation("Modules");
 
                     b.Navigation("UserCourseInfos");

@@ -9,6 +9,7 @@ namespace BusinessObjects.Enums
     public enum ChallengeItemTypes
     {
         Image,
+        Video,
         Text,
         Input,
         Draggable

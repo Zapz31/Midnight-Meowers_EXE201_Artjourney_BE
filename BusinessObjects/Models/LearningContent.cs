@@ -44,6 +44,9 @@ namespace BusinessObjects.Models
         [Column("likes_count")]
         public int LikesCount {  get; set; } = 0;
 
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -61,6 +64,11 @@ namespace BusinessObjects.Models
         [ForeignKey("ContentSubModule")]
         public long SubModuleId { get; set; }
         public virtual SubModule ContentSubModule { get; set; } = null!;
+
+        [Column("course_id")]
+        [ForeignKey("Course")]
+        public long? CourseId { get; set; }
+        public virtual Course? Course { get; set; }
 
         // 1 - N
         [InverseProperty("LearningContent")]
