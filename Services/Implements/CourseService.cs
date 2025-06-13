@@ -200,7 +200,6 @@ namespace Services.Implements
             try
             {
                 var userId = _currentUserService.AccountId;
-                var role = _currentUserService.Role;
                 var course = await _courseRepository.GetSingleCourseAsync(courseId);
                 if (course == null)
                 {

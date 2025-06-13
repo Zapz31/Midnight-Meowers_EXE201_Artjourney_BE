@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Module;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Repositories.Interfaces
     {
         public Task<Module> CreateModuleAsync(Module module);
         public Task<IEnumerable<Module>> GetModulesByCourseId(long courseId);
+        public Task<List<BasicModuleGetResponseDTO>> GetModulesByCourseIdCompletedAsync(long courseId);
     }
 }

@@ -12,5 +12,6 @@ namespace Services.Interfaces
     public interface ISubModuleService
     {
         public Task<ApiResponse<SubModule>> CreateSubModuleAsync(CreateSubModuleRequestDTO requestDTO);
+        public Task<ApiResponse<List<BasicSubModuleGetResponseDTO>>> GetSubmodulesByModuleId(long moduleId);
     }
 }

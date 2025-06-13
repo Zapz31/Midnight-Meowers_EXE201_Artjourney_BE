@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.SubModule;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Repositories.Interfaces
     {
         public Task<SubModule> CreateUserAsync(SubModule subModule);
         public Task<IEnumerable<SubModule>> GetSubModulesByModuleIds(List<long> moduleIds);
+        public Task<List<BasicSubModuleGetResponseDTO>> GetSubModulesByModuleIdAsync(long moduleId);
     }
 }

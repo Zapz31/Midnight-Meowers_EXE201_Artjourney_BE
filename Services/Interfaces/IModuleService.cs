@@ -12,5 +12,6 @@ namespace Services.Interfaces
     public interface IModuleService
     {
         public Task<ApiResponse<Module>> CreateModuleAsync(CreateModuleRequestDTO requestDTO);
+        public Task<ApiResponse<List<BasicModuleGetResponseDTO>>> GetModulesByCourseIdCompleteAsync(long courseId);
     }
 }

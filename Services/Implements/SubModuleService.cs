@@ -76,5 +76,29 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<List<BasicSubModuleGetResponseDTO>>> GetSubmodulesByModuleId(long moduleId)
+        {
+            try
+            {
+                var data = await _subModuleRepository.GetSubModulesByModuleIdAsync(moduleId);
+                return new ApiResponse<List<BasicSubModuleGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Sub-modules retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetSubmodulesByModuleId at ModuleService.cs: {ex}", ex.Message);
+                return new ApiResponse<List<BasicSubModuleGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

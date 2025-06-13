@@ -74,5 +74,29 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<List<BasicModuleGetResponseDTO>>> GetModulesByCourseIdCompleteAsync(long courseId)
+        {
+            try
+            {
+                var data = await _moduleRepository.GetModulesByCourseIdCompletedAsync(courseId);
+                return new ApiResponse<List<BasicModuleGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Data retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetModulesByCourseIdCompleteAsync at ModuleService.cs: {ex}", ex.Message);
+                return new ApiResponse<List<BasicModuleGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

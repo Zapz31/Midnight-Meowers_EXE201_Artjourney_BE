@@ -1,4 +1,6 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.ChallengeItem;
+using Helpers.DTOs.LearningContent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +16,7 @@ namespace Repositories.Interfaces
         public Task<bool> CreateAllChallengeItemAsync(List<ChallengeItem> challengeItems);
         public Task<List<long>> GetLearningContentContentIdsByCourseIdAsync(long coursId);
         public Task<IEnumerable<LearningContent>> GetLearningContentsBySubmoduleIds(List<long> subModuleIds);
+        public Task<List<BasicLearningContentGetResponseDTO>> GetLearningContentsBySubModuleIdAsync(long subModuleId);
+        public Task<List<BasicChallengeItemGetResponseDTO>> GetChallengeItemsByLNCId(long learingContentId);
     }
 }

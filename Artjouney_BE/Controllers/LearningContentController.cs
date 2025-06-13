@@ -24,5 +24,31 @@ namespace Artjouney_BE.Controllers
             var response = await _learningContentService.CreateLNContentReadingAsync(requestDto);
             return StatusCode(response.Code, response);
         }
+
+        [HttpPost("/learning-contents/sub-module/{subModuleId}")]
+        
+        public async Task<IActionResult> GetLearningContentsBySubModuleId([FromForm] CreateLNReadingDTO requestDto)
+        {
+            var response = await _learningContentService.CreateLNContentReadingAsync(requestDto);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("/learning-contents/sub-module/{subModuleId}")]
+
+        public async Task<IActionResult> GetLearningContentsBySubModuleId(long subModuleId)
+        {
+            var response = await _learningContentService.GetLearningContentsBySubmoduleId(subModuleId);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("/learning-contents/{learningContentId}/challenge-items")]
+
+        public async Task<IActionResult> GetChallengeItemsByLNCId(long learningContentId)
+        {
+            var response = await _learningContentService.GetChallengeItemsByLNCId(learningContentId);
+            return StatusCode(response.Code, response);
+        }
+
+
     }
 }

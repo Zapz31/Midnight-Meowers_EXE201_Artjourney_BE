@@ -35,5 +35,20 @@ namespace Artjouney_BE.Controllers
             var response = await _subModuleService.CreateSubModuleAsync(requestDTO);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/modules/{moduleId}/sub-modules")]
+        public async Task<IActionResult> CreateSubModuleAsync(long moduleId)
+        {
+            var response = await _subModuleService.GetSubmodulesByModuleId(moduleId);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("/api/course/{courseId}/modules/")]
+        public async Task<IActionResult> GetModulesByCourseId(long courseId)
+        {
+            var response = await _moduleService.GetModulesByCourseIdCompleteAsync(courseId);
+            return StatusCode(response.Code, response);
+        }
+
     }
 }

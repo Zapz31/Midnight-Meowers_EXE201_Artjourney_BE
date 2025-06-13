@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.ChallengeItem;
 using Helpers.DTOs.LearningContent;
 using Helpers.HelperClasses;
 using Microsoft.AspNetCore.Http;
@@ -115,6 +116,54 @@ namespace Services.Implements
                 };
             }
             
+        }
+
+        public async Task<ApiResponse<List<BasicLearningContentGetResponseDTO>>> GetLearningContentsBySubmoduleId(long subModuleId)
+        {
+            try
+            {
+                var data = await _learningContentRepository.GetLearningContentsBySubModuleIdAsync(subModuleId);
+                return new ApiResponse<List<BasicLearningContentGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Data retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetLearningContentsBySubmoduleId at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<List<BasicLearningContentGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<BasicChallengeItemGetResponseDTO>>> GetChallengeItemsByLNCId(long learningContentId)
+        {
+            try
+            {
+                var data = await _learningContentRepository.GetChallengeItemsByLNCId(learningContentId);
+                return new ApiResponse<List<BasicChallengeItemGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = data,
+                    Message = "Data retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetChallengeItemsByLNCId at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<List<BasicChallengeItemGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

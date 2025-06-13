@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Minio;
+using Net.payOS;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Implements;
@@ -35,6 +36,14 @@ namespace Artjouney_BE
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
             });
+
+            // PayOS
+            PayOS payOS = new PayOS(_configuration["PayOS:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                    _configuration["PayOS:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                    _configuration["PayOS:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+
+            services.AddSingleton(payOS);
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -53,6 +62,7 @@ namespace Artjouney_BE
                 //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
+            
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -164,6 +174,8 @@ namespace Artjouney_BE
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear(); // Tin tưởng tất cả proxy
             });
+
+
         }
     }
 }
