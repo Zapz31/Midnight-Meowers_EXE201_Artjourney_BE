@@ -18,5 +18,6 @@ namespace Repositories.Interfaces
         public Task<Course?> GetSingleCourseAsync(long courseId);
         public Task UpdateCourseAsync(Course course);
         public Task<CourseLearningStatisticsDTO> GetCourseLearningStatisticsOptimizedAsync(long courseId);
+        public  Task<List<CourseDetailScreenFlat>> GetCourseDetailScreenFlatAsync(long courseId);
     }
 }

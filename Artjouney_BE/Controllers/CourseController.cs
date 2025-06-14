@@ -44,9 +44,9 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpGet("/api/user/{userId}/courses/{courseId}")]
+        [HttpGet("/api/courses/{courseId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetCourseDetailByCourseIdAsync(int courseId, int? userId)
+        public async Task<IActionResult> GetCourseDetailByCourseIdAsync(int courseId)
         {
             var response = await _courseService.GetCourseDetailAsync(courseId);
             return StatusCode(response.Code, response);

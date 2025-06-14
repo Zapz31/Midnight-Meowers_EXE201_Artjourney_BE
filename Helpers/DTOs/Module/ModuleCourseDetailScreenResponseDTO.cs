@@ -9,7 +9,7 @@ namespace Helpers.DTOs.Module
 {
     public class ModuleCourseDetailScreenResponseDTO
     {
-        public string? ModuleId {  get; set; }
+        public long? ModuleId {  get; set; }
         public string? ModuleTitle { get; set; }
         public List<SubModuleCourseDetailScreenResponseDTO> subModuleCourseDetailScreenResponseDTOs { get; set; } = new List<SubModuleCourseDetailScreenResponseDTO>();
     }

@@ -258,7 +258,7 @@ namespace Services.Implements
 
                 moduleResponseDTOs = modules.Select(module => new ModuleCourseDetailScreenResponseDTO
                 {
-                    ModuleId = module.ModuleId.ToString(),
+                    ModuleId = module.ModuleId,
                     ModuleTitle = module.ModuleTitle,
                     subModuleCourseDetailScreenResponseDTOs = subModulesByModule[module.ModuleId]
                         .OrderBy(sm => sm.DisplayOrder)
@@ -322,5 +322,51 @@ namespace Services.Implements
                 };
             }
         }
+
+        //public async Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailForGuestAsync(long courseId)
+        //{
+        //    try
+        //    {
+        //        // get course
+        //        var course = await _courseRepository.GetSingleCourseAsync(courseId);
+        //        if (course == null)
+        //        {
+        //            return new ApiResponse<CourseDetailResponseDTO>
+        //            {
+        //                Status = ResponseStatus.Error,
+        //                Code = 400,
+        //                Message = $"Cannot fine course with id:{courseId}"
+        //            };
+        //        }
+        //        CourseDetailResponseDTO responseData = new()
+        //        {
+        //            CourseId = course.CourseId,
+        //            Title = course.Title,
+        //            Description = course.Description,
+        //            CoverImageUrl = course.CoverImageUrl,
+        //            CourseLevel = course.Level,
+        //            LearningOutcomes = course.LearningOutcomes,
+        //        };
+        //        // get course detail flat
+        //        var courseDetailFlats = await _courseRepository.GetCourseDetailScreenFlatAsync(courseId);
+                
+        //        responseData.ModuleCourseDetailScreenResponseDTOs = courseDetailFlats
+        //            .Where(m => m.ModuleId.HasValue)
+        //            .GroupBy(m => new {m.ModuleId, m.ModuleTitle })
+        //            .Select(mGroup => new ModuleCourseDetailScreenResponseDTO
+        //            {
+        //                ModuleId = mGroup.Key.ModuleId,
+
+        //            })
+
+
+
+        //    } catch (Exception ex)
+        //    {
+
+        //    }
+        //}
+
+
     }
 }

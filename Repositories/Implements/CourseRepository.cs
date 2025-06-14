@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using DAOs;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.HistoricalPeriod;
 using Helpers.HelperClasses;
@@ -17,9 +18,11 @@ namespace Repositories.Implements
     public class CourseRepository : ICourseRepository
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CourseRepository(IUnitOfWork unitOfWork)
+        private readonly ApplicationDbContext _context;
+        public CourseRepository(IUnitOfWork unitOfWork, ApplicationDbContext context)
         {
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         public async Task<Course> CreateCourseAsync(Course course)
@@ -209,6 +212,26 @@ namespace Repositories.Implements
                 TotalLearningTime = new TimeSpan(totalLearningTime),
                 TotalLearningContent = totalLearningContent
             };
+        }
+
+        public async Task<List<CourseDetailScreenFlat>> GetCourseDetailScreenFlatAsync(long courseId)
+        {
+            var sql = @"
+                select m.module_id, 
+                m.module_title, 
+                sm.sub_module_id, 
+                sm.sub_module_title, 
+                lc.learning_content_id, 
+                lc.title, 
+                lc.display_order, 
+                lc.time_limit from modules m 
+                left join sub_modules sm on m.module_id = sm.module_id
+                left join learning_contents lc on sm.sub_module_id = lc.sub_module_id
+                where m.course_id = {0} and m.deleted_at is null and sm.is_active = true and lc.is_active = true";
+            var data = await _context.Set<CourseDetailScreenFlat>()
+                .FromSqlRaw(sql, courseId)
+                .ToListAsync();
+            return data;
         }
 
     }
