@@ -53,7 +53,6 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpGet("/api/courses/{courseId}/guest")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetCourseDetailForGuestAsync(int courseId)
         {
             var response = await _courseService.GetCourseDetailForGuestAsync(courseId);

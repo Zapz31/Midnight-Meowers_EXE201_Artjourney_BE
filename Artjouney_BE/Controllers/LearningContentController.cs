@@ -17,7 +17,7 @@ namespace Artjouney_BE.Controllers
             _learningContentService = learningContentService;
         }
 
-        [HttpPost("/learning-contents")]
+        [HttpPost("/api/learning-contents")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateLearningContentAsync([FromForm] CreateLNReadingDTO requestDto)
         {
@@ -25,7 +25,7 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/learning-contents/sub-module/{subModuleId}")]
+        [HttpPost("/api/learning-contents/sub-module/{subModuleId}")]
         
         public async Task<IActionResult> GetLearningContentsBySubModuleId([FromForm] CreateLNReadingDTO requestDto)
         {
@@ -33,7 +33,7 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpGet("/learning-contents/sub-module/{subModuleId}")]
+        [HttpGet("/api/learning-contents/sub-module/{subModuleId}")]
 
         public async Task<IActionResult> GetLearningContentsBySubModuleId(long subModuleId)
         {
@@ -41,7 +41,7 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpGet("/learning-contents/{learningContentId}/challenge-items")]
+        [HttpGet("/api/learning-contents/{learningContentId}/challenge-items")]
 
         public async Task<IActionResult> GetChallengeItemsByLNCId(long learningContentId)
         {
