@@ -361,5 +361,58 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<UserLearningProgress>> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningProgressId)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                // get updated userLearningProgress
+                await _unitOfWork.BeginTransactionAsync();
+                var updatedUserLearningProgress = await _userLearningProgressRepository
+                    .GetLearningProgressByUserIdAndLNCIdSingle(userId, userLearningProgressId);
+
+                if (updatedUserLearningProgress == null) 
+                {
+                    return new ApiResponse<UserLearningProgress> 
+                    { 
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "UserLearingProgress has not exist!"
+                    };
+                }
+
+                updatedUserLearningProgress.Status = UserLearningProgressStatus.Completed;
+                updatedUserLearningProgress.Attempts += 1;
+                if (updatedUserLearningProgress.Attempts < 2)
+                {
+                    updatedUserLearningProgress.CompletedAt = DateTime.UtcNow;
+                }
+                updatedUserLearningProgress.UpdatedAt = DateTime.UtcNow;
+
+                // update UserLearningProgressSingle
+                await _userLearningProgressRepository.UpdateUserLearningProgressSingleAsync(updatedUserLearningProgress);
+                await _unitOfWork.CommitTransactionAsync();
+                return new ApiResponse<UserLearningProgress>
+                {
+                    Status= ResponseStatus.Success,
+                    Code = 201,
+                    Data = updatedUserLearningProgress,
+                    Message = "Update user learning progress success"
+                };
+
+            } catch (Exception ex)
+            {
+                await _unitOfWork.RollBackAsync();
+                _logger.LogError("Error at MarkAsCompleteUserLearningProgressSingleAsync at UserService.cs: {ex}", ex.Message);
+                return new ApiResponse<UserLearningProgress>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Data = null,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

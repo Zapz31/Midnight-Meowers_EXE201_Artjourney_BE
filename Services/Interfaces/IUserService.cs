@@ -21,5 +21,6 @@ namespace Services.Interfaces
         public Task<ApiResponse<bool>> LogCourseAccessAsync(UserCourseStreak courseStreak);
         public Task<ApiResponse<bool>> CreateUserLearningProgress(CreateULPRequestDTO requestDTO);
         public Task<ApiResponse<bool>> CreateUserLearningProgressesByUserIdAndLNId(long courseId, long userId);
+        public Task<ApiResponse<UserLearningProgress>> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningProgressId);
     }
 }

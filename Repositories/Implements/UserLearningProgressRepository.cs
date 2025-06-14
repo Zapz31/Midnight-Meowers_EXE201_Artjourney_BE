@@ -82,5 +82,26 @@ namespace Repositories.Implements
             var userProgresses = await _unitOfWork.GetRepo<UserLearningProgress>().GetAllAsync(progressQuery);
             return userProgresses;
         }
+
+        public async Task UpdateUserLearningProgressSingleAsync(UserLearningProgress userLearningProgress)
+        {
+            await _unitOfWork.GetRepo<UserLearningProgress>().UpdateAsync(userLearningProgress);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<UserLearningProgress?> GetLearningProgressByUserIdAndLNCIdSingle(long userId, long learningContentId)
+        {
+            var queryOtion = new QueryBuilder<UserLearningProgress>()
+                .WithTracking(false)
+                .WithPredicate(x => x.UserId == userId && x.LearningContentId == learningContentId)
+                .Build();
+            var data = await _unitOfWork.GetRepo<UserLearningProgress>().GetSingleAsync(queryOtion);
+            return data;
+        }
+
+        //public async Task<UserLearningProgress> MarkAsCompleteLearningProgress(long userId,  long learningContentId)
+        //{
+
+        //}
     }
 }

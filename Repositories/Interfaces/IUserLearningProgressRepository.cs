@@ -15,5 +15,7 @@ namespace Repositories.Interfaces
         public Task<List<long>> GetExistLCIdsByUserId(long userId, List<long> learningContentIdsByCourseIds, UserLearningProgressStatus? status);
         public Task CreateAllUserLearningProgressAsync(List<UserLearningProgress> userLearningProgresses);
         public Task<IEnumerable<UserLearningProgress>> GetLearningProgressByUserIdAndLNCIds(long userId, List<long> learningContentIds);
+        public Task UpdateUserLearningProgressSingleAsync(UserLearningProgress userLearningProgress);
+        public Task<UserLearningProgress?> GetLearningProgressByUserIdAndLNCIdSingle(long userId, long learningContentId);
     }
 }

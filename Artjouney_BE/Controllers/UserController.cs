@@ -19,18 +19,26 @@ namespace Artjouney_BE.Controllers
             _userService = userService;
         }
 
-        [HttpPost("/users/log-course-access")]
+        [HttpPost("/api/users/log-course-access")]
         public async Task<IActionResult> LogCourseAccessAsync([FromBody] UserCourseStreak courseStreak)
         {
             ApiResponse<bool> response = await _userService.LogCourseAccessAsync(courseStreak);
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/users/user-learning-progress")]
+        [HttpPost("/api/users/user-learning-progress")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateUserLearningProgress([FromBody] CreateULPRequestDTO createULPRequestDTO)
         {
             ApiResponse<bool> response = await _userService.CreateUserLearningProgress(createULPRequestDTO);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpPost("/api/users/mark-as-complete/progress/{userLearningProgressId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningProgressId)
+        {
+            ApiResponse<UserLearningProgress> response = await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningProgressId);
             return StatusCode(response.Code, response);
         }
     }

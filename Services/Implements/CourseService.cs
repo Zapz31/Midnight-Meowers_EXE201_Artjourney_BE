@@ -266,11 +266,13 @@ namespace Services.Implements
                         .OrderBy(sm => sm.DisplayOrder)
                         .Select(subModule => new SubModuleCourseDetailScreenResponseDTO
                             {
+                                SubModuleId = subModule.ModuleId,
                                 SubModuleTitle = subModule.SubModuleTitle,
                                 learningContentDetailScreenResponseDTOs = contentsBySubModule[subModule.SubModuleId]
                                     .OrderBy(lc => lc.DisplayOrder)
                                     .Select(learningContent => new LearningContentDetailScreenResponseDTO
                                     {
+                                        LearningContentId = learningContent.LearningContentId,
                                         LearningContentTitle = learningContent.Title,
                                         userLearningProgressStatus = progressLookup[learningContent.LearningContentId]
                                             .FirstOrDefault()?.Status ?? UserLearningProgressStatus.NotStarted
@@ -355,8 +357,8 @@ namespace Services.Implements
                 var courseDetailFlats = await _courseRepository.GetCourseDetailScreenFlatAsync(courseId);
 
                 var moduleGroups = courseDetailFlats
-                    .GroupBy(x => new { x.ModuleId, x.ModuleTitle })
-                    .OrderBy(g => g.Key.ModuleId);
+    .GroupBy(x => new { x.ModuleId, x.ModuleTitle })
+    .OrderBy(g => g.Key.ModuleId);
 
                 foreach (var moduleGroup in moduleGroups)
                 {
@@ -376,8 +378,27 @@ namespace Services.Implements
                     {
                         var subModuleDto = new SubModuleCourseDetailScreenResponseDTO
                         {
-                            SubModuleTitle = subModuleGroup.Key.SubModuleTitle
+                            SubModuleId = subModuleGroup.Key.SubModuleId, // Thêm dòng này
+                            SubModuleTitle = subModuleGroup.Key.SubModuleTitle,
+                            learningContentDetailScreenResponseDTOs = new List<LearningContentDetailScreenResponseDTO>() // Thêm dòng này
                         };
+
+                        // Group và mapping Learning Contents cho mỗi SubModule
+                        var learningContents = subModuleGroup
+                            .OrderBy(x => x.DisplayOrder)
+                            .ThenBy(x => x.LearningContentId);
+
+                        foreach (var learningContent in learningContents)
+                        {
+                            var learningContentDto = new LearningContentDetailScreenResponseDTO
+                            {
+                                LearningContentId = learningContent.LearningContentId,
+                                LearningContentTitle = learningContent.Title
+                                // userLearningProgressStatus sẽ được set ở nơi khác hoặc để null như yêu cầu
+                            };
+
+                            subModuleDto.learningContentDetailScreenResponseDTOs.Add(learningContentDto);
+                        }
 
                         moduleDto.subModuleCourseDetailScreenResponseDTOs.Add(subModuleDto);
                     }
