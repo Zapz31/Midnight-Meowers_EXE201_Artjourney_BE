@@ -148,6 +148,7 @@ namespace Artjouney_BE
             services.AddScoped<ISubModuleRepository, SubModuleRepository>();
             services.AddScoped<ILearningContentRepository, LearningContentRepository>();
             services.AddScoped<IUserLearningProgressRepository, UserLearningProgressRepository>();
+            services.AddScoped<IUserCourseInfoRepository, UserCourseInfoRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
@@ -165,6 +166,7 @@ namespace Artjouney_BE
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<ISubModuleService, SubModuleService>();
             services.AddScoped<ILearningContentService, LearningContentService>();
+            services.AddScoped<IUserCourseInfoService, UserCourseInfoService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

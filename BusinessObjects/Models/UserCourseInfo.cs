@@ -48,9 +48,6 @@ namespace BusinessObjects.Models
         [Column("course_id")]
         public long CourseId { get; set; }
         public virtual Course Course { get; set; } = null!;
-
-
-
     }
 }
 
