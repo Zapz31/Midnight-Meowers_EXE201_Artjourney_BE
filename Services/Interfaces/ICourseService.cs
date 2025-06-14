@@ -15,5 +15,6 @@ namespace Services.Interfaces
         public Task<ApiResponse<List<LearnPageCourseReginDTO>>> GetAllPublishedCoursesGroupedByRegionAsync();
         public Task<ApiResponse<PaginatedResult<SearchResultCourseDTO>>> SearchCoursesAsync(string? input, int pageNumber = 1, int pageSize = 10);
         public Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailAsync(long courseId);
+        public Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailForGuestAsync(long courseId);
     }
 }

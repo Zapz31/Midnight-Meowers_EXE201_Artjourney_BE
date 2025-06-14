@@ -218,6 +218,8 @@ namespace Services.Implements
                     CoverImageUrl = course.CoverImageUrl,
                     CourseLevel = course.Level,
                     LearningOutcomes = course.LearningOutcomes,
+                    IsPremium = course.IsPremium,
+                    Price = course.Price,
                 };
 
                 // Get total time limit and total quantity of learning content of a course
@@ -323,49 +325,87 @@ namespace Services.Implements
             }
         }
 
-        //public async Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailForGuestAsync(long courseId)
-        //{
-        //    try
-        //    {
-        //        // get course
-        //        var course = await _courseRepository.GetSingleCourseAsync(courseId);
-        //        if (course == null)
-        //        {
-        //            return new ApiResponse<CourseDetailResponseDTO>
-        //            {
-        //                Status = ResponseStatus.Error,
-        //                Code = 400,
-        //                Message = $"Cannot fine course with id:{courseId}"
-        //            };
-        //        }
-        //        CourseDetailResponseDTO responseData = new()
-        //        {
-        //            CourseId = course.CourseId,
-        //            Title = course.Title,
-        //            Description = course.Description,
-        //            CoverImageUrl = course.CoverImageUrl,
-        //            CourseLevel = course.Level,
-        //            LearningOutcomes = course.LearningOutcomes,
-        //        };
-        //        // get course detail flat
-        //        var courseDetailFlats = await _courseRepository.GetCourseDetailScreenFlatAsync(courseId);
-                
-        //        responseData.ModuleCourseDetailScreenResponseDTOs = courseDetailFlats
-        //            .Where(m => m.ModuleId.HasValue)
-        //            .GroupBy(m => new {m.ModuleId, m.ModuleTitle })
-        //            .Select(mGroup => new ModuleCourseDetailScreenResponseDTO
-        //            {
-        //                ModuleId = mGroup.Key.ModuleId,
+        public async Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailForGuestAsync(long courseId)
+        {
+            try
+            {
+                // get course
+                var course = await _courseRepository.GetSingleCourseAsync(courseId);
+                if (course == null)
+                {
+                    return new ApiResponse<CourseDetailResponseDTO>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = $"Cannot fine course with id:{courseId}"
+                    };
+                }
+                CourseDetailResponseDTO responseData = new()
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    Description = course.Description,
+                    CoverImageUrl = course.CoverImageUrl,
+                    CourseLevel = course.Level,
+                    LearningOutcomes = course.LearningOutcomes,
+                    IsPremium = course.IsPremium,
+                    Price = course.Price,
+                };
+                // get course detail flat
+                var courseDetailFlats = await _courseRepository.GetCourseDetailScreenFlatAsync(courseId);
 
-        //            })
+                var moduleGroups = courseDetailFlats
+                    .GroupBy(x => new { x.ModuleId, x.ModuleTitle })
+                    .OrderBy(g => g.Key.ModuleId);
 
+                foreach (var moduleGroup in moduleGroups)
+                {
+                    var moduleDto = new ModuleCourseDetailScreenResponseDTO
+                    {
+                        ModuleId = moduleGroup.Key.ModuleId,
+                        ModuleTitle = moduleGroup.Key.ModuleTitle,
+                        subModuleCourseDetailScreenResponseDTOs = new List<SubModuleCourseDetailScreenResponseDTO>()
+                    };
 
+                    // Group by SubModule within each Module
+                    var subModuleGroups = moduleGroup
+                        .GroupBy(x => new { x.SubModuleId, x.SubModuleTitle })
+                        .OrderBy(g => g.Key.SubModuleId);
 
-        //    } catch (Exception ex)
-        //    {
+                    foreach (var subModuleGroup in subModuleGroups)
+                    {
+                        var subModuleDto = new SubModuleCourseDetailScreenResponseDTO
+                        {
+                            SubModuleTitle = subModuleGroup.Key.SubModuleTitle
+                        };
 
-        //    }
-        //}
+                        moduleDto.subModuleCourseDetailScreenResponseDTOs.Add(subModuleDto);
+                    }
+
+                    responseData.ModuleCourseDetailScreenResponseDTOs.Add(moduleDto);
+                }
+
+                responseData.TotalModule = responseData.ModuleCourseDetailScreenResponseDTOs.Count;
+                return new ApiResponse<CourseDetailResponseDTO>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                    Message = "Data retrive success"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at GetCourseDetailForGuestAsync at CourseService.cs: {ex}", ex.Message);
+                return new ApiResponse<CourseDetailResponseDTO>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
 
 
     }

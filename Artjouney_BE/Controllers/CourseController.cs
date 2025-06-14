@@ -51,5 +51,13 @@ namespace Artjouney_BE.Controllers
             var response = await _courseService.GetCourseDetailAsync(courseId);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/courses/{courseId}/guest")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetCourseDetailForGuestAsync(int courseId)
+        {
+            var response = await _courseService.GetCourseDetailForGuestAsync(courseId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

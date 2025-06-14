@@ -217,14 +217,15 @@ namespace Repositories.Implements
         public async Task<List<CourseDetailScreenFlat>> GetCourseDetailScreenFlatAsync(long courseId)
         {
             var sql = @"
-                select m.module_id, 
-                m.module_title, 
-                sm.sub_module_id, 
-                sm.sub_module_title, 
-                lc.learning_content_id, 
+                select m.module_id as ""ModuleId"", 
+                m.module_title as ""ModuleTitle"", 
+                sm.sub_module_id as ""SubModuleId"", 
+                sm.sub_module_title as ""SubModuleTitle"", 
+                lc.learning_content_id as ""LearningContentId"", 
                 lc.title, 
-                lc.display_order, 
-                lc.time_limit from modules m 
+                lc.display_order as ""DisplayOrder"", 
+                lc.time_limit as ""TimeLimit""
+                from modules m 
                 left join sub_modules sm on m.module_id = sm.module_id
                 left join learning_contents lc on sm.sub_module_id = lc.sub_module_id
                 where m.course_id = {0} and m.deleted_at is null and sm.is_active = true and lc.is_active = true";

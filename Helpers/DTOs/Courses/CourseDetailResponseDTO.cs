@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Helpers.DTOs.Module;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace Helpers.DTOs.Courses
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? CoverImageUrl { get; set; }
+        public bool IsPremium { get; set; }
+        public long Price { get; set; }
         public int TotalModule { get; set; } = 0;
         public CourseLevel CourseLevel { get; set; }
         public string? LearningOutcomes { get; set; }
@@ -21,6 +24,8 @@ namespace Helpers.DTOs.Courses
         public int CourseCompletionPercentage { get; set; } = 0;
         public int TimeSpentPercentage { get; set; } = 0;
         public TimeSpan RemainingTime { get; set; } = TimeSpan.Zero;
+
+    
 
     }
 }

@@ -22,13 +22,20 @@ namespace Artjouney_BE.Controllers
             _currentUserService = currentUserService;
         }
 
-        [HttpPost("/course-reviews")]
+        [HttpPost("/api/course-reviews")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateCourseReview([FromBody] CreateCourseReviewRequestDTO createCourseReviewRequestDTO)
         {
             var user_id = _currentUserService.AccountId;
             var status = _currentUserService.Status;
             var response = await _courseReviewService.CreateCourseReview(createCourseReviewRequestDTO, user_id, status);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("/api/course-reviews/course/{courseId}")]
+        public async Task<IActionResult> GGetBasicCourseReviewFlatResponseDTOs(long courseId)
+        {
+            var response = await _courseReviewService.GetBasicCourseReviewFlatResponseDTOs(courseId);
             return StatusCode(response.Code, response);
         }
     }

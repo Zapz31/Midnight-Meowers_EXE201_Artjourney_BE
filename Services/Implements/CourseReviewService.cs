@@ -97,5 +97,30 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<List<BasicCourseReviewFlatResponseDTO>>> GetBasicCourseReviewFlatResponseDTOs(long courseId)
+        {
+            try
+            {
+                var basicCourseReviewResponseDTOs = await _courseReviewRepository.GetBasicCourseReviewFlatResponseDTOsByCourseId(courseId);
+                return new ApiResponse<List<BasicCourseReviewFlatResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = basicCourseReviewResponseDTOs,
+                    Message = "Data retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetBasicCourseReviewFlatResponseDTOs at CourseReviewService.cs: {ex}", ex.Message);
+                await _unitOfWork.RollBackAsync();
+                return new ApiResponse<List<BasicCourseReviewFlatResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

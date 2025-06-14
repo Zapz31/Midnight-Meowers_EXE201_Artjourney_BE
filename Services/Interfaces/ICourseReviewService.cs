@@ -13,5 +13,6 @@ namespace Services.Interfaces
     public interface ICourseReviewService
     {
         public Task<ApiResponse<CourseReview>> CreateCourseReview(CreateCourseReviewRequestDTO requestDTO, long userId, string status);
+        public Task<ApiResponse<List<BasicCourseReviewFlatResponseDTO>>> GetBasicCourseReviewFlatResponseDTOs(long courseId);
     }
 }
