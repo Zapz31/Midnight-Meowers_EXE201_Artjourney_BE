@@ -53,6 +53,9 @@ namespace BusinessObjects.Models
         // 1 - N 
         [InverseProperty("ContentSubModule")]
         public virtual ICollection<LearningContent> LearningContents { get; set; } = new List<LearningContent>();
+
+        [InverseProperty("SubModule")]
+        public virtual ICollection<UserSubModuleInfo> UserSubModuleInfos { get; set; } = new List<UserSubModuleInfo>();
     }
 }
 

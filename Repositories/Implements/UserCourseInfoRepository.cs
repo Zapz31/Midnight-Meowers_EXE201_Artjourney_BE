@@ -26,7 +26,7 @@ namespace Repositories.Implements
         public async Task<UserCourseInfo> CreateUserCourseInfo(UserCourseInfo userCourseInfo)
         {
                 var createdUser = await _unitOfWork.GetRepo<UserCourseInfo>().CreateAsync(userCourseInfo);
-                await _unitOfWork.SaveChangesAsync();
+                //await _unitOfWork.SaveChangesAsync();
                 return createdUser;
         }
 

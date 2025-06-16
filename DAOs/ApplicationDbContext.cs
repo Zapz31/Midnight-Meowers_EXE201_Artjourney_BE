@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.CourseReivew;
 using Helpers.DTOs.Courses;
+using Helpers.DTOs.General;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -41,10 +42,12 @@ namespace DAOs
         public DbSet<UserCourseStreak> userCourseStreaks { get; set; }
         public DbSet<CourseReview> CourseReviews { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<UserSubModuleInfo> UserSubModuleInfos { get; set; }
         
         // DTO
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }
         public DbSet<BasicCourseReviewFlatResponseDTO> BasicCourseReviewFlatResponseDTOs {  get; set; } 
+        public DbSet<QueryResultA> queryResultAs {  get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -257,9 +260,22 @@ namespace DAOs
                     v => DateOnly.FromDateTime(v)
                 );
 
+            modelBuilder.Entity<UserSubModuleInfo>()
+                .HasOne(usmi => usmi.User)
+                .WithMany(u => u.UserSubModuleInfos)
+                .HasForeignKey(usmi => usmi.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserSubModuleInfo>()
+                .HasOne(usmi => usmi.SubModule)
+                .WithMany(sm => sm.UserSubModuleInfos)
+                .HasForeignKey(usmi => usmi.SubModuleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             //dto
             modelBuilder.Entity<CourseDetailScreenFlat>().HasNoKey();
             modelBuilder.Entity<BasicCourseReviewFlatResponseDTO>().HasNoKey();
+            modelBuilder.Entity<QueryResultA>().HasNoKey();
         }
 
     }

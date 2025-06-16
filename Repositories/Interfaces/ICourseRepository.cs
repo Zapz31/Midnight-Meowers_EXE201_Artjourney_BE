@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Courses;
+using Helpers.DTOs.General;
 using Helpers.HelperClasses;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Repositories.Interfaces
         public Task<Course?> GetSingleCourseAsync(long courseId);
         public Task UpdateCourseAsync(Course course);
         public Task<CourseLearningStatisticsDTO> GetCourseLearningStatisticsOptimizedAsync(long courseId);
-        public  Task<List<CourseDetailScreenFlat>> GetCourseDetailScreenFlatAsync(long courseId);
+        public Task<List<CourseDetailScreenFlat>> GetCourseDetailScreenFlatAsync(long courseId);
+        public Task<LearningDataIds> GetLearningDataIdsByCourseId(long courseId);
     }
 }

@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using DAOs;
 using Helpers.DTOs.Courses;
+using Helpers.DTOs.General;
 using Helpers.DTOs.HistoricalPeriod;
 using Helpers.HelperClasses;
 using Microsoft.EntityFrameworkCore;
@@ -233,6 +234,27 @@ namespace Repositories.Implements
                 .FromSqlRaw(sql, courseId)
                 .ToListAsync();
             return data;
+        }
+
+        public async Task<LearningDataIds> GetLearningDataIdsByCourseId(long courseId)
+        {
+            var sql = @"
+                select m.module_id, sm.sub_module_id, lc.learning_content_id 
+                from modules m
+                inner join sub_modules sm on m.module_id = sm.module_id
+                inner join learning_contents lc on lc.sub_module_id = sm.sub_module_id
+                where m.course_id = {0} and m.deleted_at is null and sm.is_active = true and lc.is_active = true";
+            var queryResults = await _context.Set<QueryResultA>()
+            .FromSqlRaw(sql, courseId)
+            .ToListAsync();
+
+            var result = new LearningDataIds
+            {
+                ModuleIds = queryResults.Select(x => x.module_id).Distinct().ToList(),
+                SubModuleIds = queryResults.Select(x => x.sub_module_id).Distinct().ToList(),
+                LearningContentIds = queryResults.Select(x => x.learning_content_id).Distinct().ToList()
+            };
+            return result;
         }
 
     }

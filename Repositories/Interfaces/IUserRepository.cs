@@ -17,5 +17,6 @@ namespace Repositories.Interfaces
         public Task CreateUserCourseStreak(UserCourseStreak userCourseStreak);
         public Task UpdateUserCourseInfo(UserCourseInfo userCourseInfo);
         public Task UpdateCourseStreakAsync(long userId, long courseId, DateOnly today);
+        public Task CreateAllUserModuleInfo(List<UserModuleInfo> userModuleInfos);
     }
 }

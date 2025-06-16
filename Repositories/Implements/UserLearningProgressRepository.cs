@@ -40,6 +40,11 @@ namespace Repositories.Implements
             
         }
 
+        public async Task CreateUserLearningProgressesAsync(List<UserLearningProgress> userLearningProgresses)
+        {
+            await _unitOfWork.GetRepo<UserLearningProgress>().CreateAllAsync(userLearningProgresses);
+        }
+
         public async Task<UserLearningProgress?> GetUserLearningProgressByUserIdAndLNCId(long userId, long learningContentId)
         {
             var options = new QueryBuilder<UserLearningProgress>()

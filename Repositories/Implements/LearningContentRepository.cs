@@ -31,6 +31,11 @@ namespace Repositories.Implements
             return createdLearningContent;
         }
 
+        public async Task CreateLearningContentsAsync(List<LearningContent> learningContents)
+        {
+            await _unitOfWork.GetRepo<LearningContent>().CreateAllAsync(learningContents);
+        }
+
         public async Task<ChallengeItem> CreateChallengeItemAsync(ChallengeItem challengeItem)
         {
             var createdChallengeItem = await _unitOfWork.GetRepo<ChallengeItem>().CreateAsync(challengeItem);

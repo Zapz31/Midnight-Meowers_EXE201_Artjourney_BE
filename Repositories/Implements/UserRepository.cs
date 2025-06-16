@@ -105,5 +105,10 @@ namespace Repositories.Implements
             }
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task CreateAllUserModuleInfo(List<UserModuleInfo> userModuleInfos)
+        {
+            await _unitOfWork.GetRepo<UserModuleInfo>().CreateAllAsync(userModuleInfos);
+        }
     }
 }

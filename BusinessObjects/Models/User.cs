@@ -98,5 +98,7 @@ namespace BusinessObjects.Models
         [InverseProperty("User")]
         public virtual ICollection<UserLearningProgress> UserLearningProgresses { get; set; } = new List<UserLearningProgress>();
 
+        [InverseProperty("User")]
+        public virtual ICollection<UserSubModuleInfo> UserSubModuleInfos { get; set; } = new List<UserSubModuleInfo>();
     }
 }
