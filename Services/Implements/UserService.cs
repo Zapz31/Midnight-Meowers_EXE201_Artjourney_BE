@@ -413,7 +413,7 @@ namespace Services.Implements
                     };
                 }
 
-                await _subModuleRepository.UpdateSubModuleProgress(userId, moduleSubModuleCourseIds[0].SubModuleId ?? 0);
+                await _subModuleRepository.UpdateSubModuleProgress(userId, moduleSubModuleCourseIds[0].SubModuleId ?? 0, moduleSubModuleCourseIds[0].CourseId ?? 0);
                 await _moduleRepository.UpdateModuleProgress(userId, moduleSubModuleCourseIds[0].ModuleId ?? 0);
                 await _userRepository.UpdateCourseProgress(userId, moduleSubModuleCourseIds[0].CourseId ?? 0);
 

@@ -84,7 +84,7 @@ namespace Artjouney_BE.Controllers
         [HttpPost("/tracking-to-update-sub-module-progress/user/{userId}/sub-module-id/{subModuleId}")]
         public async Task<IActionResult> UpdateSubModuleProgress(long subModuleId, long userId)
         {
-            var roweffect = await _subModuleRepository.UpdateSubModuleProgress(userId, subModuleId);
+            var roweffect = await _subModuleRepository.UpdateSubModuleProgress(userId, subModuleId, 0);
             return StatusCode(200, roweffect);
         }
 

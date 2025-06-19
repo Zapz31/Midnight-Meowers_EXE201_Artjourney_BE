@@ -214,5 +214,7 @@ END $$;", userId, courseId);
                 throw new Exception($"Error when updating progress for course: {ex.Message}", ex);
             }
         }
+
+
     }
 }
