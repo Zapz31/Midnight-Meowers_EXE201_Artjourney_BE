@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,7 @@ namespace Repositories.Interfaces
         public Task UpdateUserCourseInfo(UserCourseInfo userCourseInfo);
         public Task UpdateCourseStreakAsync(long userId, long courseId, DateOnly today);
         public Task CreateAllUserModuleInfo(List<UserModuleInfo> userModuleInfos);
+        public Task<int> UpdateCourseProgress(long userId, long courseId);
+        public Task<List<ModuleSubModuleCourseIds>> GetSingleModuleSubModuleCourseIdsByLCIds(long learningContentId);
     }
 }

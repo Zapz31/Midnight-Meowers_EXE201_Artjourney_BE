@@ -25,6 +25,8 @@ namespace Services.Implements
         private readonly IUserLearningProgressRepository _userLearningProgressRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly ILearningContentRepository _learningContentRepository;
+        private readonly ISubModuleRepository _subModuleRepository;
+        private readonly IModuleRepository _moduleRepository;
         public UserService(
                 IUserRepository userRepository,
                 ILoginHistoryRepository loginHistoryRepository,
@@ -32,7 +34,9 @@ namespace Services.Implements
                 ILogger<UserService> logger,
                 IUserLearningProgressRepository userLearningProgressRepository,
                 ICurrentUserService currentUserService,
-                ILearningContentRepository learningContentRepository
+                ILearningContentRepository learningContentRepository,
+                ISubModuleRepository subModuleRepository,
+                IModuleRepository moduleRepository
             )
         
         {
@@ -43,6 +47,8 @@ namespace Services.Implements
             _userLearningProgressRepository = userLearningProgressRepository;
             _currentUserService = currentUserService;
             _learningContentRepository = learningContentRepository;
+            _subModuleRepository = subModuleRepository;
+            _moduleRepository = moduleRepository;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -387,11 +393,30 @@ namespace Services.Implements
                 if (updatedUserLearningProgress.Attempts < 2)
                 {
                     updatedUserLearningProgress.CompletedAt = DateTime.UtcNow;
+                    
                 }
+                updatedUserLearningProgress.CompletedIn = DateTime.UtcNow - updatedUserLearningProgress.StartedAt;
                 updatedUserLearningProgress.UpdatedAt = DateTime.UtcNow;
 
                 // update UserLearningProgressSingle
                 await _userLearningProgressRepository.UpdateUserLearningProgressSingleAsync(updatedUserLearningProgress);
+
+                // call 3 function here
+                var moduleSubModuleCourseIds = await _userRepository.GetSingleModuleSubModuleCourseIdsByLCIds(userLearningProgressId);
+                if (!moduleSubModuleCourseIds.Any())
+                {
+                    return new ApiResponse<UserLearningProgress>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "learning content is not valid"
+                    };
+                }
+
+                await _subModuleRepository.UpdateSubModuleProgress(userId, moduleSubModuleCourseIds[0].SubModuleId ?? 0);
+                await _moduleRepository.UpdateModuleProgress(userId, moduleSubModuleCourseIds[0].ModuleId ?? 0);
+                await _userRepository.UpdateCourseProgress(userId, moduleSubModuleCourseIds[0].CourseId ?? 0);
+
                 await _unitOfWork.CommitTransactionAsync();
                 return new ApiResponse<UserLearningProgress>
                 {

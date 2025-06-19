@@ -32,8 +32,14 @@ namespace BusinessObjects.Models
         [Column("last_attempt_at")]
         public DateTime? LastAttemptAt { get; set; }
 
+        [Column("started_at")]
+        public DateTime? StartedAt { get; set; }
+
         [Column("completed_at")]
         public DateTime? CompletedAt { get; set; }
+
+        [Column("completed_in")]
+        public TimeSpan? CompletedIn { get; set; }
 
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;

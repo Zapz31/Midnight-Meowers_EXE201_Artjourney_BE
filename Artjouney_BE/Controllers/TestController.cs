@@ -17,17 +17,26 @@ namespace Artjouney_BE.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly ICourseService _courseService;
         private readonly IUserService _userService;
+        private readonly ISubModuleRepository _subModuleRepository;
+        private readonly IModuleRepository _moduleRepository;
+        private readonly IUserRepository _userRepository;
 
         public TestController (IFileHandlerService fileHandlerService, 
             ICourseRepository courseRepository, 
             ICourseService courseService,
-            IUserService userService
+            IUserService userService,
+            ISubModuleRepository subModuleRepository,
+            IModuleRepository moduleRepository,
+            IUserRepository userRepository
             )
         {
             _fileHandlerService = fileHandlerService;
             _courseRepository = courseRepository;
             _courseService = courseService;
             _userService = userService;
+            _subModuleRepository = subModuleRepository;
+            _moduleRepository = moduleRepository;
+            _userRepository = userRepository;
         }
         [HttpGet("ping")]
         public async Task<IActionResult> ping()
@@ -72,5 +81,25 @@ namespace Artjouney_BE.Controllers
             return StatusCode(200, data);
         }
 
+        [HttpPost("/tracking-to-update-sub-module-progress/user/{userId}/sub-module-id/{subModuleId}")]
+        public async Task<IActionResult> UpdateSubModuleProgress(long subModuleId, long userId)
+        {
+            var roweffect = await _subModuleRepository.UpdateSubModuleProgress(userId, subModuleId);
+            return StatusCode(200, roweffect);
+        }
+
+        [HttpPost("/tracking-to-update-module-progress/user/{userId}/module-id/{moduleId}")]
+        public async Task<IActionResult> UpdateModuleProgress(long userId, long moduleId)
+        {
+            var roweffect = await _moduleRepository.UpdateModuleProgress(userId, moduleId);
+            return StatusCode(200, roweffect);
+        }
+
+        [HttpPost("/tracking-to-update-course-progress/user/{userId}/course/{courseId}")]
+        public async Task<IActionResult> U(long userId, long courseId)
+        {
+            var roweffect = await _userRepository.UpdateCourseProgress(userId, courseId);
+            return StatusCode(200, roweffect);
+        }
     }
 }

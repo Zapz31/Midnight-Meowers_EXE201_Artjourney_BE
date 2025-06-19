@@ -65,6 +65,69 @@ namespace Repositories.Implements
             return dtos;
         }
 
+        public async Task<int> UpdateModuleProgress(long userId, long moduleId)
+        {
+            try
+            {
+                
+                var completeSQL = string.Format(@"DO $$
+DECLARE
+    total_sub_modules INTEGER;
+    completed_sub_modules INTEGER;
+    is_module_completed BOOLEAN;
+    total_completed_in INTERVAL;
+BEGIN
+    SELECT COUNT(*) INTO total_sub_modules
+    FROM sub_modules 
+    WHERE module_id = {1} AND is_active = true;
 
+SELECT COUNT(*) INTO completed_sub_modules
+    FROM sub_modules sm
+    JOIN user_sub_module_infos usmi ON sm.sub_module_id = usmi.sub_module_id
+    WHERE sm.module_id = {1} 
+      AND sm.is_active = true
+      AND usmi.user_id = {0} 
+      AND usmi.is_completed = true;
+
+is_module_completed := (total_sub_modules > 0 AND completed_sub_modules = total_sub_modules);
+
+	SELECT SUM(usmi.completed_in) INTO total_completed_in
+    FROM user_sub_module_infos usmi
+    JOIN sub_modules sm ON sm.sub_module_id = usmi.sub_module_id
+    WHERE usmi.user_id = {0}
+      AND sm.module_id = {1}
+      AND sm.is_active = true
+      AND usmi.is_completed = true;
+
+    -- update user_module_infos
+    UPDATE user_module_infos
+    SET 
+        is_completed = is_module_completed,
+        completed_at = CASE 
+            WHEN is_module_completed AND completed_at IS NULL 
+            THEN NOW() 
+            ELSE completed_at 
+        END,
+        completed_in = CASE 
+            WHEN is_module_completed AND completed_in IS NULL
+            THEN total_completed_in
+            ELSE completed_in
+        END
+    WHERE user_id = {0} AND module_id = {1};
+
+    -- Raise exception if no record was updated
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No user_module_info record found for user_id: % and sub_module_id: %', {0}, {1};
+    END IF;
+END $$;", userId, moduleId);
+                var rowEffect = await _context.Database.ExecuteSqlRawAsync(completeSQL, userId, moduleId);
+                
+                return rowEffect;
+            } catch (Exception ex)
+            {
+                
+                throw new Exception($"Error when updating progress for sub_module: {ex.Message}", ex);
+            }
+        }
     }
 }

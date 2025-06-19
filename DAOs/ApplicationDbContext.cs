@@ -17,6 +17,7 @@ namespace DAOs
          use those commands when you want update database 
         dotnet ef migrations add InitCreate --project DAOs --startup-project Artjouney_BE
         dotnet ef database update --project DAOs --startup-project Artjouney_BE
+        dotnet ef migrations remove --project DAOs --startup-project Artjouney_BE
 
          */
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -48,6 +49,7 @@ namespace DAOs
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }
         public DbSet<BasicCourseReviewFlatResponseDTO> BasicCourseReviewFlatResponseDTOs {  get; set; } 
         public DbSet<QueryResultA> queryResultAs {  get; set; }
+        public DbSet<ModuleSubModuleCourseIds> ModuleSubModuleCourseIds { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -276,6 +278,7 @@ namespace DAOs
             modelBuilder.Entity<CourseDetailScreenFlat>().HasNoKey();
             modelBuilder.Entity<BasicCourseReviewFlatResponseDTO>().HasNoKey();
             modelBuilder.Entity<QueryResultA>().HasNoKey();
+            modelBuilder.Entity<ModuleSubModuleCourseIds>().HasNoKey();
         }
 
     }

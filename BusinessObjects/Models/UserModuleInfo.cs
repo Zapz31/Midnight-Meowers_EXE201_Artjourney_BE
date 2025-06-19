@@ -25,6 +25,9 @@ namespace BusinessObjects.Models
         [Column("completed_in")]
         public TimeSpan? CompletedIn { get; set; }
 
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         // Navigation properties
         [Column("user_id")]
         [ForeignKey("ModuleUser")]

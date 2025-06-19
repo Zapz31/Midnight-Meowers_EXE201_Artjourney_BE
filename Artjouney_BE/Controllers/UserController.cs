@@ -34,11 +34,11 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
-        [HttpPost("/api/users/mark-as-complete/progress/{userLearningProgressId}")]
+        [HttpPost("/api/users/mark-as-complete/learning-content/{userLearningContentId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningProgressId)
+        public async Task<IActionResult> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningContentId)
         {
-            ApiResponse<UserLearningProgress> response = await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningProgressId);
+            ApiResponse<UserLearningProgress> response = await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningContentId);
             return StatusCode(response.Code, response);
         }
     }
