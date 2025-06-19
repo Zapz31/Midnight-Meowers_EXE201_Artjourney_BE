@@ -53,6 +53,7 @@ namespace DAOs
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Order>().ToTable("orders");
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasConversion<string>();
