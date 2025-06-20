@@ -2,6 +2,8 @@
 using Helpers.DTOs.CourseReivew;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.General;
+using Helpers.DTOs.Module;
+using Helpers.DTOs.SubModule;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -50,6 +52,9 @@ namespace DAOs
         public DbSet<BasicCourseReviewFlatResponseDTO> BasicCourseReviewFlatResponseDTOs {  get; set; } 
         public DbSet<QueryResultA> queryResultAs {  get; set; }
         public DbSet<ModuleSubModuleCourseIds> ModuleSubModuleCourseIds { get; set; }
+        public DbSet<QueryResultBFlat> QueryResultBFlats { get; set; }
+        public DbSet<ModuleCourseHasEnrolledBasicViewDTO> ModuleCourseHasEnrolledBasicViewDTOs { get; set; }
+        public DbSet<SubModuleCourseHasEnrolledBasicViewDTO> SubModuleCourseHasEnrolledBasicViewDTOs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -280,6 +285,9 @@ namespace DAOs
             modelBuilder.Entity<BasicCourseReviewFlatResponseDTO>().HasNoKey();
             modelBuilder.Entity<QueryResultA>().HasNoKey();
             modelBuilder.Entity<ModuleSubModuleCourseIds>().HasNoKey();
+            modelBuilder.Entity<QueryResultBFlat>().HasNoKey();
+            modelBuilder.Entity<ModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
+            modelBuilder.Entity<SubModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
         }
 
     }

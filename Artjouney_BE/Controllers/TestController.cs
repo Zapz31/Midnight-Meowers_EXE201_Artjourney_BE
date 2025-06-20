@@ -101,5 +101,28 @@ namespace Artjouney_BE.Controllers
             var roweffect = await _userRepository.UpdateCourseProgress(userId, courseId);
             return StatusCode(200, roweffect);
         }
+
+        [HttpGet("/get-module-course-has-enrolled-basic/user/{userId}/courses/{courseIdsString}")]
+        public async Task<IActionResult> GetModuleCourseHasEnrolledBasicViewDTsAsync(long userId, string courseIdsString)
+        {
+            List<long> courseIds = courseIdsString.Split('-').Select(s => long.Parse(s)).ToList();
+            var roweffect = await _courseRepository.GetModuleCourseHasEnrolledBasicViewDTsAsync(userId, courseIds);
+            return StatusCode(200, roweffect);
+        }
+
+        [HttpGet("/get-sub-module-course-has-enrolled-basic/user/{userId}/courses/{moduleIdsString}")]
+        public async Task<IActionResult> GetSubModuleCourseHasEnrolledBasicViewDTOsAsync(long userId, string moduleIdsString)
+        {
+            List<long> moduleIds = moduleIdsString.Split('-').Select(s => long.Parse(s)).ToList();
+            var roweffect = await _courseRepository.GetSubModuleCourseHasEnrolledBasicViewDTOsAsync(userId, moduleIds);
+            return StatusCode(200, roweffect);
+        }
+
+        [HttpGet("/get-query-result-B-flat/user/{userId}")]
+        public async Task<IActionResult> GetQueryResultBFlat(long userId)
+        {
+            var roweffect = await _courseRepository.GetQueryResultBFlat(userId);
+            return StatusCode(200, roweffect);
+        }
     }
 }

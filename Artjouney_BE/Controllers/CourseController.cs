@@ -58,5 +58,12 @@ namespace Artjouney_BE.Controllers
             var response = await _courseService.GetCourseDetailForGuestAsync(courseId);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/courses/enrolled/user/{userId}")]
+        public async Task<IActionResult> GetCoursesHasEnrolledByUserIdAsync(long userId)
+        {
+            var response = await _courseService.GetCoursesHasEnrolledByUserIdAsync(userId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

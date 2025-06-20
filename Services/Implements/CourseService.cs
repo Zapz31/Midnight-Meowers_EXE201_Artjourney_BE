@@ -428,6 +428,72 @@ namespace Services.Implements
             }
         }
 
+        public async Task<ApiResponse<List<CourseHasEnrolledBasicViewReponseDTO>>> GetCoursesHasEnrolledByUserIdAsync(long userId)
+        {
+            try
+            {
+                var courses = await _courseRepository.GetQueryResultBFlat(userId);
+                if (courses.Count == 0)
+                {
+                    return new ApiResponse<List<CourseHasEnrolledBasicViewReponseDTO>>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "User has not enrolled any course"
+                    };
+                }
+                var courseIds = courses.Select(c => c.CourseId).ToList();
+                var modules = await _courseRepository.GetModuleCourseHasEnrolledBasicViewDTsAsync(userId, courseIds);
+                var moduleIds = modules.Select(m => m.ModuleId).ToList();
+                var subModules = await _courseRepository.GetSubModuleCourseHasEnrolledBasicViewDTOsAsync(userId, moduleIds);
 
+                var moduleGroups = modules.GroupBy(m => m.CourseId).ToDictionary(g => g.Key, g => g.ToList());
+                var subModuleGroups = subModules.GroupBy(sm => sm.ModuleId).ToDictionary(g => g.Key, g => g.ToList());
+                var optimizedResult = courses.Select(course => new CourseHasEnrolledBasicViewReponseDTO
+                {
+                    CourseId = course.CourseId,
+                    CourseTitle = course.CourseTitle,
+                    CourseDescription = course.CourseDescription,
+                    ThumbnailUrl = course.ThumbnailUrl,
+                    RegionName = course.RegionName,
+                    HistorialPeriodName = course.HistorialPeriodName,
+                    CompletedAt = course.CompletedAt,
+                    Modules = moduleGroups.ContainsKey(course.CourseId)
+                        ? moduleGroups[course.CourseId].Select(module => new ModuleCourseHasEnrolledBasicViewDTO
+                        {
+                            ModuleId = module.ModuleId,
+                            IsCompleted = module.IsCompleted,
+                            CourseId = module.CourseId,
+                            SubModules = subModuleGroups.ContainsKey(module.ModuleId)
+                                ? subModuleGroups[module.ModuleId].Select(subModule => new SubModuleCourseHasEnrolledBasicViewDTO
+                                {
+                                    SubModuleId = subModule.SubModuleId,
+                                    IsCompleted = subModule.IsCompleted,
+                                    ModuleId = subModule.ModuleId
+                                }).ToList()
+                                : new List<SubModuleCourseHasEnrolledBasicViewDTO>()
+                        }).ToList()
+                    : new List<ModuleCourseHasEnrolledBasicViewDTO>()
+                }).ToList();
+
+                return new ApiResponse<List<CourseHasEnrolledBasicViewReponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = optimizedResult,
+                    Message = "Data retrieve success"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at GetCoursesHasEnrolledByUserIdAsync at CourseService.cs: {ex}", ex.Message);
+                return new ApiResponse<List<CourseHasEnrolledBasicViewReponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

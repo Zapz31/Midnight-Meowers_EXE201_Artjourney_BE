@@ -4,6 +4,8 @@ using DAOs;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.General;
 using Helpers.DTOs.HistoricalPeriod;
+using Helpers.DTOs.Module;
+using Helpers.DTOs.SubModule;
 using Helpers.HelperClasses;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
@@ -257,7 +259,86 @@ namespace Repositories.Implements
             return result;
         }
 
-        //public 
+        public async Task<List<CourseHasEnrolledBasicViewReponseDTO>> GetQueryResultBFlat (long userId)
+        {
+            var sql = @"select 
+c.course_id as ""CourseId"",
+c.title as ""CourseTitle"",
+c.description as ""CourseDescription"",
+c.thumbnail_url as ""ThumbnailUrl"",
+r.region_name as ""RegionName"",
+hp.historical_period_name as ""HistoricalPeriodName"",
+uci.completed_at as ""CompletedAt""
+from courses c
+inner join historical_periods hp on c.historical_period_id = hp.historical_period_id
+inner join regions r on c.region_id = r.region_id
+inner join user_course_infos uci on uci.course_id = c.course_id
+where uci.user_id = {0} and c.status = 'Published'";
+            var queryResults = await _context.Set<QueryResultBFlat>()
+            .FromSqlRaw(sql, userId)
+            .ToListAsync();
+
+            var results = queryResults.Select(c => new CourseHasEnrolledBasicViewReponseDTO
+            {
+                CourseId = c.CourseId,
+                CourseTitle = c.CourseTitle,
+                CourseDescription = c.CourseDescription,
+                ThumbnailUrl = c.ThumbnailUrl,
+                RegionName = c.RegionName,
+                HistorialPeriodName = c.HistoricalPeriodName,
+                CompletedAt = c.CompletedAt
+            }).ToList();
+            return results;
+
+        }
+
+        public async Task<List<ModuleCourseHasEnrolledBasicViewDTO>> GetModuleCourseHasEnrolledBasicViewDTsAsync(long userId, List<long>? courseIds)
+        {
+            if (courseIds == null)
+            {
+                return new List<ModuleCourseHasEnrolledBasicViewDTO>();
+            }
+            var courseIdsParam = string.Join(",", courseIds.Select(id => id.ToString()));
+            var sql = $@"
+        SELECT 
+            umi.module_id AS ""ModuleId"", 
+            umi.is_completed AS ""IsCompleted"", 
+            m.course_id AS ""CourseId""
+        FROM user_module_infos umi 
+        INNER JOIN modules m ON umi.module_id = m.module_id
+        WHERE m.course_id IN ({courseIdsParam}) 
+            AND umi.user_id = {userId} 
+            AND m.deleted_at IS NULL";
+
+            // Dùng FromSqlRaw + parameter
+            var results = await _context.Set<ModuleCourseHasEnrolledBasicViewDTO>()
+                .FromSqlRaw(sql, courseIdsParam, userId)
+                .ToListAsync();
+
+            return results;
+        }
+
+        public async Task<List<SubModuleCourseHasEnrolledBasicViewDTO>> GetSubModuleCourseHasEnrolledBasicViewDTOsAsync(long userId, List<long>? moduleIds)
+        {
+            if(moduleIds == null)
+            {
+                return new List<SubModuleCourseHasEnrolledBasicViewDTO> ();
+            }
+            var moduleIdsParam = string.Join(",", moduleIds.Select(id => id.ToString()));
+            var sql = $@"select
+usmi.sub_module_id as ""SubModuleId"",
+usmi.is_completed as ""IsCompleted"",
+sm.module_id as ""ModuleId""
+from user_sub_module_infos usmi 
+inner join sub_modules sm on usmi.sub_module_id = sm.sub_module_id
+where sm.is_active = true and sm.module_id in ({moduleIdsParam}) and user_id = {userId}";
+
+            var results = await _context.Set<SubModuleCourseHasEnrolledBasicViewDTO>()
+                .FromSqlRaw(sql, userId, moduleIdsParam)
+                .ToListAsync();
+
+            return results;
+        }
 
     }
 }
