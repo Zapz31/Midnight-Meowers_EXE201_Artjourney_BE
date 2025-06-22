@@ -10,6 +10,13 @@ using System.Text;
 using DAOs; // For reading webhook body
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Services.Implements;
+using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using BusinessObjects.Models;
+using Repositories.Interfaces;
+using Helpers.DTOs.UserCourseInfo;
 
 namespace Artjouney_BE.Controllers
 {
@@ -20,20 +27,31 @@ namespace Artjouney_BE.Controllers
         private readonly IPayOSService _payOSService;
         private readonly ILogger<PaymentController> _logger; // Add logging
         private readonly ApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IUserCourseInfoService _userCourseInfoService;
 
 
         // Uncomment if you have an order service to manage orders
         // private readonly IOrderService _orderService;
 
-        public PaymentController(IPayOSService payOSService, ILogger<PaymentController> logger, ApplicationDbContext context /*, IOrderService orderService */)
+        public PaymentController(IPayOSService payOSService, ILogger<PaymentController> logger, 
+            ICurrentUserService currentUserService,
+            IOrderRepository orderRepository,
+            ApplicationDbContext context /*, IOrderService orderService */, 
+            IUserCourseInfoService userCourseInfoService)
         {
             _payOSService = payOSService;
             _logger = logger;
             _context = context;
+            _currentUserService = currentUserService;
+            _orderRepository = orderRepository;
+            _userCourseInfoService = userCourseInfoService;
             // _orderService = orderService;
         }
 
         [HttpPost("create-payment-link")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreatePaymentLink([FromBody] OrderCreationDto orderRequest) // Replace OrderCreationDto with  actual request model
         {
             if (!ModelState.IsValid)
@@ -45,10 +63,15 @@ namespace Artjouney_BE.Controllers
             // long InternalOrderCode = await _orderService.CreateOrderAsync(orderRequest);
             // decimal amount = await _orderService.GetOrderAmountAsync(InternalOrderCode);
             // List<ItemData> items = await _orderService.GetOrderItemsAsync(InternalOrderCode);
+            if (string.IsNullOrWhiteSpace(orderRequest.Description) || !(("thanh toan khoa hoc".Equals(orderRequest.Description)) || ("thanh toan premium".Equals(orderRequest.Description))))
+            {
+                return StatusCode(400, "Invalid description");
+            }
+            var userId = _currentUserService.AccountId;
 
             long orderCode = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // Use system's unique order identifier
-            int amount = orderRequest.Amount; // Example: Get amount from request
-            string description = $"Payment for {orderCode}"; // Customize, 25 characters max
+            //int amount = orderRequest.Amount; // Example: Get amount from request
+            //string description = $"Payment for {orderCode}"; // Customize, 25 characters max
 
             List<ItemData> items = new List<ItemData>(); // Populate from orderRequest or  order service
             if (orderRequest.Items != null)
@@ -59,13 +82,18 @@ namespace Artjouney_BE.Controllers
                 }
             }
 
-
+            int amount = 0;
+            foreach(var itemData in items)
+            {
+                var totalPrice = itemData.price * itemData.quantity;
+                amount += totalPrice;
+            }
 
             // For local development, might need to use a tunneling service like ngrok.
             string cancelUrl = "https://-frontend-domain.com/payment/cancel"; //  frontend cancel URL
             string returnUrl = "https://-frontend-domain.com/payment/success"; //  frontend success/return URL
 
-            var paymentData = new PaymentData(orderCode, amount, description, items, cancelUrl, returnUrl)
+            var paymentData = new PaymentData(orderCode, amount, orderRequest.Description, items, cancelUrl, returnUrl)
             {
                 // Optional: buyerName, buyerEmail, buyerPhone, buyerAddress
                 buyerName = orderRequest.BuyerName,
@@ -74,6 +102,21 @@ namespace Artjouney_BE.Controllers
             };
 
             var paymentResult = await _payOSService.CreatePaymentLinkAsync(paymentData);
+            
+            //Th1: thanh toan khoa hoc
+            if("thanh toan khoa hoc".Equals(orderRequest.Description.ToLower()))
+            {
+                Order order = new()
+                {
+                    OrderCode = orderCode,
+                    UserId = userId,
+                    CourseId = orderRequest.Items[0].CourseId
+                };
+                await _orderRepository.CreateOrder(order);
+                
+            }
+            //Th2: thanh toan premium
+
 
             if (paymentResult == null)
             {
@@ -144,15 +187,16 @@ public async Task<IActionResult> PayOSWebhook()
     var signatureHeader = Request.Headers["x-payos-signature"].FirstOrDefault();
     _logger.LogInformation("Webhook received. Payload: {Payload}, Signature: {Signature}", jsonPayload, signatureHeader);
 
-    if (string.IsNullOrEmpty(signatureHeader))
-    {
-        _logger.LogWarning("Webhook received without signature.");
-        return BadRequest("Missing signature.");
-    }
+    //if (string.IsNullOrEmpty(signatureHeader))
+    //{
+    //    _logger.LogWarning("Webhook received without signature.");
+    //    return BadRequest("Missing signature.");
+    //}
 
     try
     {
         WebhookData? verifiedData = null;
+        WebhookType? realWebhookObject = null;
         try
         {
             var webhookObject = System.Text.Json.JsonSerializer.Deserialize<WebhookType>(
@@ -165,16 +209,17 @@ public async Task<IActionResult> PayOSWebhook()
                 return BadRequest("Invalid webhook payload.");
             }
 
-            var payOSClient = new PayOS(
-                _payOSService.GetSettings().ClientId,
-                _payOSService.GetSettings().ApiKey,
-                _payOSService.GetSettings().ChecksumKey);
+            //var payOSClient = new PayOS(
+            //    _payOSService.GetSettings().ClientId,
+            //    _payOSService.GetSettings().ApiKey,
+            //    _payOSService.GetSettings().ChecksumKey);
 
-            verifiedData = payOSClient.verifyPaymentWebhookData(webhookObject);
+            verifiedData = _payOSService.VerifyPaymentWebhookData(webhookObject);
+            realWebhookObject = webhookObject;
         }
         catch (Exception verificationEx)
         {
-            _logger.LogError(verificationEx, "Webhook signature verification failed.");
+            _logger.LogError(verificationEx, "Webhook signature verification failed: {ex}", verificationEx.Message);
             return BadRequest("Webhook signature verification failed.");
         }
 
@@ -182,50 +227,32 @@ public async Task<IActionResult> PayOSWebhook()
         {
             _logger.LogInformation("Webhook verified successfully for orderCode: {OrderCode}, Status: {Status}",
                 verifiedData.orderCode, verifiedData.code);
-
-            if (verifiedData.code == "00" && verifiedData.desc == "PAID")
+                    _logger.LogInformation("Check code: {code}", verifiedData.code);
+                    _logger.LogInformation("Check success: {success}", realWebhookObject.success);
+            if (verifiedData.code == "00" && realWebhookObject.success)
             {
                 _logger.LogInformation("Payment successful for order: {OrderCode}", verifiedData.orderCode);
 
                 try
                 {
-                    // Description format: "<user_id>_<course_id>_<order_code>"
-                    var parts = verifiedData.description?.Split('_');
-
-                    if (parts == null || parts.Length != 3)
+                            // Get order by order code for checking if the transaction has actually been paid successfully
+                            var order = await _orderRepository.GetOrderByOrderCodeAsync(verifiedData.orderCode);
+                            if (order == null)
+                            {
+                                throw new Exception("Order has not exist");
+                            }
+                    //Th1: thanh toan khoa hoc
+                    if ("thanh toan khoa hoc".Equals(verifiedData.description))
                     {
-                        _logger.LogWarning("Invalid description format: {Description}", verifiedData.description);
-                        return BadRequest("Invalid description format.");
+                        BasicCreateUserCourseInfoRequestDTO basicCreateUserCourseInfoRequestDTO = new() 
+                        {
+                            EnrollmentStatus = BusinessObjects.Enums.CourseEnrollmentStatus.Enrolled,
+                            LearningStatus = BusinessObjects.Enums.CourseLearningStatus.InProgress,
+                            UserId = order.UserId,
+                            CourseId = order.CourseId ?? 0
+                        };
+                                await _userCourseInfoService.CreateUserCourseInfo(basicCreateUserCourseInfoRequestDTO);
                     }
-
-                    long userId = long.Parse(parts[0]);
-                    long courseId = long.Parse(parts[1]);
-                    long orderCodeFromDescription = long.Parse(parts[2]);
-
-                    if (orderCodeFromDescription != verifiedData.orderCode)
-                    {
-                        _logger.LogWarning("Mismatch between description orderCode and webhook orderCode.");
-                        return BadRequest("Order code mismatch.");
-                    }
-
-                    // Prevent duplicate order insert
-                    bool exists = await _context.Orders.AnyAsync(o => o.OrderCode == verifiedData.orderCode);
-                    if (exists)
-                    {
-                        _logger.LogInformation("Order already exists: {OrderCode}", verifiedData.orderCode);
-                        return Ok(); // Already processed
-                    }
-
-                    var order = new BusinessObjects.Models.Order
-                    {
-                        UserId = userId,
-                        CourseId = courseId,
-                        UserPremiumInfoId = null,
-                        OrderCode = verifiedData.orderCode
-                    };
-
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
 
                     _logger.LogInformation("Order inserted to DB: {OrderCode}", verifiedData.orderCode);
                 }
@@ -255,22 +282,39 @@ public async Task<IActionResult> PayOSWebhook()
         return StatusCode(500, "Internal error.");
     }
 }
+        [HttpGet("/api/order{orderId}")]
+        public async Task<IActionResult> GetOrder([FromRoute] int orderId)
+        {
+            try
+            {
+                PaymentLinkInformation paymentLinkInformation = await _payOSService.GetPaymentLinkInformationAsync(orderId);
+                return StatusCode(200, paymentLinkInformation);
+            }
+            catch (System.Exception exception)
+            {
 
+                Console.WriteLine(exception);
+                return StatusCode(500, "false");
+            }
+
+        }
     }
 
     //  DTO for the create-payment-link endpoint 
     public class OrderCreationDto
     {
-        public int Amount { get; set; }
+        //public int Amount { get; set; }
         public string BuyerName { get; set; } = string.Empty;
         public string BuyerEmail { get; set; } = string.Empty;
         public string BuyerPhone { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
 
     }
 
     public class OrderItemDto
     {
+        public long? CourseId { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public int Price { get; set; }

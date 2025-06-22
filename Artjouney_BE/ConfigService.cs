@@ -37,10 +37,10 @@ namespace Artjouney_BE
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
             });
 
-            // PayOS
-            PayOS payOS = new PayOS(_configuration["PayOS:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
-                    _configuration["PayOS:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
-                    _configuration["PayOS:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+           //PayOS
+           PayOS payOS = new PayOS(_configuration["PayOS:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                   _configuration["PayOS:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                   _configuration["PayOS:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
 
             services.AddSingleton(payOS);
 
@@ -150,6 +150,7 @@ namespace Artjouney_BE
             services.AddScoped<IUserLearningProgressRepository, UserLearningProgressRepository>();
             services.AddScoped<IUserCourseInfoRepository, UserCourseInfoRepository>();
             services.AddScoped<IUserSubModuleInfoRepository, UserSubModuleInfoRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
@@ -168,6 +169,7 @@ namespace Artjouney_BE
             services.AddScoped<ISubModuleService, SubModuleService>();
             services.AddScoped<ILearningContentService, LearningContentService>();
             services.AddScoped<IUserCourseInfoService, UserCourseInfoService>();
+            services.AddScoped<IPayOSService, PayOSService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

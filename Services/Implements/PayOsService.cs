@@ -17,21 +17,32 @@ namespace Services.Implements
         private readonly PayOSConfig _PayOSConfig; // Store for checksum key if needed separately
         private readonly ILogger<PayOSService> _logger;
 
-        public PayOSService(IOptions<PayOSConfig> PayOSConfig, ILogger<PayOSService> logger)
+        //public PayOSService(IOptions<PayOSConfig> PayOSConfig, ILogger<PayOSService> logger)
+        //{
+        //    _PayOSConfig = PayOSConfig.Value; // _PayOSConfig is initialized here
+        //    _logger = logger;
+        //    // Validate configuration
+
+        //    if (string.IsNullOrEmpty(_PayOSConfig.ClientId) ||
+        //        string.IsNullOrEmpty(_PayOSConfig.ApiKey) ||
+        //        string.IsNullOrEmpty(_PayOSConfig.ChecksumKey))
+        //    {
+        //        _logger.LogError("PayOS ClientId, ApiKey, or ChecksumKey is missing from configuration!");
+
+        //    }
+
+        //    _payOS = new PayOS(_PayOSConfig.ClientId, _PayOSConfig.ApiKey, _PayOSConfig.ChecksumKey);
+        //}
+
+        public PayOSService(PayOS payOS, ILogger<PayOSService> logger)
         {
-            _PayOSConfig = PayOSConfig.Value; // _PayOSConfig is initialized here
+            _payOS = payOS;
             _logger = logger;
-            // Validate configuration
+        }
 
-            if (string.IsNullOrEmpty(_PayOSConfig.ClientId) ||
-                string.IsNullOrEmpty(_PayOSConfig.ApiKey) ||
-                string.IsNullOrEmpty(_PayOSConfig.ChecksumKey))
-            {
-                _logger.LogError("PayOS ClientId, ApiKey, or ChecksumKey is missing from configuration!");
-
-            }
-
-            _payOS = new PayOS(_PayOSConfig.ClientId, _PayOSConfig.ApiKey, _PayOSConfig.ChecksumKey);
+        public WebhookData VerifyPaymentWebhookData(WebhookType webhookBody)
+        {
+            return _payOS.verifyPaymentWebhookData(webhookBody);
         }
 
         public async Task<CreatePaymentResult?> CreatePaymentLinkAsync(PaymentData paymentData)

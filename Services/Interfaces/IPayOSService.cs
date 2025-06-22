@@ -12,6 +12,7 @@ namespace Services.Interfaces
         // Task<CustomPaymentLinkResponseDto?> CreatePaymentLinkAsync(CustomPaymentLinkRequestDto request);
 
         Task<PaymentLinkInformation?> GetPaymentLinkInformationAsync(long orderCode);
+        public WebhookData VerifyPaymentWebhookData(WebhookType webhookBody);
         Task<PaymentLinkInformation?> CancelPaymentLinkAsync(long orderCode, string? cancellationReason = null);
         bool VerifyWebhookSignature(string jsonPayload, string signatureHeader); // Or handle webhook verification internally
         // Add methods for handling webhook data processing if needed
