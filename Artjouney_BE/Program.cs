@@ -29,7 +29,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://tnhaan20.github.io", 
             "http://localhost:5173", 
             "http://localhost:8080",
-            "https://zapz.phrimp.io.vn")
+            "https://zapz.phrimp.io.vn",
+            "http://localhost:19006",
+            "http://localhost:8081")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

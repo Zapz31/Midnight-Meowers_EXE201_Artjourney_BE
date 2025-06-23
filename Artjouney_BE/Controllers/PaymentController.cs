@@ -74,12 +74,38 @@ namespace Artjouney_BE.Controllers
             //string description = $"Payment for {orderCode}"; // Customize, 25 characters max
 
             List<ItemData> items = new List<ItemData>(); // Populate from orderRequest or  order service
+            List<long> itemIds = new List<long>();
             if (orderRequest.Items != null)
             {
                 foreach (var itemDto in orderRequest.Items)
                 {
                     items.Add(new ItemData(itemDto.Name, itemDto.Quantity, itemDto.Price));
+                    itemIds.Add(itemDto.CourseId ?? 0);
                 }
+            }
+            // Check if user has enrolled this course yet
+            var userCourseInfos = await _userCourseInfoService.GetUserCourseInfosByUserIdAndCourseIds(userId, itemIds);
+            if (userCourseInfos == null)
+            {
+                ApiResponse<string> errorResponse = new()
+                {
+                    Status = BusinessObjects.Enums.ResponseStatus.Error,
+                    Data = null,
+                    Code = 500,
+                    Message = "Error when checking if user has enrolled this course yet (userCourseInfos has null)"
+                };
+                return StatusCode(errorResponse.Code, errorResponse);
+            }
+            if (userCourseInfos.Data.Count != 0)
+            {
+                ApiResponse<string> errorResponse = new()
+                {
+                    Status = BusinessObjects.Enums.ResponseStatus.Error,
+                    Data = null,
+                    Code = 400,
+                    Message = "User has already enrolled this course"
+                };
+                return StatusCode(errorResponse.Code, errorResponse);
             }
 
             int amount = 0;
@@ -90,8 +116,8 @@ namespace Artjouney_BE.Controllers
             }
 
             // For local development, might need to use a tunneling service like ngrok.
-            string cancelUrl = "https://-frontend-domain.com/payment/cancel"; //  frontend cancel URL
-            string returnUrl = "https://-frontend-domain.com/payment/success"; //  frontend success/return URL
+            string cancelUrl = $"https://tnhaan20.github.io/ArtJourney/payment-callback/amount/{amount}/"; //  frontend cancel URL
+            string returnUrl = $"https://tnhaan20.github.io/ArtJourney/payment-callbackck/amount/{amount}/"; //  frontend success/return URL
 
             var paymentData = new PaymentData(orderCode, amount, orderRequest.Description, items, cancelUrl, returnUrl)
             {

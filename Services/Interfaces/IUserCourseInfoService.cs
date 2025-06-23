@@ -13,5 +13,6 @@ namespace Services.Interfaces
     {
         public Task<ApiResponse<UserCourseInfo>> CreateUserCourseInfo(BasicCreateUserCourseInfoRequestDTO requestDTO);
         public Task<ApiResponse<UserCourseInfo?>> GetUserCourseInfo(long userId, long courseId);
+        public Task<ApiResponse<List<UserCourseInfo>>> GetUserCourseInfosByUserIdAndCourseIds(long userId, List<long> courseIds);
     }
 }

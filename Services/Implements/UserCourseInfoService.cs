@@ -162,5 +162,29 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<List<UserCourseInfo>>> GetUserCourseInfosByUserIdAndCourseIds(long userId, List<long> courseIds)
+        {
+            try
+            {
+                var responseData = await _userCourseInfoRepository.GetUserCourseInfosByUserIdAndCourseIds(userId, courseIds);
+                return new ApiResponse<List<UserCourseInfo>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                    Message = "Data retrive success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogInformation("Error at GetUserCourseInfosByUserIdAndCourseIds at UserCourseInfoService: {ex}", ex.Message);
+                return new ApiResponse<List<UserCourseInfo>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 500,
+                    Message = "Error when create UserCoursInfo"
+                };
+            }
+        }
     }
 }

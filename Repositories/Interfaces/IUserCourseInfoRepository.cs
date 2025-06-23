@@ -11,5 +11,6 @@ namespace Repositories.Interfaces
     {
         public Task<UserCourseInfo> CreateUserCourseInfo(UserCourseInfo userCourseInfo);
         public Task<List<UserCourseInfo>> GetUserCourseInfosByUserIdAndCourseId(long userId, long courseId);
+        public Task<List<UserCourseInfo>> GetUserCourseInfosByUserIdAndCourseIds(long userId, List<long> courseId);
     }
 }

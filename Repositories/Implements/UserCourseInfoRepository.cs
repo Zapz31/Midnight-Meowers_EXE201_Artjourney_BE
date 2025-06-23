@@ -2,8 +2,10 @@
 using DAOs;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.UserCourseInfo;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +41,16 @@ where uci.user_id = {0} and uci.course_id = {1}";
                 .FromSqlRaw(sql, userId, courseId)
                 .ToListAsync();
             return data;
+        }
+
+        public async Task<List<UserCourseInfo>> GetUserCourseInfosByUserIdAndCourseIds(long userId, List<long> courseId)
+        {
+            var queryOption = new QueryBuilder<UserCourseInfo>()
+                .WithTracking(false)
+                .WithPredicate(u => u.UserId == userId && courseId.Contains(u.CourseId))
+                .Build();
+            var result = await _unitOfWork.GetRepo<UserCourseInfo>().GetAllAsync(queryOption);
+            return result.ToList();
         }
     }
 }
