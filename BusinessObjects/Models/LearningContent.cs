@@ -77,6 +77,12 @@ namespace BusinessObjects.Models
         [InverseProperty("LearningContent")]
         public virtual ICollection<UserLearningProgress> UserLearningProgresses { get; set; } = new List<UserLearningProgress>();
 
+        [InverseProperty("LearningContent")]
+        public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+
+        [InverseProperty("LearningContent")]
+        public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+
     }
 }
 

@@ -46,6 +46,10 @@ namespace DAOs
         public DbSet<CourseReview> CourseReviews { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<UserSubModuleInfo> UserSubModuleInfos { get; set; }
+        public DbSet<QuizAttempt> QuizAttempts { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionOptions> QuestionOptions { get; set; }
+        public DbSet<UserAnswer> UserAnswers { get; set; }
         
         // DTO
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }
@@ -278,6 +282,48 @@ namespace DAOs
                 .HasOne(usmi => usmi.SubModule)
                 .WithMany(sm => sm.UserSubModuleInfos)
                 .HasForeignKey(usmi => usmi.SubModuleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<QuizAttempt>()
+                .HasOne(qa => qa.LearningContent)
+                .WithMany(lc => lc.QuizAttempts)
+                .HasForeignKey(qa => qa.LearningContentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<QuizAttempt>()
+                .HasOne(qa => qa.User)
+                .WithMany(u => u.QuizAttempts)
+                .HasForeignKey(qa => qa.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Question>()
+                .HasOne(q => q.LearningContent)
+                .WithMany(lc => lc.Questions)
+                .HasForeignKey(q => q.LearningContentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<QuestionOptions>()
+                .HasOne(qo => qo.Question)
+                .WithMany(q => q.QuestionOptions)
+                .HasForeignKey(qo => qo.QuestionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserAnswer>()
+                .HasOne(ua => ua.QuizAttempt)
+                .WithMany(qa => qa.UserAnswers)
+                .HasForeignKey(ua => ua.QuizAttemptId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserAnswer>()
+                .HasOne(ua => ua.Question)
+                .WithMany(q => q.UserAnswers)
+                .HasForeignKey(ua => ua.QuestionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserAnswer>()
+                .HasOne(ua => ua.SelectedOption)
+                .WithMany(qo => qo.UserAnswers)
+                .HasForeignKey(ua => ua.SelectedOptionId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             //dto

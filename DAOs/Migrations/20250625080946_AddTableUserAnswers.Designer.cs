@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625080946_AddTableUserAnswers")]
+    partial class AddTableUserAnswers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -548,8 +551,6 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("question_option_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("QuestionOptionId"));
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -576,8 +577,6 @@ namespace DAOs.Migrations
                         .HasColumnName("question_id");
 
                     b.HasKey("QuestionOptionId");
-
-                    b.HasIndex("QuestionId");
 
                     b.ToTable("question_options");
                 });
@@ -1553,7 +1552,7 @@ namespace DAOs.Migrations
                 {
                     b.HasOne("BusinessObjects.Models.Question", "Question")
                         .WithMany("QuestionOptions")
-                        .HasForeignKey("QuestionId")
+                        .HasForeignKey("QuestionOptionId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 

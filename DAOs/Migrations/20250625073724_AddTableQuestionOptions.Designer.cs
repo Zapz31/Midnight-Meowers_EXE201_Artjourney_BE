@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625073724_AddTableQuestionOptions")]
+    partial class AddTableQuestionOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -548,8 +551,6 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("question_option_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("QuestionOptionId"));
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -576,8 +577,6 @@ namespace DAOs.Migrations
                         .HasColumnName("question_id");
 
                     b.HasKey("QuestionOptionId");
-
-                    b.HasIndex("QuestionId");
 
                     b.ToTable("question_options");
                 });
@@ -907,42 +906,6 @@ namespace DAOs.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.UserAnswer", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("AnsweredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("answered_at");
-
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("question_id");
-
-                    b.Property<long>("QuizAttemptId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("quiz_attempt_id");
-
-                    b.Property<long>("SelectedOptionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("selected_option_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.HasIndex("QuizAttemptId");
-
-                    b.HasIndex("SelectedOptionId");
-
-                    b.ToTable("user_answers");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserCourseInfo", b =>
@@ -1553,7 +1516,7 @@ namespace DAOs.Migrations
                 {
                     b.HasOne("BusinessObjects.Models.Question", "Question")
                         .WithMany("QuestionOptions")
-                        .HasForeignKey("QuestionId")
+                        .HasForeignKey("QuestionOptionId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
@@ -1640,33 +1603,6 @@ namespace DAOs.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.UserAnswer", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.Question", "Question")
-                        .WithMany("UserAnswers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.QuizAttempt", "QuizAttempt")
-                        .WithMany("UserAnswers")
-                        .HasForeignKey("QuizAttemptId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.QuestionOptions", "SelectedOption")
-                        .WithMany("UserAnswers")
-                        .HasForeignKey("SelectedOptionId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-
-                    b.Navigation("QuizAttempt");
-
-                    b.Navigation("SelectedOption");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserCourseInfo", b =>
@@ -1812,18 +1748,6 @@ namespace DAOs.Migrations
             modelBuilder.Entity("BusinessObjects.Models.Question", b =>
                 {
                     b.Navigation("QuestionOptions");
-
-                    b.Navigation("UserAnswers");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.QuestionOptions", b =>
-                {
-                    b.Navigation("UserAnswers");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.QuizAttempt", b =>
-                {
-                    b.Navigation("UserAnswers");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Region", b =>

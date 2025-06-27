@@ -100,5 +100,8 @@ namespace BusinessObjects.Models
 
         [InverseProperty("User")]
         public virtual ICollection<UserSubModuleInfo> UserSubModuleInfos { get; set; } = new List<UserSubModuleInfo>();
+        
+        [InverseProperty("User")]
+        public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
     }
 }

@@ -117,7 +117,7 @@ namespace Artjouney_BE.Controllers
 
             // For local development, might need to use a tunneling service like ngrok.
             string cancelUrl = $"https://tnhaan20.github.io/ArtJourney/payment-callback/amount/{amount}/"; //  frontend cancel URL
-            string returnUrl = $"https://tnhaan20.github.io/ArtJourney/payment-callbackck/amount/{amount}/"; //  frontend success/return URL
+            string returnUrl = $"https://tnhaan20.github.io/ArtJourney/payment-callback/amount/{amount}/"; //  frontend success/return URL
 
             var paymentData = new PaymentData(orderCode, amount, orderRequest.Description, items, cancelUrl, returnUrl)
             {

@@ -1,7 +1,10 @@
 ﻿using BusinessObjects.Enums;
 using Helpers.DTOs.Courses;
 using Helpers.DTOs.FileHandler;
+using Helpers.DTOs.LearningContent;
 using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Interfaces;
@@ -20,6 +23,7 @@ namespace Artjouney_BE.Controllers
         private readonly ISubModuleRepository _subModuleRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IQuestionService _questionService;
 
         public TestController (IFileHandlerService fileHandlerService, 
             ICourseRepository courseRepository, 
@@ -27,7 +31,8 @@ namespace Artjouney_BE.Controllers
             IUserService userService,
             ISubModuleRepository subModuleRepository,
             IModuleRepository moduleRepository,
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            IQuestionService questionService
             )
         {
             _fileHandlerService = fileHandlerService;
@@ -37,6 +42,7 @@ namespace Artjouney_BE.Controllers
             _subModuleRepository = subModuleRepository;
             _moduleRepository = moduleRepository;
             _userRepository = userRepository;
+            _questionService = questionService;
         }
         [HttpGet("ping")]
         public async Task<IActionResult> ping()
@@ -123,6 +129,14 @@ namespace Artjouney_BE.Controllers
         {
             var roweffect = await _courseRepository.GetQueryResultBFlat(userId);
             return StatusCode(200, roweffect);
+        }
+
+        [HttpPost("/questions")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CreateQuestionsQuiz([FromBody] List<CreateQuestionsAndOptionsBasicRequestDTO> CreateQuestionsAndOptionsBasicRequestDTOs)
+        {
+            var responseData = await _questionService.CreateQuestionsAndOptionsAsync(CreateQuestionsAndOptionsBasicRequestDTOs);
+            return StatusCode(responseData.Code, responseData);
         }
     }
 }

@@ -151,6 +151,9 @@ namespace Artjouney_BE
             services.AddScoped<IUserCourseInfoRepository, UserCourseInfoRepository>();
             services.AddScoped<IUserSubModuleInfoRepository, UserSubModuleInfoRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<IQuestionOptionRepository, QuestionOptionRepository>();
+            services.AddScoped<IQuestionService, QuestionService>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
