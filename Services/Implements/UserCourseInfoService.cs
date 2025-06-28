@@ -52,6 +52,18 @@ namespace Services.Implements
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
+                // check if user has enroll this course yet ?
+                var userCourseInfo = await _userCourseInfoRepository.GetUserCourseInfosByUserIdAndCourseId(requestDTO.UserId, requestDTO.CourseId);
+                if (userCourseInfo.Count > 0)
+                {
+                    return new ApiResponse<UserCourseInfo>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "You have already enrolled this course"
+                    };
+                }
+
                 UserCourseInfo createUserCourseInfo = new()
                 {
                     EnrollmentStatus = requestDTO.EnrollmentStatus,

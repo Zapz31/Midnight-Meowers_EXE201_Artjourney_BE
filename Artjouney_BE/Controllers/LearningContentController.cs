@@ -18,6 +18,7 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpPost("/api/learning-contents")]
+        [RequestSizeLimit(50 * 1024 * 1024)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CreateLearningContentAsync([FromForm] CreateLNReadingDTO requestDto)
         {

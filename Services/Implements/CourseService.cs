@@ -28,6 +28,7 @@ namespace Services.Implements
         private readonly ISubModuleRepository _subModuleRepository;
         private readonly ILearningContentRepository _learningContentRepository;
         private readonly IUserLearningProgressRepository _userLearningProgressRepository;
+        private readonly string ImageBaseUrl = "https://zapzminio.phrimp.io.vn/";
 
         public CourseService(ICourseRepository courseRepository, 
             ILogger<CourseService> logger, 
@@ -69,6 +70,7 @@ namespace Services.Implements
                 // thumbnail upload
                 List<IFormFile> thumbnailfiles = new List<IFormFile>();
                 string? thumbnailUrl = null;
+                string? realThumbnailUrl = null;
                 if (courseDTO.ThumbnailImage != null)
                 {
                     thumbnailfiles.Add(courseDTO.ThumbnailImage);
@@ -84,9 +86,16 @@ namespace Services.Implements
                     }
                     thumbnailUrl = uploadFilesResult.SuccessfulUploads[0].PresignedUrl;
                 }
+                if(!string.IsNullOrEmpty(thumbnailUrl))
+                {
+                    Uri uri = new Uri(thumbnailUrl);
+                    string pathAndFileName = uri.PathAndQuery.TrimStart('/');
+                    realThumbnailUrl = ImageBaseUrl + pathAndFileName;
+                }
                 // coverimage upload
                 List<IFormFile> coverImagefiles = new List<IFormFile>();
                 string? coverImageUrl = null;
+                string? realCoverImageUrl = null;
                 if (courseDTO.CoverImage != null)
                 {
                     coverImagefiles.Add(courseDTO.CoverImage);
@@ -102,12 +111,22 @@ namespace Services.Implements
                     }
                     coverImageUrl = uploadFilesResult.SuccessfulUploads[0].PresignedUrl;
                 }
+                if (coverImageUrl != null)
+                {
+                    Uri uri = new Uri(coverImageUrl);
+                    string pathAndFileName = uri.PathAndQuery.TrimStart('/'); // Loại bỏ dấu / đầu tiên
+
+                    realCoverImageUrl = ImageBaseUrl + pathAndFileName;
+                }
+                
+
+
 
                 Course createCourse = new()
                 {
                     Title = courseDTO.Title,
-                    ThumbnailUrl = thumbnailUrl,
-                    CoverImageUrl = coverImageUrl,
+                    ThumbnailUrl = realThumbnailUrl,
+                    CoverImageUrl = realCoverImageUrl,
                     Description = courseDTO.Description,
                     LearningOutcomes = courseDTO.LearningOutcomes,
                     EstimatedDuration = courseDTO.EstimatedDuration,

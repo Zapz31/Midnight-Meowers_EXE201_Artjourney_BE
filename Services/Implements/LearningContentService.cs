@@ -21,6 +21,7 @@ namespace Services.Implements
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<LearningContentService> _logger;
         private readonly IFileHandlerService _fileHandlerService;
+        private readonly string ImageBaseUrl = "https://zapzminio.phrimp.io.vn/";
         public LearningContentService(ILearningContentRepository learningContentRepository, 
             ILogger<LearningContentService> logger, 
             ICurrentUserService currentUserService,
@@ -67,8 +68,9 @@ namespace Services.Implements
                 {
                     ChallengeItem challengeItem = new ChallengeItem();
                     List<IFormFile> videos = new List<IFormFile>();
-                    string? item_content = null;
+                    string? videoUrl = null;
                     videos.Add(requestDTO.Video);
+                    string? realItemContent = null;
                     var uploadFilesResult = await _fileHandlerService.UploadFiles(videos, "a", "a");
                     if (uploadFilesResult.Errors.Any())
                     {
@@ -79,8 +81,11 @@ namespace Services.Implements
                             Message = "Server error"
                         };
                     }
-                    item_content = uploadFilesResult.SuccessfulUploads[0].PresignedUrl;
-                    challengeItem.ItemContent = item_content;
+                    videoUrl = uploadFilesResult.SuccessfulUploads[0].PresignedUrl;
+                    Uri uri = new Uri(videoUrl);
+                    string pathAndFileName = uri.PathAndQuery.TrimStart('/');
+                    realItemContent = ImageBaseUrl + pathAndFileName;
+                    challengeItem.ItemContent = realItemContent;
                     challengeItem.ItemTypes = ChallengeItemTypes.Video;
                     //challengeItem.ItemOrder = 1;
                     challengeItem.LearningContentId = createLearningContentId.LearningContentId;
