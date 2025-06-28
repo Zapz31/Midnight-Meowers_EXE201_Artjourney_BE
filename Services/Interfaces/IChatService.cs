@@ -12,6 +12,7 @@ namespace Services.Interfaces
         Task<ApiResponse<ChatSessionDTO>> GetChatSessionAsync(long chatSessionId);
         Task<ApiResponse<bool>> DeactivateChatSessionAsync(long chatSessionId);
         Task<ApiResponse<UserContextDTO>> GetUserContextAsync();
+        Task<ApiResponse<UserContextDTO>> GetUserContextAsync(long? userId);
         Task<ApiResponse<UserLearningAnalyticsDTO>> GetLearningAnalyticsAsync();
     }
 }

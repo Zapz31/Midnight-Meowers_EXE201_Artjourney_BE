@@ -48,7 +48,28 @@ namespace Artjouney_BE.Controllers
                     });
                 }
 
-                var response = await _chatService.SendMessageAsync(request);
+                // Get current user ID (null for guests)
+                long? userId = null;
+                try
+                {
+                    if (User.Identity?.IsAuthenticated == true)
+                    {
+                        userId = _currentUserService.AccountId;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log but don't fail for guests - they should still be able to use the chat
+                    _logger.LogDebug(ex, "Could not get current user ID - treating as guest user");
+                }
+
+                // For guests, always include platform context for better AI responses about ArtJourney courses
+                if (!userId.HasValue)
+                {
+                    request.IncludeUserProgress = true; // This will trigger platform course data loading
+                }
+
+                var response = await _chatService.SendMessageAsync(request, userId);
 
                 if (response.Status == BusinessObjects.Enums.ResponseStatus.Success)
                 {
