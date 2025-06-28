@@ -25,8 +25,8 @@ This guide will help you set up the AI-powered learning assistant for your ArtJo
 
 ### 3. Start Local Server
 1. Click "Start Server" in LM Studio
-2. Verify server is running at `http://127.0.0.1:1234`
-3. Test with: `GET http://127.0.0.1:1234/v1/models`
+2. Verify server is running at `https://yairozu.tail682e6a.ts.net`
+3. Test with: `GET https://yairozu.tail682e6a.ts.net/v1/models`
 
 ## Backend Configuration
 
@@ -36,7 +36,7 @@ The AI service is configured in `appsettings.json`:
 ```json
 {
   "AIService": {
-    "BaseUrl": "http://127.0.0.1:1234/v1",
+    "BaseUrl": "https://yairozu.tail682e6a.ts.net/v1",
     "ModelName": "qwen2.5-7b-instruct",
     "MaxTokens": 1500,
     "Temperature": 0.7,
@@ -161,7 +161,7 @@ const checkAIStatus = async () => {
 ### 1. Test AI Service Connection
 ```bash
 # Check if LM Studio is running
-curl http://127.0.0.1:1234/v1/models
+curl https://yairozu.tail682e6a.ts.net/v1/models
 
 # Test through your API
 curl -X GET "http://localhost:8080/api/chat/ai-status" \

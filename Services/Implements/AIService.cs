@@ -31,7 +31,7 @@ namespace Services.Implements
         {
             _httpClient = httpClient;
             _logger = logger;
-            _aiServiceUrl = configuration.GetValue<string>("AIService:BaseUrl") ?? "http://127.0.0.1:1234/v1";
+            _aiServiceUrl = configuration.GetValue<string>("AIService:BaseUrl") ?? "https://yairozu.tail682e6a.ts.net/v1";
             _modelName = configuration.GetValue<string>("AIService:ModelName") ?? "qwen2.5-7b-instruct";
             _maxTokens = configuration.GetValue<int>("AIService:MaxTokens", 1500);
             _temperature = configuration.GetValue<double>("AIService:Temperature", 0.7);
@@ -52,9 +52,10 @@ namespace Services.Implements
 
         public async Task<string> GenerateResponseAsync(string userMessage, UserContextDTO? userContext = null, List<ChatMessageResponseDTO>? chatHistory = null)
         {
-            // Optimize for short messages (define outside try block for catch blocks)
-            var isShortMessage = userMessage.Length <= _shortMessageThreshold;
-            
+                // Optimize for short messages
+                var isShortMessage = userMessage.Length <= _shortMessageThreshold;
+                var maxTokens = isShortMessage ? _shortMessageTokens : _maxTokens;
+                var temperature = isShortMessage ? _fastTemperature : _temperature;
             try
             {
                 var currentDateTime = DateTime.UtcNow;
@@ -64,8 +65,7 @@ namespace Services.Implements
                 {
                     return GetAntiCheatResponse(userContext);
                 }
-                var maxTokens = isShortMessage ? _shortMessageTokens : _maxTokens;
-                var temperature = isShortMessage ? _fastTemperature : _temperature;
+                
                 
                 // Check context limits and prepare history
                 var (processedHistory, contextStatus) = PrepareContextWithLimits(chatHistory, isShortMessage);
@@ -117,20 +117,21 @@ namespace Services.Implements
                 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("AI service returned {StatusCode}: {Content}", response.StatusCode, await response.Content.ReadAsStringAsync());                return GetFallbackResponse(userContext, isShortMessage);
-            }
+                    _logger.LogError("AI service returned {StatusCode}: {Content}", response.StatusCode, await response.Content.ReadAsStringAsync());
+                    return GetFallbackResponse(userContext, isShortMessage);
+                }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var aiResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var aiResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
 
-            if (aiResponse.TryGetProperty("choices", out var choices) && 
-                choices.GetArrayLength() > 0)
-            {
-                var choice = choices[0];
-                if (choice.TryGetProperty("message", out var message) &&
-                    message.TryGetProperty("content", out var aiContent))
+                if (aiResponse.TryGetProperty("choices", out var choices) && 
+                    choices.GetArrayLength() > 0)
                 {
-                    var finalResponse = aiContent.GetString() ?? GetFallbackResponse(userContext, isShortMessage);
+                    var choice = choices[0];
+                    if (choice.TryGetProperty("message", out var message) &&
+                        message.TryGetProperty("content", out var aiContent))
+                    {
+                        var finalResponse = aiContent.GetString() ?? GetFallbackResponse(userContext, isShortMessage);
                         
                         // Add context warning if needed
                         if (contextStatus.Contains("warning") || contextStatus.Contains("limit"))

@@ -304,7 +304,7 @@ namespace Artjouney_BE.Controllers
                     Data = new 
                     { 
                         IsAvailable = isAvailable,
-                        ServiceUrl = "http://127.0.0.1:1234",
+                        ServiceUrl = "https://yairozu.tail682e6a.ts.net",
                         ModelName = "qwen2.5-7b-instruct",
                         CheckedAt = DateTime.UtcNow
                     },
