@@ -58,9 +58,8 @@ namespace Artjouney_BE
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -151,6 +150,7 @@ namespace Artjouney_BE
             services.AddScoped<IUserCourseInfoRepository, UserCourseInfoRepository>();
             services.AddScoped<IUserSubModuleInfoRepository, UserSubModuleInfoRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IChatRepository, ChatRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();
@@ -170,6 +170,11 @@ namespace Artjouney_BE
             services.AddScoped<ILearningContentService, LearningContentService>();
             services.AddScoped<IUserCourseInfoService, UserCourseInfoService>();
             services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IAIService, AIService>();
+            
+            // HttpClient for AI Service
+            services.AddHttpClient<IAIService, AIService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

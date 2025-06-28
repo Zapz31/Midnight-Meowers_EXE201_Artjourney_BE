@@ -102,7 +102,7 @@ namespace Artjouney_BE.Controllers
         {
             // B8: Middleware đã xác thực, lấy thông tin người dùng
             _logger.LogInformation("Nhận callback từ Google OAuth");
-            var authResult = await HttpContext.AuthenticateAsync();
+            var authResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
             if (!authResult.Succeeded || authResult.Principal == null)
             {

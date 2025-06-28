@@ -46,6 +46,8 @@ namespace DAOs
         public DbSet<CourseReview> CourseReviews { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<UserSubModuleInfo> UserSubModuleInfos { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         
         // DTO
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }

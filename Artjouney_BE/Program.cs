@@ -31,7 +31,9 @@ builder.Services.AddCors(options =>
             "http://localhost:8080",
             "https://zapz.phrimp.io.vn",
             "http://localhost:19006",
-            "http://localhost:8081")
+            "http://localhost:8081",
+            "http://127.0.0.1:1234",
+            "http://localhost:1234")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

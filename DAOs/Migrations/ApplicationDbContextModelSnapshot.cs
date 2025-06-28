@@ -59,7 +59,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("LearningContentId");
 
-                    b.ToTable("challenge_items");
+                    b.ToTable("challenge_items", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Course", b =>
@@ -190,7 +190,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("courses");
+                    b.ToTable("courses", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.CourseReview", b =>
@@ -232,7 +232,7 @@ namespace DAOs.Migrations
 
                     b.HasKey("CourseReviewId");
 
-                    b.ToTable("course_reviews");
+                    b.ToTable("course_reviews", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.HistoricalPeriod", b =>
@@ -289,7 +289,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("historical_periods");
+                    b.ToTable("historical_periods", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.LearningContent", b =>
@@ -369,7 +369,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("SubModuleId");
 
-                    b.ToTable("learning_contents");
+                    b.ToTable("learning_contents", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.LoginHistory", b =>
@@ -409,7 +409,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("login_histories");
+                    b.ToTable("login_histories", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Module", b =>
@@ -464,7 +464,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("modules");
+                    b.ToTable("modules", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
@@ -492,7 +492,7 @@ namespace DAOs.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.ToTable("orders");
+                    b.ToTable("orders", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Region", b =>
@@ -541,7 +541,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("regions");
+                    b.ToTable("regions", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.RegionHisoricalPeriod", b =>
@@ -567,7 +567,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("region_historical_period");
+                    b.ToTable("region_historical_period", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SubModule", b =>
@@ -623,7 +623,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("sub_modules");
+                    b.ToTable("sub_modules", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SurveyOption", b =>
@@ -655,7 +655,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("SurveyQuestionId");
 
-                    b.ToTable("survey_options");
+                    b.ToTable("survey_options", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SurveyQuestion", b =>
@@ -691,7 +691,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("survey_questions");
+                    b.ToTable("survey_questions", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
@@ -769,7 +769,7 @@ namespace DAOs.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("users");
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserCourseInfo", b =>
@@ -825,7 +825,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_course_infos");
+                    b.ToTable("user_course_infos", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserCourseStreak", b =>
@@ -863,7 +863,7 @@ namespace DAOs.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("user_course_streaks");
+                    b.ToTable("user_course_streaks", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserLearningProgress", b =>
@@ -926,7 +926,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_learning_progresses");
+                    b.ToTable("user_learning_progresses", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserModuleInfo", b =>
@@ -968,7 +968,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_module_infos");
+                    b.ToTable("user_module_infos", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserOptionChoice", b =>
@@ -1006,7 +1006,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_option_choices");
+                    b.ToTable("user_option_choices", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserPremiumInfo", b =>
@@ -1043,7 +1043,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_premium_info");
+                    b.ToTable("user_premium_info", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserSubModuleInfo", b =>
@@ -1085,7 +1085,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_sub_module_infos");
+                    b.ToTable("user_sub_module_infos", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.VerificationInfo", b =>
@@ -1110,7 +1110,7 @@ namespace DAOs.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("verification_info");
+                    b.ToTable("verification_info", (string)null);
                 });
 
             modelBuilder.Entity("Helpers.DTOs.CourseReivew.BasicCourseReviewFlatResponseDTO", b =>
@@ -1147,7 +1147,7 @@ namespace DAOs.Migrations
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.ToTable("BasicCourseReviewFlatResponseDTOs");
+                    b.ToTable("BasicCourseReviewFlatResponseDTOs", (string)null);
                 });
 
             modelBuilder.Entity("Helpers.DTOs.Courses.CourseDetailScreenFlat", b =>
@@ -1177,7 +1177,7 @@ namespace DAOs.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.ToTable("CourseDetailScreenFlats");
+                    b.ToTable("CourseDetailScreenFlats", (string)null);
                 });
 
             modelBuilder.Entity("Helpers.DTOs.General.QueryResultA", b =>
@@ -1191,7 +1191,7 @@ namespace DAOs.Migrations
                     b.Property<long>("sub_module_id")
                         .HasColumnType("bigint");
 
-                    b.ToTable("queryResultAs");
+                    b.ToTable("queryResultAs", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.ChallengeItem", b =>
