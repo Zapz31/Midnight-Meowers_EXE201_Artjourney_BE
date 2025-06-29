@@ -60,7 +60,11 @@ namespace Artjouney_BE
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+
+
             })
             
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -154,8 +158,16 @@ namespace Artjouney_BE
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IQuestionOptionRepository, QuestionOptionRepository>();
             services.AddScoped<IQuestionService, QuestionService>();
+                services.AddScoped<IChatRepository, ChatRepository>();
+
 
             // Services
+            services.AddScoped<IChatService, ChatService>(); // Add comment: More actions for chat service
+            services.AddScoped<IAIService, AIService>(); // Add comment: More actions for AI service
+
+            // HttpClient for AI Service
+            services.AddHttpClient<IAIService, AIService>();
+
             services.AddScoped<IAuthenService, AuthenService>();
             services.AddScoped<IMailSenderService, MailSenderService>();
             services.AddScoped<ITokenService, TokenService>();
