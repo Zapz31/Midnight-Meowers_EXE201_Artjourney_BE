@@ -47,6 +47,8 @@ namespace DAOs
         public DbSet<Order> Orders { get; set; }
         public DbSet<UserSubModuleInfo> UserSubModuleInfos { get; set; }
         public DbSet<QuizAttempt> QuizAttempts { get; set; }
+         public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionOptions> QuestionOptions { get; set; }
         public DbSet<UserAnswer> UserAnswers { get; set; }
@@ -64,6 +66,11 @@ namespace DAOs
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Order>().ToTable("orders");
+            
+            // Chat table configurations
+            modelBuilder.Entity<ChatSession>();
+            modelBuilder.Entity<ChatMessage>();
+
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasConversion<string>();

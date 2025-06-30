@@ -32,10 +32,15 @@ builder.Services.AddCors(options =>
             "https://zapz.phrimp.io.vn",
             "http://localhost:19006",
             "http://localhost:8081",
-            "https://zapz.phrimp.io.vn/api/learning-contents")
+            "https://zapz.phrimp.io.vn/api/learning-contents",
+            "http://127.0.0.1:1234",
+            "https://yairozu.tail682e6a.ts.net",
+            "http://localhost:1234"
+            )
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .SetIsOriginAllowedToAllowWildcardSubdomains();
     });
 });
 
