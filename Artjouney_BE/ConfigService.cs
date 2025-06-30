@@ -13,6 +13,7 @@ using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Implements;
 using Services.Interfaces;
+using System.Net.Security;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -167,8 +168,57 @@ namespace Artjouney_BE
             services.AddScoped<IChatService, ChatService>(); // Add comment: More actions for chat service
             services.AddScoped<IAIService, AIService>(); // Add comment: More actions for AI service
 
-            // HttpClient for AI Service
-            services.AddHttpClient<IAIService, AIService>();
+            // HttpClient for AI Service with SSL handling for Tailscale
+            services.AddHttpClient<IAIService, AIService>(client =>
+            {
+                var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+                var baseUrl = config["AIService:BaseUrl"];
+                var timeout = int.Parse(config["AIService:Timeout"] ?? "60");
+                
+                if (!string.IsNullOrEmpty(baseUrl))
+                {
+                    client.BaseAddress = new Uri(baseUrl);
+                }
+                client.Timeout = TimeSpan.FromSeconds(timeout);
+                
+                // Add headers for LM Studio compatibility
+                client.DefaultRequestHeaders.Add("User-Agent", "ArtJourney-AI-Client");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            })
+            .ConfigurePrimaryHttpMessageHandler((serviceProvider) =>
+            {
+                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                var baseUrl = configuration["AIService:BaseUrl"];
+                
+                var handler = new HttpClientHandler();
+                
+                // Handle SSL for Tailscale URLs or development environment
+                if (environment.IsDevelopment() || baseUrl?.Contains("tail") == true)
+                {
+                    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+                    {
+                        // For Tailscale URLs, we trust them as they're internal networks
+                        if (baseUrl?.Contains("tail") == true)
+                        {
+                            var logger = serviceProvider.GetRequiredService<ILogger<ConfigService>>();
+                            logger.LogInformation("Trusting Tailscale SSL certificate for AI service: {BaseUrl}", baseUrl);
+                            return true;
+                        }
+                        
+                        // For development, allow all SSL certificates
+                        if (environment.IsDevelopment())
+                        {
+                            return true;
+                        }
+                        
+                        // For production with proper certificates, use default validation
+                        return sslPolicyErrors == System.Net.Security.SslPolicyErrors.None;
+                    };
+                }
+                
+                return handler;
+            });
 
             services.AddScoped<IAuthenService, AuthenService>();
             services.AddScoped<IMailSenderService, MailSenderService>();

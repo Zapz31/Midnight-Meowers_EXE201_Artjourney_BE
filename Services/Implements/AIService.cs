@@ -666,6 +666,101 @@ namespace Services.Implements
                 "give me the answer", "tell me the answer", "what's the answer to",
                 "answer key", "solution manual", "cheat sheet"
             };
+
+            // Programming and technical content patterns (Vietnamese and English)
+            var programmingPatterns = new[]
+            {
+                // General programming (Vietnamese)
+                "viết code", "viết hàm", "viết function", "lập trình", "code", "hàm", "function", 
+                "class", "method", "biến", "variable", "thuật toán", "algorithm",
+                "asp.net", "c#", "javascript", "python", "java", "php", "sql", "database",
+                "repository", "controller", "service", "entity framework", "linq",
+                "tạo hàm", "làm hàm", "build function", "create method", "write code",
+                
+                // Specific Vietnamese programming requests
+                "hàm trong repository", "repository của asp", "làm repository", "tạo repository",
+                "viết repository", "repository class", "service trong", "controller trong",
+                "hàm của", "method của", "class của", "interface của", "pattern của",
+                "thiết kế hàm", "triển khai hàm", "implement function", "xây dựng hàm",
+                
+                // Technical requests (Vietnamese)
+                "tạo database", "thiết kế database", "viết query", "làm website", "xây dựng hệ thống",
+                "debug", "fix lỗi", "sửa lỗi", "error", "exception", "bug", "tạo api", "làm api",
+                "viết controller", "tạo model", "làm model", "viết service", "tạo service",
+                "cấu hình", "config", "setup", "cài đặt", "install", "deploy", "triển khai",
+                
+                // Specific programming patterns
+                "public class", "private void", "public async", "return", "if (", "for (", "while (",
+                "try {", "catch {", "using", "namespace", "import", "from", "def ", "function ",
+                ".net", "dotnet", "mvc", "web api", "rest api", "json", "xml",
+                "async task", "await", "ienumerable", "ilist", "dictionary", "list<", "array",
+                
+                // Development tools and frameworks
+                "visual studio", "vscode", "git", "docker", "react", "angular", "vue",
+                "bootstrap", "tailwind", "node.js", "express", "laravel", "django", "spring",
+                "entity", "dto", "viewmodel", "repository pattern", "dependency injection",
+                "ioc", "container", "autofac", "ninject", "unity", "castle windsor",
+                
+                // Database related
+                "insert into", "select from", "update set", "delete from", "create table",
+                "foreign key", "primary key", "join", "left join", "inner join",
+                "migration", "seeder", "stored procedure", "trigger", "index", "schema",
+                "connection string", "dbcontext", "entity mapping", "fluent api",
+                
+                // ASP.NET specific
+                "startup.cs", "program.cs", "appsettings", "middleware", "pipeline",
+                "action result", "iactionresult", "httpget", "httppost", "route", "routing",
+                "model binding", "validation", "filter", "attribute", "authorize",
+                "identity", "authentication", "authorization", "jwt", "bearer",
+                
+                // Other technical topics
+                "api", "endpoint", "http", "server", "client", "frontend", "backend",
+                "framework", "library", "package", "module", "component", "interface",
+                "session", "cookie", "cache", "redis", "memcached", "logging",
+                "testing", "unit test", "integration test", "mock", "stub", "nunit",
+                "xunit", "moq", "automapper", "newtonsoft", "swagger", "postman"
+            };
+
+            // Non-art related topics (Vietnamese and English)
+            var offTopicPatterns = new[]
+            {
+                // Math and science
+                "toán học", "mathematics", "vật lý", "physics", "hóa học", "chemistry", "sinh học", "biology",
+                "địa lý", "geography", "lịch sử việt nam", "vietnamese history", "kinh tế", "economics",
+                "khoa học", "science", "máy tính", "computer science",
+                
+                // Business and finance
+                "kinh doanh", "business", "marketing", "tài chính", "finance", "kế toán", "accounting",
+                "đầu tư", "investment", "chứng khoán", "stock market", "bất động sản", "real estate",
+                "bán hàng", "sales", "quản lý", "management",
+                
+                // Technology (non-programming)
+                "smartphone", "laptop", "máy tính", "điện thoại", "game", "gaming",
+                "social media", "facebook", "youtube", "tiktok", "instagram", "zalo",
+                "ứng dụng", "app", "phần mềm", "software",
+                
+                // Daily life
+                "nấu ăn", "cooking", "du lịch", "travel", "thể thao", "sports", "âm nhạc hiện đại", "modern music",
+                "phim", "movie", "netflix", "sức khỏe", "health", "làm đẹp", "beauty",
+                "thời trang", "fashion", "ăn uống", "food", "mua sắm", "shopping",
+                
+                // Other subjects
+                "văn học", "literature", "tiếng anh", "english", "ngoại ngữ", "foreign language",
+                "pháp luật", "law", "y học", "medicine", "nông nghiệp", "agriculture",
+                "giáo dục", "education", "tâm lý", "psychology"
+            };
+
+            // Check for programming patterns
+            if (programmingPatterns.Any(pattern => lowerMessage.Contains(pattern)))
+            {
+                return true;
+            }
+
+            // Check for off-topic patterns
+            if (offTopicPatterns.Any(pattern => lowerMessage.Contains(pattern)))
+            {
+                return true;
+            }
             
             // Check for quiz patterns
             if (quizPatterns.Any(pattern => lowerMessage.Contains(pattern)))
@@ -685,6 +780,60 @@ namespace Services.Implements
             {
                 return true;
             }
+
+            // Check if message is asking for code/technical help (common patterns)
+            var codingRequestPatterns = new[]
+            {
+                "hãy viết", "viết giúp", "help me write", "create a", "build a", "make a",
+                "how to code", "how to program", "làm sao để", "cách làm", "làm thế nào để",
+                "giúp tôi viết", "giúp tôi tạo", "giúp tôi làm", "help me create", "help me build",
+                "viết một", "tạo một", "làm một", "write a", "create a function", "make a method",
+                "thiết kế", "design", "implement", "triển khai", "phát triển", "develop",
+                "xây dựng", "build up", "set up", "cài đặt", "install", "configure"
+            };
+
+            // Enhanced technical terms detection
+            var specificTechnicalPatterns = new[]
+            {
+                "repository pattern", "repository class", "trong repository", "repository của",
+                "controller class", "service class", "entity class", "dto class", "model class",
+                "database connection", "connection string", "sql query", "linq query",
+                "web api", "rest api", "api controller", "http get", "http post",
+                "dependency injection", "ioc container", "autowired", "inject",
+                "async await", "task result", "ienumerable", "list<", "dictionary<",
+                "try catch", "exception handling", "error handling", "validation",
+                "unit test", "integration test", "mock", "stub", "test case"
+            };
+
+            var hasCodingRequest = codingRequestPatterns.Any(pattern => lowerMessage.Contains(pattern));
+            var hasTechnicalTerms = programmingPatterns.Any(pattern => lowerMessage.Contains(pattern)) ||
+                                   specificTechnicalPatterns.Any(pattern => lowerMessage.Contains(pattern));
+            
+            // Additional check for specific ASP.NET repository pattern request
+            if (lowerMessage.Contains("hàm") && lowerMessage.Contains("repository") && lowerMessage.Contains("asp"))
+            {
+                return true;
+            }
+            
+            // Check for coding request combined with technical terms
+            if (hasCodingRequest && hasTechnicalTerms)
+            {
+                return true;
+            }
+            
+            // Check for standalone technical requests (even without explicit "viết" or "help")
+            var standaloneTechnicalPatterns = new[]
+            {
+                "repository pattern", "controller pattern", "service layer", "data access layer",
+                "entity framework", "code first", "database first", "migration",
+                "authentication jwt", "authorization", "middleware", "dependency injection",
+                "unit of work", "generic repository", "async repository", "crud repository"
+            };
+            
+            if (standaloneTechnicalPatterns.Any(pattern => lowerMessage.Contains(pattern)))
+            {
+                return true;
+            }
             
             return false;
         }
@@ -693,17 +842,17 @@ namespace Services.Implements
         {
             var displayName = userContext != null ? 
                 (!string.IsNullOrEmpty(userContext.FullName) ? userContext.FullName :
-                 !string.IsNullOrEmpty(userContext.Email) ? userContext.Email.Split('@')[0] : "friend") : "friend";
+                 !string.IsNullOrEmpty(userContext.Email) ? userContext.Email.Split('@')[0] : "bạn") : "bạn";
             
             var responses = new[]
             {
-                $"Hey {displayName}! 🛡️ I'm designed to help you LEARN art history, not to provide answers to quizzes or assessments. Let me guide you to understand the concepts instead! What specific art period or topic would you like to explore? 🎨",
+                $"Xin chào {displayName}! 🎨 Tôi là ArtBot - trợ lý AI chuyên về lịch sử nghệ thuật và nền tảng ArtJourney. Tôi chỉ có thể hỗ trợ các câu hỏi liên quan đến nghệ thuật, lịch sử nghệ thuật, và các khóa học trên ArtJourney. Bạn có muốn tìm hiểu về period nghệ thuật nào không? ✨",
                 
-                $"Hi {displayName}! 📚 I can't help with quiz answers - that would undermine your learning journey! But I'm excited to teach you about art history concepts, techniques, and movements. What would you like to discover? ✨",
+                $"Hi {displayName}! �️ Tôi được thiết kế để giúp bạn KHÁM PHÁ lịch sử nghệ thuật, không phải để trả lời câu hỏi về lập trình hay các chủ đề khác. Hãy cùng tôi tìm hiểu về các trào lưu nghệ thuật thú vị nhé! Bạn quan tâm đến period nào? 🎭",
                 
-                $"Hello {displayName}! 🎯 I notice you might be asking about assessment content. My role is to be your learning companion, not to provide quiz answers. Let's explore art history together - what fascinating topic interests you? 🌟",
+                $"Chào {displayName}! 📚 Tôi chỉ có thể hỗ trợ các câu hỏi về nghệ thuật và ArtJourney. Đối với các câu hỏi lập trình hay chủ đề khác, bạn nên sử dụng ChatGPT hoặc các công cụ chuyên dụng khác. Còn về nghệ thuật, tôi rất sẵn sàng giúp đỡ! Bạn muốn học về gì? 🌟",
                 
-                $"Hey there, {displayName}! 🎨 I'm here to help you understand and appreciate art history, but I can't assist with quizzes or tests. That's part of maintaining academic integrity! What art movement or artist would you like to learn about instead? 💡"
+                $"Hey {displayName}! � Tôi chỉ tập trung vào lĩnh vực nghệ thuật và lịch sử nghệ thuật. Đối với các câu hỏi về công nghệ, lập trình, hay chủ đề khác, tôi không thể hỗ trợ. Thay vào đó, hãy cùng khám phá thế giới nghệ thuật tuyệt vời! 💡"
             };
             
             var random = new Random();
@@ -712,12 +861,14 @@ namespace Services.Implements
             if (userContext?.EnrolledCourses.Any() == true)
             {
                 var currentCourse = userContext.EnrolledCourses.First();
-                baseResponse += $"\n\n🎓 I see you're studying {currentCourse.CourseName}! Let me help you understand the concepts deeply so you'll naturally know the answers when it matters. What specific topic from {currentCourse.CurrentModule} would you like to explore?";
+                baseResponse += $"\n\n🎓 Tôi thấy bạn đang học {currentCourse.CourseName}! Hãy để tôi giúp bạn hiểu sâu các khái niệm nghệ thuật. Bạn có muốn tìm hiểu thêm về {currentCourse.CurrentModule} không?";
             }
             else
             {
-                baseResponse += $"\n\n💰 **New to ArtJourney?** We offer 3 pricing options: FREE (limited content), PREMIUM subscription (90K VND/month or 990K VND/year ≈ $3.7-41 USD), and PAY-PER-COURSE purchases - structured learning paths that will build your knowledge step by step! 🚀";
+                baseResponse += $"\n\n🎨 **ArtJourney** có 3 gói học phí: FREE (nội dung giới hạn), PREMIUM (90K VND/tháng hoặc 990K VND/năm ≈ $3.7-41 USD), và mua từng khóa học - tất cả đều tập trung vào nghệ thuật và lịch sử nghệ thuật! 🚀";
             }
+            
+            baseResponse += $"\n\n💡 **Gợi ý chủ đề:** Renaissance, Baroque, Impressionism, Modern Art, Contemporary Art, các họa sĩ nổi tiếng, kỹ thuật hội họa, v.v.";
             
             return baseResponse;
         }
