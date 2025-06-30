@@ -2,7 +2,11 @@
 using DAOs;
 using EFCore.BulkExtensions;
 using Helpers.DTOs.LearningContent;
+using Helpers.DTOs.Question;
+using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Http.Extensions;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +70,39 @@ namespace Repositories.Implements
                 await _unitOfWork.RollBackAsync();
                 throw ex;
             }
+        }
+
+        public async Task<PaginatedResult<GetQuestionQuizDTO>> GetQuestionWithOptionQuizAsync(long learningContentId, int pageNumber, int pageSize)
+        {
+            var queryOption = new QueryBuilder<Question>()
+                .WithTracking(false)
+                .WithInclude(q => q.QuestionOptions.Where(qo => qo.IsActive).OrderBy(qo => qo.OrderIndex))
+                .WithPredicate(q => q.IsActive && q.LearningContentId == learningContentId)
+                .WithOrderBy(q => q.OrderBy(q => q.OrderIndex))
+                .Build();
+            var questions = _unitOfWork.GetRepo<Question>().Get(queryOption);
+            return await Pagination.ApplyPaginationAsync(
+                questions,
+                pageNumber,
+                pageSize,
+                q => new GetQuestionQuizDTO
+                    {
+                        QuestionId = q.QuestionId,
+                        QuestionText = q.QuestionText,
+                        QuestionType = q.QuestionType,
+                        Points = q.Points,
+                        OrderIndex = q.OrderIndex,
+                        QuestionOptions = q.QuestionOptions
+                            .Where(qo => qo.IsActive)
+                            .OrderBy(qo => qo.OrderIndex)
+                            .Select(qo => new GetOptionQuizDTO
+                                {
+                                    QuestionOptionId = qo.QuestionOptionId,
+                                    OptionText = qo.OptionText,
+                                    OrderIndex = qo.OrderIndex
+                            }).ToList()
+                     }
+                );
         }
     }
 }

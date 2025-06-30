@@ -22,16 +22,31 @@ namespace Services.Implements
         private readonly ILogger<LearningContentService> _logger;
         private readonly IFileHandlerService _fileHandlerService;
         private readonly string ImageBaseUrl = "https://zapzminio.phrimp.io.vn/";
+        private readonly IQuizAttemptRepository _quizAttemptRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserAnswerRepository _userAnswerRepository;
+        private readonly IUserService _userService;
+        private readonly IUserLearningProgressRepository _userLearningProgressRepository;
         public LearningContentService(ILearningContentRepository learningContentRepository, 
             ILogger<LearningContentService> logger, 
             ICurrentUserService currentUserService,
-            IFileHandlerService fileHandlerService
+            IFileHandlerService fileHandlerService,
+            IQuizAttemptRepository quizAttemptRepository,
+            IUnitOfWork unitOfWork,
+            IUserAnswerRepository userAnswerRepository,
+            IUserService userService,
+            IUserLearningProgressRepository userLearningProgressRepository
             )
         {
             _learningContentRepository = learningContentRepository;
             _logger = logger;
             _currentUserService = currentUserService;
             _fileHandlerService = fileHandlerService;
+            _quizAttemptRepository = quizAttemptRepository;
+            _unitOfWork = unitOfWork;
+            _userAnswerRepository = userAnswerRepository;
+            _userService = userService;
+            _userLearningProgressRepository = userLearningProgressRepository;
         }
 
         public async Task<ApiResponse<LearningContent>> CreateLNContentReadingAsync(CreateLNReadingDTO requestDTO)
@@ -163,6 +178,105 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetChallengeItemsByLNCId at LearningContentService.cs: {ex}", ex.Message);
                 return new ApiResponse<List<BasicChallengeItemGetResponseDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<QuizAttempt>> StartQuizAsync(long userId, long learningContentId)
+        {
+            try
+            {
+                var learningConent = await _learningContentRepository.GetLearningContentById(learningContentId);
+                if (learningConent == null || learningConent.CompleteCriteria == null)
+                {
+                    return new ApiResponse<QuizAttempt>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 500,
+                        Message = "Error at StartQuizAsync at LearningContentService.cs: learningConent or complete_criteria is null"
+                    };
+                }
+
+                QuizAttempt quizAttempt = new()
+                {
+                    StartedAt = DateTime.UtcNow,
+                    LearningContentId = learningContentId,
+                    UserId = userId,
+                    TotalPossibleScore = learningConent.CompleteCriteria ?? 0
+                };
+                var responseData = await _quizAttemptRepository.CreateQuizAttempt(quizAttempt);
+                return new ApiResponse<QuizAttempt>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 201,
+                    Message = "Create Quiz attempt successfully",
+                    Data = responseData
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at StartQuizAsync at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<QuizAttempt>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> SubmitQuizAsync(SubmitQuizRequestDTO submitQuizRequestDTO)
+        {
+            try
+            {
+                
+                await _unitOfWork.BeginTransactionAsync();
+                var userId = _currentUserService.AccountId;
+                // insert user_answers
+                await _userAnswerRepository.CreateUserAnswers(submitQuizRequestDTO.UserAnswers);
+                // calculate total score
+                var totalScore = await _userAnswerRepository.CalculateTotalScoreAsync(submitQuizRequestDTO.QuizAttemptId);
+                //update quiz_attempts
+                var updatedRow = await _quizAttemptRepository.UpdateQuizAttemptWithSubmitQuiz(submitQuizRequestDTO.QuizAttemptId, totalScore);
+                if(updatedRow < 1)
+                {
+                    await _unitOfWork.RollBackAsync();
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 500,
+                        Message = "Error when update quiz_attempts: No row has updated"
+                    };
+                }
+                //mark as complete
+                var userLearningProgress = await _userLearningProgressRepository.GetLearningProgressByUserIdAndLNCIdSingle(userId, submitQuizRequestDTO.LearningContentId);
+                if(userLearningProgress == null) 
+                {
+                    await _unitOfWork.RollBackAsync();
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 500,
+                        Message = "No learning progress has found"
+                    };
+                }
+                await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningProgress.ProgressId);
+                await _unitOfWork.CommitTransactionAsync();
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = true,
+                    Message = "Submit quiz successful"
+                };
+            } catch (Exception ex)
+            {
+                await _unitOfWork.RollBackAsync();
+                _logger.LogError("Error at SubmitQuizAsync at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<bool>
                 {
                     Status = ResponseStatus.Error,
                     Code = 500,

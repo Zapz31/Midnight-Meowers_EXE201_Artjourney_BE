@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.LearningContent;
+using Helpers.DTOs.Question;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
@@ -20,12 +21,14 @@ namespace Services.Implements
         private readonly ILogger<QuestionService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
+        private readonly ILearningContentRepository _learningContentRepository;
 
         public QuestionService(IQuestionRepository questionRepository, 
             IQuestionOptionRepository optionRepository, 
             ILogger<QuestionService> logger,
             IUnitOfWork unitOfWork,
-            ICurrentUserService currentUserService
+            ICurrentUserService currentUserService,
+            ILearningContentRepository learningContentRepository
             )
         {
             _questionRepository = questionRepository;
@@ -33,9 +36,10 @@ namespace Services.Implements
             _logger = logger;
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
+            _learningContentRepository = learningContentRepository;
         }
 
-        public async Task<ApiResponse<bool>> CreateQuestionsAndOptionsAsync(List<CreateQuestionsAndOptionsBasicRequestDTO> CreateQuestionsAndOptionsBasicRequestDTOs)
+        public async Task<ApiResponse<bool>> CreateQuestionsAndOptionsAsync(List<CreateQuestionsAndOptionsBasicRequestDTO> createQuestionsAndOptionsBasicRequestDTOs)
         {
             try
             {
@@ -51,7 +55,23 @@ namespace Services.Implements
                         Message = "You don't have permission to do this action"
                     };
                 }
-                var responseData = await _questionRepository.CreateQuestionsWithOptionsBulkAsync(CreateQuestionsAndOptionsBasicRequestDTOs);
+                if (createQuestionsAndOptionsBasicRequestDTOs.Count < 1 || createQuestionsAndOptionsBasicRequestDTOs == null)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "There must be at least 1 question"
+                    };
+                }
+
+                var responseData = await _questionRepository.CreateQuestionsWithOptionsBulkAsync(createQuestionsAndOptionsBasicRequestDTOs);
+                var learningContentId = createQuestionsAndOptionsBasicRequestDTOs[0].LearningContentId;
+
+                // total point of this quiz
+                var totalPoint = createQuestionsAndOptionsBasicRequestDTOs.Sum(q => q.Points);
+
+                var updateLearningContentRow = await _learningContentRepository.UpdateCompleteCriteria(learningContentId, totalPoint);
                 return new ApiResponse<bool>
                 {
                     Status = ResponseStatus.Success,
@@ -71,5 +91,32 @@ namespace Services.Implements
                 return errorResponse;
             }
         }
+
+        public async Task<ApiResponse<PaginatedResult<GetQuestionQuizDTO>>> GetQuestionWithOptionQuizAsync(long learningContentId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var responesData = await _questionRepository.GetQuestionWithOptionQuizAsync(learningContentId, pageNumber, pageSize);
+                return new ApiResponse<PaginatedResult<GetQuestionQuizDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responesData,
+                    Message = "Data retrive successfully"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at CreateQuestionsAndOptionsAsync in QuestionService: {ex}", ex.Message);
+                ApiResponse<PaginatedResult<GetQuestionQuizDTO>> errorResponse = new ApiResponse<PaginatedResult<GetQuestionQuizDTO>>()
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "Server error"
+                };
+                return errorResponse;
+            }
+        }
+
+        
     }
 }

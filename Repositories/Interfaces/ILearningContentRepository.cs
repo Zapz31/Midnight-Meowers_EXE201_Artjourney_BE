@@ -19,5 +19,7 @@ namespace Repositories.Interfaces
         public Task<List<BasicLearningContentGetResponseDTO>> GetLearningContentsBySubModuleIdAsync(long subModuleId);
         public Task<List<BasicChallengeItemGetResponseDTO>> GetChallengeItemsByLNCId(long learingContentId);
         public Task CreateLearningContentsAsync(List<LearningContent> learningContents);
+        public Task<LearningContent?> GetLearningContentById(long learningContentId);
+        public Task<int> UpdateCompleteCriteria(long learningContentId, decimal completeCriteria);
     }
 }

@@ -36,6 +36,16 @@ namespace Repositories.Implements
             await _unitOfWork.GetRepo<LearningContent>().CreateAllAsync(learningContents);
         }
 
+        public async Task<int> UpdateCompleteCriteria(long learningContentId, decimal completeCriteria)
+        {
+            var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                UPDATE learning_contents
+                SET complete_criteria = {completeCriteria}
+                WHERE learning_content_id = {learningContentId}"
+             );
+            return result;
+        }
+
         public async Task<ChallengeItem> CreateChallengeItemAsync(ChallengeItem challengeItem)
         {
             var createdChallengeItem = await _unitOfWork.GetRepo<ChallengeItem>().CreateAsync(challengeItem);
@@ -70,6 +80,16 @@ namespace Repositories.Implements
 
             var learningContents = await _unitOfWork.GetRepo<LearningContent>().GetAllAsync(learningContentQuery);
             return learningContents;
+        }
+
+        public async Task<LearningContent?> GetLearningContentById(long learningContentId)
+        {
+            var options = new QueryBuilder<LearningContent>()
+                .WithTracking(false)
+                .WithPredicate(lc => lc.LearningContentId == learningContentId && lc.IsActive == true)
+                .Build();
+            var learningContent = await _unitOfWork.GetRepo<LearningContent>().GetSingleAsync(options);
+            return learningContent;
         }
 
         public async Task<List<BasicLearningContentGetResponseDTO>> GetLearningContentsBySubModuleIdAsync(long subModuleId)

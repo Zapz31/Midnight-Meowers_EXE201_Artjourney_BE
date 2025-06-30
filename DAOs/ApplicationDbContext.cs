@@ -59,6 +59,7 @@ namespace DAOs
         public DbSet<QueryResultBFlat> QueryResultBFlats { get; set; }
         public DbSet<ModuleCourseHasEnrolledBasicViewDTO> ModuleCourseHasEnrolledBasicViewDTOs { get; set; }
         public DbSet<SubModuleCourseHasEnrolledBasicViewDTO> SubModuleCourseHasEnrolledBasicViewDTOs { get; set; }
+        public DbSet<TotalScoreResult> TotalScoreResults { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -334,6 +335,7 @@ namespace DAOs
             modelBuilder.Entity<QueryResultBFlat>().HasNoKey();
             modelBuilder.Entity<ModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
             modelBuilder.Entity<SubModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
+            modelBuilder.Entity<TotalScoreResult>().HasNoKey();
         }
 
     }

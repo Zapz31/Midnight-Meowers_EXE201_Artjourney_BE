@@ -154,6 +154,8 @@ namespace Artjouney_BE
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IQuestionOptionRepository, QuestionOptionRepository>();
             services.AddScoped<IQuestionService, QuestionService>();
+            services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
+            services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
 
             // Services
             services.AddScoped<IAuthenService, AuthenService>();

@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using Helpers.DTOs.Question;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interfaces
 {
-    public interface IQuestionOptionRepository
+    public interface IUserAnswerRepository
     {
-        public Task CreateQuestionOptionsAsync(List<QuestionOptions> questionOptions);
-        
+        public Task CreateUserAnswers(List<UserAnswer> userAnswers);
+        public Task<decimal> CalculateTotalScoreAsync(long quizAttemptId);
     }
 }

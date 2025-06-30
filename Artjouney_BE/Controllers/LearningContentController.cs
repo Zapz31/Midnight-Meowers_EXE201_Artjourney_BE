@@ -50,6 +50,19 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
+        [HttpPost("/api/quiz/learning-content/{learningContentId}/user/{userId}")]
+        public async Task<IActionResult> StartQuizAsync(long learningContentId, long userId)
+        {
+            var responseData = await _learningContentService.StartQuizAsync(userId, learningContentId);
+            return StatusCode(responseData.Code, responseData);
+        }
 
+        [HttpPost("/api/quiz/submit")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> SubmitQuizAsync(SubmitQuizRequestDTO submitQuizRequest)
+        {
+            var responseData = await _learningContentService.SubmitQuizAsync(submitQuizRequest);
+            return StatusCode(responseData.Code, responseData);
+        }
     }
 }
