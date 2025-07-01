@@ -11,6 +11,6 @@ namespace Helpers.DTOs.LearningContent
     {
         public long LearningContentId { get; set; }
         public long QuizAttemptId { get; set; }
-        public List<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
+        public List<SubmitUserAnswerQuizRequestDTO> UserAnswers { get; set; } = new List<SubmitUserAnswerQuizRequestDTO>();
     }
 }

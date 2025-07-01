@@ -64,5 +64,13 @@ namespace Artjouney_BE.Controllers
             var responseData = await _learningContentService.SubmitQuizAsync(submitQuizRequest);
             return StatusCode(responseData.Code, responseData);
         }
+
+        [HttpPost("/api/quizs")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CreateQuizTitle(CreateQuizTitleRequestDTO createQuizTitleRequestDTO)
+        {
+            var responseData = await _learningContentService.CreateQuizTitle(createQuizTitleRequestDTO);
+            return StatusCode(responseData.Code,responseData);
+        }
     }
 }

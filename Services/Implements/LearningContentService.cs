@@ -228,22 +228,80 @@ namespace Services.Implements
             }
         }
 
+        public async Task<ApiResponse<LearningContent>> CreateQuizTitle(CreateQuizTitleRequestDTO createQuizTitleRequestDTO)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                var role = _currentUserService.Role;
+                var status = _currentUserService.Status;
+                if (role == null || !(AccountRole.Admin.ToString().Equals(role)) || !(AccountStatus.Active.ToString().Equals(status)))
+                {
+                    return new ApiResponse<LearningContent>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 401,
+                        Message = "You don't have permission to do this action"
+                    };
+                }
+                var createLearningContent = new LearningContent()
+                {
+                    ContentType = createQuizTitleRequestDTO.ContentType,
+                    Title = createQuizTitleRequestDTO.Title,
+                    TimeLimit = createQuizTitleRequestDTO.TimeLimit,
+                    DisplayOrder = createQuizTitleRequestDTO.DisplayOrder,
+                    CreatedBy = userId,
+                    SubModuleId = createQuizTitleRequestDTO.SubModuleId,
+                    CourseId = createQuizTitleRequestDTO.CourseId,
+
+                };
+                var responseData = await _learningContentRepository.CreateLearningContentAsync(createLearningContent);
+                return new ApiResponse<LearningContent>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 201,
+                    Data = responseData,
+                    Message = "Quiz create success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at CreateQuizTitle at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<LearningContent>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
+
         public async Task<ApiResponse<bool>> SubmitQuizAsync(SubmitQuizRequestDTO submitQuizRequestDTO)
         {
             try
             {
                 
-                await _unitOfWork.BeginTransactionAsync();
+                
                 var userId = _currentUserService.AccountId;
+                List<UserAnswer> createdUserAnswers = new();
+                foreach(var requestUserAnswer in submitQuizRequestDTO.UserAnswers)
+                {
+                    var userAnswer = new UserAnswer
+                    {
+                        QuizAttemptId = requestUserAnswer.QuizAttemptId,
+                        QuestionId = requestUserAnswer.QuestionId,
+                        SelectedOptionId = requestUserAnswer.SelectedOptionId,
+                    };
+                    createdUserAnswers.Add(userAnswer);
+                }
+
                 // insert user_answers
-                await _userAnswerRepository.CreateUserAnswers(submitQuizRequestDTO.UserAnswers);
+                await _userAnswerRepository.CreateUserAnswers(createdUserAnswers);
                 // calculate total score
                 var totalScore = await _userAnswerRepository.CalculateTotalScoreAsync(submitQuizRequestDTO.QuizAttemptId);
                 //update quiz_attempts
                 var updatedRow = await _quizAttemptRepository.UpdateQuizAttemptWithSubmitQuiz(submitQuizRequestDTO.QuizAttemptId, totalScore);
                 if(updatedRow < 1)
                 {
-                    await _unitOfWork.RollBackAsync();
                     return new ApiResponse<bool>
                     {
                         Status = ResponseStatus.Error,
@@ -252,19 +310,9 @@ namespace Services.Implements
                     };
                 }
                 //mark as complete
-                var userLearningProgress = await _userLearningProgressRepository.GetLearningProgressByUserIdAndLNCIdSingle(userId, submitQuizRequestDTO.LearningContentId);
-                if(userLearningProgress == null) 
-                {
-                    await _unitOfWork.RollBackAsync();
-                    return new ApiResponse<bool>
-                    {
-                        Status = ResponseStatus.Error,
-                        Code = 500,
-                        Message = "No learning progress has found"
-                    };
-                }
-                await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningProgress.ProgressId);
-                await _unitOfWork.CommitTransactionAsync();
+                
+                await _userService.MarkAsCompleteUserLearningProgressSingleAsync(submitQuizRequestDTO.LearningContentId);
+                
                 return new ApiResponse<bool>
                 {
                     Status = ResponseStatus.Success,
@@ -274,7 +322,7 @@ namespace Services.Implements
                 };
             } catch (Exception ex)
             {
-                await _unitOfWork.RollBackAsync();
+                
                 _logger.LogError("Error at SubmitQuizAsync at LearningContentService.cs: {ex}", ex.Message);
                 return new ApiResponse<bool>
                 {

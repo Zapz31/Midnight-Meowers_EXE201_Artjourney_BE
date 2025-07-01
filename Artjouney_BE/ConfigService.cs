@@ -61,11 +61,7 @@ namespace Artjouney_BE
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-
-
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
             
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
