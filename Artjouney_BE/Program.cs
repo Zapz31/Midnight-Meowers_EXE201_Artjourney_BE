@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
             "http://localhost:8081",
             "https://zapz.phrimp.io.vn/api/learning-contents",
             "http://127.0.0.1:1234",
-            "https://yairozu.tail682e6a.ts.net",
+            "https://yairozu.tail682e6a.ts.net/v1",
             "http://localhost:1234"
             )
               .AllowAnyMethod()

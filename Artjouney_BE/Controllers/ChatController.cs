@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Artjouney_BE.Controllers
 {
@@ -31,6 +32,7 @@ namespace Artjouney_BE.Controllers
         /// <returns>AI response</returns>
         [HttpPost("message")]
         [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<ApiResponse<ChatMessageResponseDTO>>> SendMessage([FromBody] ChatMessageRequestDTO request)
         {
             try
@@ -97,7 +99,7 @@ namespace Artjouney_BE.Controllers
         /// <param name="title">Optional session title</param>
         /// <returns>Created chat session</returns>
         [HttpPost("session")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<ApiResponse<ChatSessionDTO>>> CreateChatSession([FromQuery] string? title = null)
         {
             try
@@ -131,7 +133,7 @@ namespace Artjouney_BE.Controllers
         /// <param name="pageSize">Page size (default: 10)</param>
         /// <returns>List of chat sessions</returns>
         [HttpGet("sessions")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<ApiResponse<List<ChatSessionDTO>>>> GetChatSessions(
             [FromQuery] int pageNumber = 1, 
             [FromQuery] int pageSize = 10)
