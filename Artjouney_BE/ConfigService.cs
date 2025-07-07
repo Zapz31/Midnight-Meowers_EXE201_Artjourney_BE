@@ -158,6 +158,10 @@ namespace Artjouney_BE
             services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
             services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
                 services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IChallengeRepository, ChallengeRepository>();
+            services.AddScoped<IArtworkRepository,  ArtworkRepository>();
+            services.AddScoped<IArtworkDetailRepository, ArtworkDetailRepository>();
+
 
 
             // Services
@@ -233,6 +237,7 @@ namespace Artjouney_BE
             services.AddScoped<ILearningContentService, LearningContentService>();
             services.AddScoped<IUserCourseInfoService, UserCourseInfoService>();
             services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<IChallengeService, ChallengeService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

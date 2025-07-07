@@ -103,5 +103,11 @@ namespace BusinessObjects.Models
         
         [InverseProperty("User")]
         public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<ChallengeSession> ChallengeSessions { get; set; } = new List<ChallengeSession>();
+
+        [InverseProperty("User")]
+        public virtual ICollection<UserChallengeHighestScore> UserChallengeHighestScores { get; set; } = new List<UserChallengeHighestScore>();
     }
 }

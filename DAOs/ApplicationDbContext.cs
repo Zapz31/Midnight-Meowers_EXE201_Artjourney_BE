@@ -52,6 +52,11 @@ namespace DAOs
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionOptions> QuestionOptions { get; set; }
         public DbSet<UserAnswer> UserAnswers { get; set; }
+        public DbSet<Challenge> Challenges { get; set; }
+        public DbSet<Artwork> Artworks { get; set; }
+        public DbSet<ArtworkDetail> ArtworkDetails { get; set; }
+        public DbSet<ChallengeSession> ChallengeSessions { get; set; }
+        public DbSet<UserChallengeHighestScore> UserChallengeHighestScores { get; set; }
         
         // DTO
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }
@@ -333,6 +338,48 @@ namespace DAOs
                 .WithMany(qo => qo.UserAnswers)
                 .HasForeignKey(ua => ua.SelectedOptionId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Challenge>()
+                .HasOne(cl => cl.Course)
+                .WithMany(c => c.Challenges)
+                .HasForeignKey(cl => cl.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Artwork>()
+                .HasOne(aw => aw.Challenge)
+                .WithMany(cl => cl.Artworks)
+                .HasForeignKey(aw => aw.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArtworkDetail>()
+                .HasOne(awd => awd.Artwork)
+                .WithMany(aw => aw.ArtworkDetails)
+                .HasForeignKey(awd => awd.ArtworkId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChallengeSession>()
+                .HasOne(cs => cs.User)
+                .WithMany(u => u.ChallengeSessions)
+                .HasForeignKey(cs => cs.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChallengeSession>()
+                .HasOne(cs => cs.Challenge)
+                .WithMany(cl => cl.ChallengeSessions)
+                .HasForeignKey(cs => cs.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserChallengeHighestScore>()
+                .HasOne(uchs => uchs.User)
+                .WithMany(u => u.UserChallengeHighestScores)
+                .HasForeignKey(uchs => uchs.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserChallengeHighestScore>()
+                .HasOne(uchs => uchs.Challenge)
+                .WithMany(c => c.UserChallengeHighestScores)
+                .HasForeignKey(uchs => uchs.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //dto
             modelBuilder.Entity<CourseDetailScreenFlat>().HasNoKey();

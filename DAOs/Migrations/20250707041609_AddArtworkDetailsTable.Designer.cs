@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250707041609_AddArtworkDetailsTable")]
+    partial class AddArtworkDetailsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,48 +190,6 @@ namespace DAOs.Migrations
                     b.HasIndex("LearningContentId");
 
                     b.ToTable("challenge_items");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.ChallengeSession", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ChallengeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("challenge_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsComplete")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_complete");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("integer")
-                        .HasColumnName("score");
-
-                    b.Property<long>("TimeTaken")
-                        .HasColumnType("bigint")
-                        .HasColumnName("time_taken");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("challenge_sessions");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.ChatMessage", b =>
@@ -1183,44 +1144,6 @@ namespace DAOs.Migrations
                     b.ToTable("user_answers");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.UserChallengeHighestScore", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ChallengeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("challenge_id");
-
-                    b.Property<long>("HighestScore")
-                        .HasColumnType("bigint")
-                        .HasColumnName("highest_score");
-
-                    b.Property<long>("TimeTaken")
-                        .HasColumnType("bigint")
-                        .HasColumnName("time_taken");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("user_challenge_highest_scores");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.UserCourseInfo", b =>
                 {
                     b.Property<long>("InfoId")
@@ -1764,25 +1687,6 @@ namespace DAOs.Migrations
                     b.Navigation("LearningContent");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.ChallengeSession", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.Challenge", "Challenge")
-                        .WithMany("ChallengeSessions")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany("ChallengeSessions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.ChatMessage", b =>
                 {
                     b.HasOne("BusinessObjects.Models.ChatSession", "ChatSession")
@@ -2028,25 +1932,6 @@ namespace DAOs.Migrations
                     b.Navigation("SelectedOption");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.UserChallengeHighestScore", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.Challenge", "Challenge")
-                        .WithMany("UserChallengeHighestScores")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany("UserChallengeHighestScores")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.UserCourseInfo", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Course", "Course")
@@ -2161,10 +2046,6 @@ namespace DAOs.Migrations
             modelBuilder.Entity("BusinessObjects.Models.Challenge", b =>
                 {
                     b.Navigation("Artworks");
-
-                    b.Navigation("ChallengeSessions");
-
-                    b.Navigation("UserChallengeHighestScores");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.ChatSession", b =>
@@ -2251,8 +2132,6 @@ namespace DAOs.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
                 {
-                    b.Navigation("ChallengeSessions");
-
                     b.Navigation("CreatedCourses");
 
                     b.Navigation("CreatedHistoricalPeriods");
@@ -2268,8 +2147,6 @@ namespace DAOs.Migrations
                     b.Navigation("QuizAttempts");
 
                     b.Navigation("SurveyQuestions");
-
-                    b.Navigation("UserChallengeHighestScores");
 
                     b.Navigation("UserCourseInfos");
 
