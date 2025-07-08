@@ -51,5 +51,12 @@ namespace Artjouney_BE.Controllers
             var response = await _challengeService.CreateArtworkDetails(requestDTOs);
             return StatusCode(response.Code, response);
         }
+
+        [HttpPost("/api/game/sessions")] //http://localhost:8000/api/game/sessions
+        public async Task<IActionResult> SaveGameSession([FromBody] SaveGameSessionRequestDTO saveGameSessionRequestDTO)
+        {
+            var response = await _challengeService.SaveGameSession(saveGameSessionRequestDTO);
+            return StatusCode(response.Code, response);
+        }
     }
 }

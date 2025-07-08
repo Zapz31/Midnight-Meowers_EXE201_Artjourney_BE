@@ -161,6 +161,8 @@ namespace Artjouney_BE
             services.AddScoped<IChallengeRepository, ChallengeRepository>();
             services.AddScoped<IArtworkRepository,  ArtworkRepository>();
             services.AddScoped<IArtworkDetailRepository, ArtworkDetailRepository>();
+            services.AddScoped<IChallengeSessionRepository, ChallengeSessionRepository>();
+            services.AddScoped<IUserChallengeHighestScoreRepository, UserChallengeHighestScoreRepository>();
 
 
 

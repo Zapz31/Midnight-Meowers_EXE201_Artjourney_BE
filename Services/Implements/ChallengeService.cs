@@ -1,4 +1,5 @@
-﻿using Bogus;
+﻿using Azure.Core;
+using Bogus;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Challenge;
@@ -20,16 +21,25 @@ namespace Services.Implements
         private readonly IChallengeRepository _challengeRepository;
         private readonly IArtworkRepository _artworkRepository;
         private readonly IArtworkDetailRepository _artworkDetailRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IChallengeSessionRepository _challengeSessionRepository;
+        private readonly IUserChallengeHighestScoreRepository _userChallengeHighestScoreRepository;
 
         public ChallengeService(ILogger<ChallengeService> logger, 
             IChallengeRepository challengeRepository,
             IArtworkRepository artworkRepository,
-            IArtworkDetailRepository artworkDetailRepository)
+            IArtworkDetailRepository artworkDetailRepository,
+            IUserRepository userRepository,
+            IChallengeSessionRepository challengeSessionRepository,
+            IUserChallengeHighestScoreRepository userChallengeHighestScoreRepository)
         {
             _logger = logger;
             _challengeRepository = challengeRepository;
             _artworkRepository = artworkRepository;
             _artworkDetailRepository = artworkDetailRepository;
+            _userRepository = userRepository;
+            _challengeSessionRepository = challengeSessionRepository;
+            _userChallengeHighestScoreRepository = userChallengeHighestScoreRepository;
         }
 
         public async Task<ApiResponse<List<Challenge>>> GetAllChallengesByCourseIdAsync(long courseId)
@@ -221,6 +231,91 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<bool>
+                {
+                    Code = 500,
+                    Status = ResponseStatus.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<string>> SaveGameSession(SaveGameSessionRequestDTO saveGameSessionRequestDTO)
+        {
+            try
+            {
+                // Validate user existence
+                var user = await _userRepository.GetUserByIDAsync(saveGameSessionRequestDTO.UserId);
+                if (user == null)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "User not exist"
+                    };
+                }
+
+                // Validate challenge existence
+                var challenge = await _challengeRepository.GetChallengeByIdAsync(saveGameSessionRequestDTO.ChallengeId);
+                if(challenge == null)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "Challenge not exist"
+                    };
+                }
+
+                // Create new session
+                var session = new ChallengeSession
+                {
+                    UserId = saveGameSessionRequestDTO.UserId,
+                    ChallengeId = saveGameSessionRequestDTO.ChallengeId,
+                    Score = saveGameSessionRequestDTO.Score,
+                    TimeTaken = saveGameSessionRequestDTO.TimeTaken,
+                    IsComplete = saveGameSessionRequestDTO.IsCompleted,
+                    CreatedAt = DateTime.UtcNow,
+                };
+
+                await _challengeSessionRepository.CreateChallengeSessionAsync(session);
+
+                var highestScoreRecord = await _userChallengeHighestScoreRepository.
+                    GetHighestScoreByUserIdAndChallengeId(saveGameSessionRequestDTO.UserId, saveGameSessionRequestDTO.ChallengeId);
+                if(highestScoreRecord == null)
+                {
+                    var newHighestScore = new UserChallengeHighestScore
+                    {
+                        UserId = saveGameSessionRequestDTO.UserId,
+                        ChallengeId = saveGameSessionRequestDTO.ChallengeId,
+                        HighestScore = saveGameSessionRequestDTO.Score,
+                        TimeTaken = saveGameSessionRequestDTO.TimeTaken,
+                        AttemptedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                    };
+                    await _userChallengeHighestScoreRepository.CreateUserChallengeHighestScoreAsync(newHighestScore);
+                } else if(saveGameSessionRequestDTO.Score > highestScoreRecord.HighestScore ||
+                        (saveGameSessionRequestDTO.Score == highestScoreRecord.HighestScore && 
+                        saveGameSessionRequestDTO.TimeTaken < highestScoreRecord.TimeTaken))
+                {
+                    highestScoreRecord.HighestScore = saveGameSessionRequestDTO.Score;
+                    highestScoreRecord.TimeTaken = saveGameSessionRequestDTO.TimeTaken;
+                    highestScoreRecord.AttemptedAt = DateTime.UtcNow;
+                    highestScoreRecord.UpdatedAt = DateTime.UtcNow;
+                    await _userChallengeHighestScoreRepository.UpdateUserChallengeHighestScoreAsync(highestScoreRecord);
+                }
+                return new ApiResponse<string>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = "Updated successfully"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
+                return new ApiResponse<string>
                 {
                     Code = 500,
                     Status = ResponseStatus.Error,
