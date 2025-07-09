@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using DAOs;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -41,6 +42,18 @@ namespace Repositories.Implements
         {
             await _unitOfWork.GetRepo<UserChallengeHighestScore>().UpdateAsync(userChallengeHighestScore);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<UserChallengeHighestScore>> GetChallengeLearboardAsync(long challengeId)
+        {
+            var leaderboard = await _context.UserChallengeHighestScores
+                    .AsNoTracking()
+                    .Where(x => x.ChallengeId == challengeId)
+                    .Include(x => x.User)
+                    .OrderByDescending(x => x.HighestScore)
+                    .ThenBy(x => x.TimeTaken)
+                    .ToListAsync();
+            return leaderboard;
         }
     }
 }

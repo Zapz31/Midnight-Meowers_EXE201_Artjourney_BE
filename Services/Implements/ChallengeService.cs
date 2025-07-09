@@ -4,6 +4,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Challenge;
 using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -316,6 +317,57 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<string>
+                {
+                    Code = 500,
+                    Status = ResponseStatus.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<ChallengeLeaderboardResponseDTO>> GetChallengeLeaderboard(long challengeId)
+        {
+            try
+            {
+                // Validate challenge existence
+                var challenge = await _challengeRepository.GetChallengeByIdAsync(challengeId);
+                if (challenge == null)
+                {
+                    return new ApiResponse<ChallengeLeaderboardResponseDTO>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "Challenge not exist"
+                    };
+                }
+
+                // Get leaderboard data
+                var leaderboard = await _userChallengeHighestScoreRepository.GetChallengeLearboardAsync(challengeId);
+                var responseData = new ChallengeLeaderboardResponseDTO
+                {
+                    ChallengeId = challengeId,
+                    ChallengeName = challenge.Name,
+                    Leaderboard = leaderboard.Select((record, index) => new LeaderboardAResponseDTO
+                    {
+                        Rank = index + 1,
+                        UserId = record.UserId,
+                        Username = record.User.Fullname ?? "Unknown",
+                        HighestScore = record.HighestScore,
+                        TimeTaken = record.TimeTaken,
+                        AttemptedAt = record.AttemptedAt
+                    }).ToList()
+                };
+                return new ApiResponse<ChallengeLeaderboardResponseDTO>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at GetChallengeLeaderboard in ChallengeService: {ex}", ex.Message);
+                return new ApiResponse<ChallengeLeaderboardResponseDTO>
                 {
                     Code = 500,
                     Status = ResponseStatus.Error,

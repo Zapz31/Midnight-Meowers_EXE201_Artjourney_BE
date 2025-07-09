@@ -1,7 +1,9 @@
 ﻿using BusinessObjects.Models;
+using DAOs;
 using Helpers.DTOs.Challenge;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Services.Interfaces;
 
 namespace Artjouney_BE.Controllers
@@ -11,10 +13,12 @@ namespace Artjouney_BE.Controllers
     public class ChallengeController : ControllerBase
     {
         private readonly IChallengeService _challengeService;
+        private readonly ApplicationDbContext _context;
 
-        public ChallengeController(IChallengeService challengeService)
+        public ChallengeController(IChallengeService challengeService, ApplicationDbContext applicationDbContext)
         {
             _challengeService = challengeService;
+            _context = applicationDbContext;
         }
 
         [HttpGet("api/challenges/course/{courseId}")]
@@ -58,5 +62,55 @@ namespace Artjouney_BE.Controllers
             var response = await _challengeService.SaveGameSession(saveGameSessionRequestDTO);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/challenge/leaderboard/{challengeId}")]
+        public async Task<IActionResult> GetChallengeLeaderboard(long challengeId)
+        {
+            var response = await _challengeService.GetChallengeLeaderboard(challengeId);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("/api/leaderboard/global")]
+        public async Task<IActionResult> GetGlobalLeaderboard()
+        {
+            try
+            {
+                var leaderboardData = await _context.UserChallengeHighestScores
+                    .Include(u => u.User)
+                    .GroupBy(x => new { x.UserId, x.User.Fullname })
+                    .Select(g => new
+                    {
+                        UserId = g.Key.UserId,
+                        Username = g.Key.Fullname ?? "Unknown",
+                        TotalScore = g.Sum(x => x.HighestScore),
+                        ChallengesCompleted = g.Count()
+                    })
+                    .OrderByDescending(x => x.TotalScore)
+                    .ToListAsync();
+
+                if (leaderboardData == null || leaderboardData.Count == 0)
+                {
+                    return NotFound(new { error = "No attempts recorded" });
+                }
+
+                var leaderboard = leaderboardData
+                    .Select((record, index) => new
+                    {
+                        Rank = index + 1,
+                        record.UserId,
+                        record.Username,
+                        record.TotalScore,
+                        record.ChallengesCompleted
+                    });
+
+                return Ok(new { leaderboard });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching global leaderboard: {ex.Message}");
+                return StatusCode(500, new { error = "Failed to retrieve leaderboard data" });
+            }
+        }
+
     }
 }
