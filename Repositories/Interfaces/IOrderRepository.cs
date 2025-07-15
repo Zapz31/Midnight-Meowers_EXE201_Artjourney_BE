@@ -12,5 +12,6 @@ namespace Repositories.Interfaces
         public Task<Order> CreateOrder(Order order);
         public Task<Order?> GetOrderByUserIdAndOrderCodeSingleAsync(long userId, long orderCode);
         public Task<Order?> GetOrderByOrderCodeAsync(long orderCode);
+        public Task<bool> UpdateUserPremiumInfoIdAsync(long orderCode, long userPremiumInfoId);
     }
 }

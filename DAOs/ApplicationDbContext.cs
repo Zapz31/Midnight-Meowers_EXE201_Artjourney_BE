@@ -57,6 +57,7 @@ namespace DAOs
         public DbSet<ArtworkDetail> ArtworkDetails { get; set; }
         public DbSet<ChallengeSession> ChallengeSessions { get; set; }
         public DbSet<UserChallengeHighestScore> UserChallengeHighestScores { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         
         // DTO
         public DbSet<CourseDetailScreenFlat> CourseDetailScreenFlats { get; set; }

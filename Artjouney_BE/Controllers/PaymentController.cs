@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using BusinessObjects.Models;
 using Repositories.Interfaces;
 using Helpers.DTOs.UserCourseInfo;
+using BusinessObjects.Enums;
 
 namespace Artjouney_BE.Controllers
 {
@@ -30,6 +31,8 @@ namespace Artjouney_BE.Controllers
         private readonly ICurrentUserService _currentUserService;
         private readonly IOrderRepository _orderRepository;
         private readonly IUserCourseInfoService _userCourseInfoService;
+        private readonly IUserPremiumInfoRepository _userPremiumInfoRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
 
 
         // Uncomment if you have an order service to manage orders
@@ -39,7 +42,9 @@ namespace Artjouney_BE.Controllers
             ICurrentUserService currentUserService,
             IOrderRepository orderRepository,
             ApplicationDbContext context /*, IOrderService orderService */, 
-            IUserCourseInfoService userCourseInfoService)
+            IUserCourseInfoService userCourseInfoService,
+            IUserPremiumInfoRepository userPremiumInfoRepository,
+            IOrderItemRepository orderItemRepository)
         {
             _payOSService = payOSService;
             _logger = logger;
@@ -48,6 +53,8 @@ namespace Artjouney_BE.Controllers
             _orderRepository = orderRepository;
             _userCourseInfoService = userCourseInfoService;
             // _orderService = orderService;
+            _userPremiumInfoRepository = userPremiumInfoRepository;
+            _orderItemRepository = orderItemRepository;
         }
 
         [HttpPost("create-payment-link")]
@@ -83,29 +90,49 @@ namespace Artjouney_BE.Controllers
                     itemIds.Add(itemDto.CourseId ?? 0);
                 }
             }
-            // Check if user has enrolled this course yet
-            var userCourseInfos = await _userCourseInfoService.GetUserCourseInfosByUserIdAndCourseIds(userId, itemIds);
-            if (userCourseInfos == null)
+
+            // Validate before pay
+            // Check if user has enrolled this course yet - if description is "thanh toan khoa hoc".
+            if("thanh toan khoa hoc".Equals(orderRequest.Description))
             {
-                ApiResponse<string> errorResponse = new()
+                var userCourseInfos = await _userCourseInfoService.GetUserCourseInfosByUserIdAndCourseIds(userId, itemIds);
+                if (userCourseInfos == null)
                 {
-                    Status = BusinessObjects.Enums.ResponseStatus.Error,
-                    Data = null,
-                    Code = 500,
-                    Message = "Error when checking if user has enrolled this course yet (userCourseInfos has null)"
-                };
-                return StatusCode(errorResponse.Code, errorResponse);
-            }
-            if (userCourseInfos.Data.Count != 0)
+                    ApiResponse<string> errorResponse = new()
+                    {
+                        Status = BusinessObjects.Enums.ResponseStatus.Error,
+                        Data = null,
+                        Code = 500,
+                        Message = "Error when checking if user has enrolled this course yet (userCourseInfos has null)"
+                    };
+                    return StatusCode(errorResponse.Code, errorResponse);
+                }
+                if (userCourseInfos.Data.Count != 0)
+                {
+                    ApiResponse<string> errorResponse = new()
+                    {
+                        Status = BusinessObjects.Enums.ResponseStatus.Error,
+                        Data = null,
+                        Code = 400,
+                        Message = "User has already enrolled this course"
+                    };
+                    return StatusCode(errorResponse.Code, errorResponse);
+                }
+            } else if("thanh toan premium".Equals(orderRequest.Description))
             {
-                ApiResponse<string> errorResponse = new()
+                // Check if the user's premium subscription is still active.
+                var userPremiumInfo = await _userPremiumInfoRepository.GetByUserIdAndStatus(userId, UserPremiumStatus.PremiumActive);
+                if (userPremiumInfo != null) 
                 {
-                    Status = BusinessObjects.Enums.ResponseStatus.Error,
-                    Data = null,
-                    Code = 400,
-                    Message = "User has already enrolled this course"
-                };
-                return StatusCode(errorResponse.Code, errorResponse);
+                    ApiResponse<string> errorResponse = new()
+                    {
+                        Status = BusinessObjects.Enums.ResponseStatus.Error,
+                        Data = null,
+                        Code = 400,
+                        Message = "The user has an active premium subscription."
+                    };
+                    return StatusCode(errorResponse.Code, errorResponse);
+                }
             }
 
             int amount = 0;
@@ -139,10 +166,35 @@ namespace Artjouney_BE.Controllers
                     CourseId = orderRequest.Items[0].CourseId
                 };
                 await _orderRepository.CreateOrder(order);
-                
+
+                var insertItems = items.Select(i => new OrderItem
+                {
+                    Name = i.name,
+                    Quantity = i.quantity,
+                    Price = i.price,
+                    OrderCode = orderCode
+                }).ToList();
+                await _orderItemRepository.CreateItems(insertItems);
             }
             //Th2: thanh toan premium
+            if("thanh toan premium".Equals(orderRequest.Description.ToLower()))
+            {
+                Order order = new()
+                {
+                    OrderCode = orderCode,
+                    UserId = userId,
+                };
+                await _orderRepository.CreateOrder(order);
 
+                var insertItems = items.Select(i => new OrderItem
+                {
+                    Name = i.name,
+                    Quantity = i.quantity,
+                    Price = i.price,
+                    OrderCode = orderCode
+                }).ToList();
+                await _orderItemRepository.CreateItems(insertItems);
+            }
 
             if (paymentResult == null)
             {
@@ -278,7 +330,24 @@ public async Task<IActionResult> PayOSWebhook()
                             CourseId = order.CourseId ?? 0
                         };
                                 await _userCourseInfoService.CreateUserCourseInfo(basicCreateUserCourseInfoRequestDTO);
-                    }
+                    } else if("thanh toan premium".Equals(verifiedData.description))
+                            {
+                                _logger.LogInformation("da di vao thanh toan premium");
+                                var now = DateTime.UtcNow;
+                                var orderItem = await _orderItemRepository.GetFirstItemByOrderCode(order.OrderCode);
+                                var premiumInfo = new UserPremiumInfo
+                                {
+                                    UserId = order.UserId,
+                                    StartDate = now,
+                                    EndDate = now.AddMonths(orderItem.Quantity),
+                                    SubcriptionAt = now,
+                                    Status = UserPremiumStatus.PremiumActive
+                                };
+                                var createdPremiumInfo = await _userPremiumInfoRepository.CreateUserPremiumInfo(premiumInfo);
+
+                                // update user_premium_info_id for an order
+                                await _orderRepository.UpdateUserPremiumInfoIdAsync(verifiedData.orderCode, createdPremiumInfo.Id);
+                            }
 
                     _logger.LogInformation("Order inserted to DB: {OrderCode}", verifiedData.orderCode);
                 }

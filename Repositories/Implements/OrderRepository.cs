@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using DAOs;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -46,6 +47,18 @@ namespace Repositories.Implements
                 .Build();
             var data = await _unitOfWork.GetRepo<Order>().GetSingleAsync(queryOptions);
             return data;
+        }
+
+        public async Task<bool> UpdateUserPremiumInfoIdAsync(long orderCode, long userPremiumInfoId)
+        {
+            var sql = @"
+            UPDATE orders
+            SET user_premium_info_id = {0}
+            WHERE order_code = {1};
+        ";
+
+            int rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql, userPremiumInfoId, orderCode);
+            return rowsAffected > 0;
         }
     }
 }
