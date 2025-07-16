@@ -41,5 +41,13 @@ namespace Artjouney_BE.Controllers
             ApiResponse<UserLearningProgress> response = await _userService.MarkAsCompleteUserLearningProgressSingleAsync(userLearningContentId);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("/api/users/premium-status")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetLatestPremiumInfoByUserIdAsync()
+        {
+            var resposne = await _userService.GetLatestPremiumInfoByUserIdAsync();
+            return StatusCode(resposne.Code, resposne);
+        }
     }
 }

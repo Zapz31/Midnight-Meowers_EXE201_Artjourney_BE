@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.UserLearningProgress;
+using Helpers.DTOs.UserPremiumStatus;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Logging;
@@ -446,6 +447,52 @@ namespace Services.Implements
                 await _unitOfWork.RollBackAsync();
                 _logger.LogError("Error at MarkAsCompleteUserLearningProgressSingleAsync at UserService.cs: {ex}", ex.Message);
                 return new ApiResponse<UserLearningProgress>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Data = null,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<GetPremiumBasicDTO?>> GetLatestPremiumInfoByUserIdAsync()
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                var userPremiumInfo = await _userPremiumInfoRepository.GetLatestPremiumInfoByUserIdAsync(userId);
+                if (userPremiumInfo == null)
+                {
+                    return new ApiResponse<GetPremiumBasicDTO?>
+                    {
+                        Status = ResponseStatus.Success,
+                        Code = 200,
+                        Data = null,
+                        Message = "Data retrieve success"
+                    };
+                }
+                var premiumInfoDTO = new GetPremiumBasicDTO
+                {
+                    Id = userPremiumInfo.Id,
+                    StartDate = userPremiumInfo.StartDate,
+                    EndDate = userPremiumInfo.EndDate,
+                    Status = userPremiumInfo.Status.ToString(),
+                    SubcriptionAt = userPremiumInfo.SubcriptionAt,
+                    UserId = userPremiumInfo.UserId,
+                };
+                return new ApiResponse<GetPremiumBasicDTO?>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = premiumInfoDTO,
+                    Message = "Data retrieve success"
+                };
+                
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at GetLatestPremiumInfoByUserIdAsync at UserService.cs: {ex}", ex.Message);
+                return new ApiResponse<GetPremiumBasicDTO?>
                 {
                     Status = ResponseStatus.Error,
                     Code = 500,

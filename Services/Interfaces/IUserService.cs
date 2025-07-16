@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.UserLearningProgress;
+using Helpers.DTOs.UserPremiumStatus;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using System;
@@ -22,5 +23,7 @@ namespace Services.Interfaces
         public Task<ApiResponse<bool>> CreateUserLearningProgress(CreateULPRequestDTO requestDTO);
         public Task<ApiResponse<bool>> CreateUserLearningProgressesByUserIdAndLNId(long courseId, long userId);
         public Task<ApiResponse<UserLearningProgress>> MarkAsCompleteUserLearningProgressSingleAsync(long userLearningProgressId);
+        public Task<ApiResponse<GetPremiumBasicDTO?>> GetLatestPremiumInfoByUserIdAsync();
+
     }
 }
