@@ -23,6 +23,7 @@ namespace Helpers.DTOs.Users
         public string? AvatarUrl { get; set; }
         public AccountRole? Role { get; set; }
         public long LoginCount { get; set; }
+        public string? PremiumStatus { get; set; }
 
         public NewUpdateUserDTO(User user) 
         {

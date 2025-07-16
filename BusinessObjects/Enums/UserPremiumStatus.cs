@@ -19,7 +19,5 @@ namespace BusinessObjects.Enums
 
         // Premium bị tạm ngưng
         PremiumSuspended
-
-
     }
 }

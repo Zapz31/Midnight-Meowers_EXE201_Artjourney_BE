@@ -27,13 +27,15 @@ namespace Services.Implements
         private readonly ICurrentUserService _currentUserService;
         private readonly IMailSenderService _mailSender;
         private readonly ILogger<AuthenService> _logger;
+        private readonly IUserPremiumInfoRepository _userPremiumInfoRepository;
         public AuthenService(IUserService userService,
             ITokenService tokenService,
             ILoginHistoryService loginHistoryService,
             IVerificationInfoRepository verificationInfoRepository,
             ICurrentUserService currentUserService, 
             IMailSenderService mailSender,
-            ILogger<AuthenService> logger
+            ILogger<AuthenService> logger,
+            IUserPremiumInfoRepository userPremiumInfoRepository
             )
         {
             _userService = userService;
@@ -43,6 +45,8 @@ namespace Services.Implements
             _currentUserService = currentUserService;
             _mailSender = mailSender;
             _logger = logger;
+            _currentUserService = currentUserService;
+            _userPremiumInfoRepository = userPremiumInfoRepository;
         }
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
         {

@@ -221,7 +221,6 @@ namespace Artjouney_BE.Controllers
 
         [HttpGet("me")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
         public async Task<IActionResult> GetUserByIDAuthAsync()
         {
             var userId = _currentUserService.AccountId;

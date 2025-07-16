@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using DAOs;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -37,6 +38,14 @@ namespace Repositories.Implements
                 .Build();
             var responseData = await _unitOfWork.GetRepo<UserPremiumInfo>().GetSingleAsync(query);
             return responseData;
+        }
+
+        public async Task<UserPremiumInfo?> GetLatestPremiumInfoByUserIdAsync(long inputUserId)
+        {
+            return await _context.UserPremiumInfos
+                .Where(p => p.UserId == inputUserId)
+                .OrderByDescending(p => p.StartDate)
+                .FirstOrDefaultAsync();
         }
     }
 }

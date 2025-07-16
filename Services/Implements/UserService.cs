@@ -5,6 +5,7 @@ using Helpers.DTOs.UserLearningProgress;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Logging;
+using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -27,6 +28,7 @@ namespace Services.Implements
         private readonly ILearningContentRepository _learningContentRepository;
         private readonly ISubModuleRepository _subModuleRepository;
         private readonly IModuleRepository _moduleRepository;
+        private readonly IUserPremiumInfoRepository _userPremiumInfoRepository;
         public UserService(
                 IUserRepository userRepository,
                 ILoginHistoryRepository loginHistoryRepository,
@@ -36,7 +38,8 @@ namespace Services.Implements
                 ICurrentUserService currentUserService,
                 ILearningContentRepository learningContentRepository,
                 ISubModuleRepository subModuleRepository,
-                IModuleRepository moduleRepository
+                IModuleRepository moduleRepository,
+                IUserPremiumInfoRepository userPremiumInfoRepository
             )
         
         {
@@ -49,6 +52,7 @@ namespace Services.Implements
             _learningContentRepository = learningContentRepository;
             _subModuleRepository = subModuleRepository;
             _moduleRepository = moduleRepository;
+            _userPremiumInfoRepository = userPremiumInfoRepository;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -95,6 +99,17 @@ namespace Services.Implements
                     };
                 }
                 NewUpdateUserDTO newUpdateUserDTO = new NewUpdateUserDTO(founduser);
+
+                // Get the latest PremiumInfo by start date and user_id
+                var userPremiumInfo = await _userPremiumInfoRepository.GetLatestPremiumInfoByUserIdAsync(userId);
+                if (userPremiumInfo != null)
+                {
+                    newUpdateUserDTO.PremiumStatus = userPremiumInfo.Status.ToString();
+                } else
+                {
+                    newUpdateUserDTO.PremiumStatus = UserPremiumStatus.FreeTier.ToString();
+                }
+
                 newUpdateUserDTO.LoginCount = await _loginHistoryRepository.CountLoginHistoriesByUserIdAsync(userId);
                 return new ApiResponse<NewUpdateUserDTO?>()
                 {

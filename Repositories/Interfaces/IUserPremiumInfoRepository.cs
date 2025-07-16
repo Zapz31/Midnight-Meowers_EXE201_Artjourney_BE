@@ -12,5 +12,6 @@ namespace Repositories.Interfaces
     {
         public Task<UserPremiumInfo> CreateUserPremiumInfo(UserPremiumInfo userPremiumInfo);
         public Task<UserPremiumInfo?> GetByUserIdAndStatus(long userId, UserPremiumStatus status);
+        public Task<UserPremiumInfo?> GetLatestPremiumInfoByUserIdAsync(long inputUserId);
     }
 }
