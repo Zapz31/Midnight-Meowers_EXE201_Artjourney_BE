@@ -285,7 +285,7 @@ namespace Services.Implements
                         .OrderBy(sm => sm.DisplayOrder)
                         .Select(subModule => new SubModuleCourseDetailScreenResponseDTO
                             {
-                                SubModuleId = subModule.ModuleId,
+                                SubModuleId = subModule.SubModuleId,
                                 SubModuleTitle = subModule.SubModuleTitle,
                                 learningContentDetailScreenResponseDTOs = contentsBySubModule[subModule.SubModuleId]
                                     .OrderBy(lc => lc.DisplayOrder)
