@@ -514,5 +514,50 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<bool>> DeleteCourseAsync(long courseId, long? deletedBy = null)
+        {
+            try
+            {
+                var currentUserID = _currentUserService.AccountId;
+                var currentUserRole = _currentUserService.Role;
+                if (string.IsNullOrEmpty(currentUserRole) || !AccountRole.Admin.ToString().Equals(currentUserRole))
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 401,
+                        Message = "You don't have permission to do this action"
+                    };
+                }
+                var result = await _courseRepository.SoftDeleteCourseAsync(courseId, deletedBy ?? currentUserID);
+                if (!result)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 404,
+                        Message = "Course not found or already deleted"
+                    };
+                }
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = true,
+                    Message = "Course deleted successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at DeleteCourseAsync in CourseService: {ex}", ex.Message);
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "Server error"
+                };
+            }
+        }
     }
 }

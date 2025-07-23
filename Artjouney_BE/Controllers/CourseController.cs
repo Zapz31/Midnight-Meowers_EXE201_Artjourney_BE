@@ -65,5 +65,13 @@ namespace Artjouney_BE.Controllers
             var response = await _courseService.GetCoursesHasEnrolledByUserIdAsync(userId);
             return StatusCode(response.Code, response);
         }
+
+        [HttpDelete("/api/courses/{courseId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> DeleteCourse(long courseId)
+        {
+            var response = await _courseService.DeleteCourseAsync(courseId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

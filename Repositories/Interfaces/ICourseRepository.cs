@@ -26,5 +26,6 @@ namespace Repositories.Interfaces
         public Task<List<CourseHasEnrolledBasicViewReponseDTO>> GetQueryResultBFlat(long userId);
         public Task<List<ModuleCourseHasEnrolledBasicViewDTO>> GetModuleCourseHasEnrolledBasicViewDTsAsync(long userId, List<long>? courseIds);
         public Task<List<SubModuleCourseHasEnrolledBasicViewDTO>> GetSubModuleCourseHasEnrolledBasicViewDTOsAsync(long userId, List<long>? moduleIds);
+        public Task<bool> SoftDeleteCourseAsync(long courseId, long? deletedBy = null);
     }
 }

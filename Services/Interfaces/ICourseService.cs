@@ -17,5 +17,6 @@ namespace Services.Interfaces
         public Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailAsync(long courseId);
         public Task<ApiResponse<CourseDetailResponseDTO>> GetCourseDetailForGuestAsync(long courseId);
         public Task<ApiResponse<List<CourseHasEnrolledBasicViewReponseDTO>>> GetCoursesHasEnrolledByUserIdAsync(long userId);
+        public Task<ApiResponse<bool>> DeleteCourseAsync(long courseId, long? deletedBy = null);
     }
 }

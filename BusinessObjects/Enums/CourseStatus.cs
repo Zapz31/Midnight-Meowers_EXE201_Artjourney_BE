@@ -10,6 +10,7 @@ namespace BusinessObjects.Enums
     {
         Draft,
         Published,
-        Archived
+        Archived,
+        Deleted
     }
 }

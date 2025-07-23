@@ -340,5 +340,22 @@ where sm.is_active = true and sm.module_id in ({moduleIdsParam}) and user_id = {
             return results;
         }
 
+        public async Task<bool> SoftDeleteCourseAsync(long courseId, long? deletedBy = null)
+        {
+            var course = await _unitOfWork.GetRepo<Course>().GetSingleAsync(new QueryOptions<Course>
+            {
+                Predicate = c => c.CourseId == courseId && c.ArchivedAt == null && c.Status != CourseStatus.Deleted
+            });
+            if (course == null)
+                return false;
+            course.Status = CourseStatus.Deleted;
+            course.ArchivedAt = DateTime.UtcNow;
+            if (deletedBy.HasValue)
+                course.ArchivedBy = deletedBy.Value;
+            await _unitOfWork.GetRepo<Course>().UpdateAsync(course);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
