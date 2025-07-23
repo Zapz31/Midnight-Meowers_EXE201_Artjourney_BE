@@ -16,6 +16,7 @@ namespace Services.Interfaces
         public Task<ApiResponse<DragDropChallengeDetailResponse>> GetChallengeDetailbyChallengeId(long challengeId);
         public Task<ApiResponse<bool>> CreateArtworks(List<ArtworkCreateRequestDTO> requestDTOs);
         public Task<ApiResponse<bool>> CreateArtworkDetails(List<ArtworkDetailCreateRequestDTO> requestDTOs);
+        public Task<ApiResponse<List<ArtworkViewBasicResponseDTO>>> GetArtworksByChallengeIdAsync(long challengeId);
         public Task<ApiResponse<string>> SaveGameSession(SaveGameSessionRequestDTO saveGameSessionRequestDTO);
         public Task<ApiResponse<ChallengeLeaderboardResponseDTO>> GetChallengeLeaderboard(long challengeId);
     }

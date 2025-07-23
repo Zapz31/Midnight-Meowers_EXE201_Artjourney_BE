@@ -240,6 +240,45 @@ namespace Services.Implements
             }
         }
 
+        public async Task<ApiResponse<List<ArtworkViewBasicResponseDTO>>> GetArtworksByChallengeIdAsync(long challengeId)
+        {
+            try
+            {
+                // Validate challenge existence
+                var challenge = await _challengeRepository.GetChallengeByIdAsync(challengeId);
+                if (challenge == null)
+                {
+                    return new ApiResponse<List<ArtworkViewBasicResponseDTO>>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 404,
+                        Message = $"Challenge with ID {challengeId} not found"
+                    };
+                }
+
+                // Get artworks by challenge ID
+                var artworks = await _artworkRepository.GetAllArtworksByChallengeIdAsync(challengeId);
+
+                return new ApiResponse<List<ArtworkViewBasicResponseDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = artworks,
+                    Message = "Artworks retrieved successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at GetArtworksByChallengeIdAsync in ChallengeService: {ex}", ex.Message);
+                return new ApiResponse<List<ArtworkViewBasicResponseDTO>>
+                {
+                    Code = 500,
+                    Status = ResponseStatus.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
         public async Task<ApiResponse<string>> SaveGameSession(SaveGameSessionRequestDTO saveGameSessionRequestDTO)
         {
             try
