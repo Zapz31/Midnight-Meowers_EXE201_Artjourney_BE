@@ -84,11 +84,12 @@ namespace Artjouney_BE.Controllers
             {
                 var leaderboardData = await _context.UserChallengeHighestScores
                     .Include(u => u.User)
-                    .GroupBy(x => new { x.UserId, x.User.Fullname })
+                    .GroupBy(x => new { x.UserId, x.User.Fullname, x.User.AvatarUrl })
                     .Select(g => new
                     {
                         UserId = g.Key.UserId,
                         Username = g.Key.Fullname ?? "Unknown",
+                        AvatarUrl = g.Key.AvatarUrl,
                         TotalScore = g.Sum(x => x.HighestScore),
                         ChallengesCompleted = g.Count()
                     })
@@ -106,6 +107,7 @@ namespace Artjouney_BE.Controllers
                         Rank = index + 1,
                         record.UserId,
                         record.Username,
+                        record.AvatarUrl,
                         record.TotalScore,
                         record.ChallengesCompleted
                     });

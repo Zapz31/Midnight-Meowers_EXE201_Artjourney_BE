@@ -11,6 +11,7 @@ namespace Helpers.DTOs.Challenge
         public int Rank { get; set; }
         public long UserId { get; set; }
         public string Username { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
         public long HighestScore { get; set; }
         public long TimeTaken { get; set; }
         public DateTime AttemptedAt { get; set; }

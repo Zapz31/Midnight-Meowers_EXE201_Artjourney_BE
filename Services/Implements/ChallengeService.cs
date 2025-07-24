@@ -391,6 +391,7 @@ namespace Services.Implements
                         Rank = index + 1,
                         UserId = record.UserId,
                         Username = record.User.Fullname ?? "Unknown",
+                        AvatarUrl = record.User.AvatarUrl,
                         HighestScore = record.HighestScore,
                         TimeTaken = record.TimeTaken,
                         AttemptedAt = record.AttemptedAt
