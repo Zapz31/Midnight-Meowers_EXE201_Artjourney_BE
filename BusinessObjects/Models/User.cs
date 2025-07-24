@@ -39,7 +39,7 @@ namespace BusinessObjects.Models
         public string Password { get; set; } = String.Empty;
 
         [Column("birthday")]
-        public DateTime Birthday { get; set; } = DateTime.MinValue;
+        public DateTime Birthday { get; set; } = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

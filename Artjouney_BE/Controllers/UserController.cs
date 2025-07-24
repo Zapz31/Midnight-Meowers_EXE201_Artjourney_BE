@@ -1,5 +1,7 @@
 ﻿using BusinessObjects.Models;
+using BusinessObjects.Enums;
 using Helpers.DTOs.UserLearningProgress;
+using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -14,9 +16,12 @@ namespace Artjouney_BE.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly ICurrentUserService _currentUserService;
+        
+        public UserController(IUserService userService, ICurrentUserService currentUserService)
         {
             _userService = userService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("/api/users/log-course-access")]
@@ -48,6 +53,75 @@ namespace Artjouney_BE.Controllers
         {
             var resposne = await _userService.GetLatestPremiumInfoByUserIdAsync();
             return StatusCode(resposne.Code, resposne);
+        }
+
+        [HttpPut("/api/users/profile")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> UpdateUserProfileAsync([FromBody] UpdateUserProfileRequestDTO updateProfileRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => new ApiError { Message = e.ErrorMessage })
+                    .ToList();
+
+                return BadRequest(new ApiResponse<object>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 400,
+                    Message = "Validation failed",
+                    Data = null,
+                    Errors = errors
+                });
+            }
+
+            var response = await _userService.UpdateUserProfileAsync(updateProfileRequest);
+            
+            if (response.Status == ResponseStatus.Success)
+            {
+                return Ok(new ApiResponse<object>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Message = "Profile updated successfully",
+                    Data = null
+                });
+            }
+            
+            return StatusCode(response.Code, new ApiResponse<object>
+            {
+                Status = response.Status,
+                Code = response.Code,
+                Message = response.Message,
+                Data = null,
+                Errors = response.Errors
+            });
+        }
+
+        [HttpGet("/api/users/profile")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserProfileAsync()
+        {
+            try
+            {
+                var response = await _userService.GetUserByIDAsynce(_currentUserService.AccountId);
+                return StatusCode(response.Code, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "Failed to retrieve user profile",
+                    Data = null,
+                    Errors = new List<ApiError>
+                    {
+                        new ApiError { Code = 500, Message = ex.Message }
+                    }
+                });
+            }
         }
     }
 }

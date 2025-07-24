@@ -71,6 +71,14 @@ namespace DAOs
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            // Configure DateTime properties to handle UTC conversion for PostgreSQL
+            modelBuilder.Entity<User>()
+                .Property(u => u.Birthday)
+                .HasConversion(
+                    v => v.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v, DateTimeKind.Utc) : v.ToUniversalTime(),
+                    v => v);
+            
             modelBuilder.Entity<Order>().ToTable("orders");
             
             // Chat table configurations
@@ -391,6 +399,38 @@ namespace DAOs
             modelBuilder.Entity<ModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
             modelBuilder.Entity<SubModuleCourseHasEnrolledBasicViewDTO>().HasNoKey();
             modelBuilder.Entity<TotalScoreResult>().HasNoKey();
+        }
+
+        public override int SaveChanges()
+        {
+            FixDateTimeKinds();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            FixDateTimeKinds();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void FixDateTimeKinds()
+        {
+            var entities = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+            foreach (var entity in entities)
+            {
+                var properties = entity.Properties
+                    .Where(p => p.CurrentValue is DateTime dateTime && dateTime.Kind == DateTimeKind.Unspecified);
+
+                foreach (var property in properties)
+                {
+                    if (property.CurrentValue is DateTime currentDateTime)
+                    {
+                        property.CurrentValue = DateTime.SpecifyKind(currentDateTime, DateTimeKind.Utc);
+                    }
+                }
+            }
         }
 
     }

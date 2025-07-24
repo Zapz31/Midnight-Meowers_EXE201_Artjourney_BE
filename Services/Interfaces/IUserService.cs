@@ -19,6 +19,7 @@ namespace Services.Interfaces
         Task<User> CreateCompleteAccount(User newUser);
         Task<ApiResponse<User>> UpdateUserAsync(NewUpdateUserDTO newUpdateUser);
         Task<ApiResponse<NewUpdateUserDTO?>> GetUserByIDAsynce(long userId);
+        Task<ApiResponse<NewUpdateUserDTO?>> UpdateUserProfileAsync(UpdateUserProfileRequestDTO updateProfileRequest);
         public Task<ApiResponse<bool>> LogCourseAccessAsync(UserCourseStreak courseStreak);
         public Task<ApiResponse<bool>> CreateUserLearningProgress(CreateULPRequestDTO requestDTO);
         public Task<ApiResponse<bool>> CreateUserLearningProgressesByUserIdAndLNId(long courseId, long userId);

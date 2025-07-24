@@ -215,7 +215,10 @@ namespace Services.Implements
                     if (!newUpdateUser.Birthday.Equals(updatedUser.Birthday))
                     {
                         DateTime newUpdateUserBirthday = (DateTime)newUpdateUser.Birthday;
-                        updatedUser.Birthday = newUpdateUserBirthday;
+                        // Ensure DateTime is in UTC format for PostgreSQL compatibility
+                        updatedUser.Birthday = newUpdateUserBirthday.Kind == DateTimeKind.Unspecified 
+                            ? DateTime.SpecifyKind(newUpdateUserBirthday, DateTimeKind.Utc)
+                            : newUpdateUserBirthday.ToUniversalTime();
                         isUpdate = true;
                     }
                 }
@@ -493,6 +496,67 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetLatestPremiumInfoByUserIdAsync at UserService.cs: {ex}", ex.Message);
                 return new ApiResponse<GetPremiumBasicDTO?>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Data = null,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<NewUpdateUserDTO?>> UpdateUserProfileAsync(UpdateUserProfileRequestDTO updateProfileRequest)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                
+                // Get current user
+                var currentUser = await _userRepository.GetUserByIDAsync(userId);
+                if (currentUser == null)
+                {
+                    return new ApiResponse<NewUpdateUserDTO?>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 404,
+                        Data = null,
+                        Message = "User not found"
+                    };
+                }
+
+                // Create NewUpdateUserDTO with current user email and updated fields
+                var updateUserDTO = new NewUpdateUserDTO
+                {
+                    Email = currentUser.Email, // Required for UpdateUserAsync method
+                    FullName = updateProfileRequest.FullName,
+                    PhoneNumber = updateProfileRequest.PhoneNumber,
+                    Gender = updateProfileRequest.Gender,
+                    AvatarUrl = updateProfileRequest.AvatarUrl,
+                    Birthday = updateProfileRequest.Birthday
+                };
+
+                // Update user using existing method
+                var updateResponse = await UpdateUserAsync(updateUserDTO);
+                if (updateResponse.Status == ResponseStatus.Error)
+                {
+                    return new ApiResponse<NewUpdateUserDTO?>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = updateResponse.Code,
+                        Data = null,
+                        Message = updateResponse.Message,
+                        Errors = updateResponse.Errors
+                    };
+                }
+
+                // Return updated user profile information
+                var updatedUserProfile = await GetUserByIDAsynce(userId);
+                return updatedUserProfile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at UpdateUserProfileAsync in UserService: {ex}", ex.Message);
+                return new ApiResponse<NewUpdateUserDTO?>
                 {
                     Status = ResponseStatus.Error,
                     Code = 500,
