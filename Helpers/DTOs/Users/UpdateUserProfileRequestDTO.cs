@@ -1,4 +1,5 @@
 using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,9 +20,7 @@ namespace Helpers.DTOs.Users
 
         public Gender? Gender { get; set; }
 
-        [Url(ErrorMessage = "Invalid avatar URL format")]
-        [StringLength(500, ErrorMessage = "Avatar URL cannot exceed 500 characters")]
-        public string? AvatarUrl { get; set; }
+        public IFormFile? Avatar { get; set; }
 
         public DateTime? Birthday { get; set; }
     }

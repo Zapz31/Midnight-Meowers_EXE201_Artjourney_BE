@@ -5,6 +5,7 @@ using Helpers.DTOs.UserLearningProgress;
 using Helpers.DTOs.UserPremiumStatus;
 using Helpers.DTOs.Users;
 using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Repositories.Implements;
 using Repositories.Interfaces;
@@ -30,6 +31,8 @@ namespace Services.Implements
         private readonly ISubModuleRepository _subModuleRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IUserPremiumInfoRepository _userPremiumInfoRepository;
+        private readonly IFileHandlerService _fileHandlerService;
+        private readonly string ImageBaseUrl = "https://zapzminio.phrimp.io.vn/";
         public UserService(
                 IUserRepository userRepository,
                 ILoginHistoryRepository loginHistoryRepository,
@@ -40,7 +43,8 @@ namespace Services.Implements
                 ILearningContentRepository learningContentRepository,
                 ISubModuleRepository subModuleRepository,
                 IModuleRepository moduleRepository,
-                IUserPremiumInfoRepository userPremiumInfoRepository
+                IUserPremiumInfoRepository userPremiumInfoRepository,
+                IFileHandlerService fileHandlerService
             )
         
         {
@@ -54,6 +58,7 @@ namespace Services.Implements
             _subModuleRepository = subModuleRepository;
             _moduleRepository = moduleRepository;
             _userPremiumInfoRepository = userPremiumInfoRepository;
+            _fileHandlerService = fileHandlerService;
         }
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
@@ -524,6 +529,39 @@ namespace Services.Implements
                     };
                 }
 
+                string? avatarUrl = null;
+                string? realAvatarUrl = null;
+                
+                // Handle avatar file upload if provided
+                if (updateProfileRequest.Avatar != null)
+                {
+                    List<IFormFile> avatarFiles = new List<IFormFile>();
+                    avatarFiles.Add(updateProfileRequest.Avatar);
+                    
+                    var uploadResult = await _fileHandlerService.UploadFiles(avatarFiles, "image", "AvatarImage");
+                    
+                    if (uploadResult.Errors.Any())
+                    {
+                        return new ApiResponse<NewUpdateUserDTO?>
+                        {
+                            Status = ResponseStatus.Error,
+                            Code = 400,
+                            Data = null,
+                            Message = "Failed to upload avatar",
+                            Errors = uploadResult.Errors.Select(e => new ApiError { Message = e }).ToList()
+                        };
+                    }
+                    
+                    avatarUrl = uploadResult.SuccessfulUploads[0].PresignedUrl;
+                }
+                
+                if (!string.IsNullOrEmpty(avatarUrl))
+                {
+                    Uri uri = new Uri(avatarUrl);
+                    string pathAndFileName = uri.PathAndQuery.TrimStart('/');
+                    realAvatarUrl = ImageBaseUrl + pathAndFileName;
+                }
+
                 // Create NewUpdateUserDTO with current user email and updated fields
                 var updateUserDTO = new NewUpdateUserDTO
                 {
@@ -531,7 +569,7 @@ namespace Services.Implements
                     FullName = updateProfileRequest.FullName,
                     PhoneNumber = updateProfileRequest.PhoneNumber,
                     Gender = updateProfileRequest.Gender,
-                    AvatarUrl = updateProfileRequest.AvatarUrl,
+                    AvatarUrl = realAvatarUrl, // Use real avatar URL or null if no avatar provided
                     Birthday = updateProfileRequest.Birthday
                 };
 

@@ -57,7 +57,7 @@ namespace Artjouney_BE.Controllers
 
         [HttpPut("/api/users/profile")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> UpdateUserProfileAsync([FromBody] UpdateUserProfileRequestDTO updateProfileRequest)
+        public async Task<IActionResult> UpdateUserProfileAsync([FromForm] UpdateUserProfileRequestDTO updateProfileRequest)
         {
             if (!ModelState.IsValid)
             {
