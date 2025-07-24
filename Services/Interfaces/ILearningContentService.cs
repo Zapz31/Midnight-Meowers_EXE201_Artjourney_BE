@@ -18,5 +18,7 @@ namespace Services.Interfaces
         public Task<ApiResponse<QuizAttempt>> StartQuizAsync(long userId, long learningContentId);
         public Task<ApiResponse<bool>> SubmitQuizAsync(SubmitQuizRequestDTO submitQuizRequestDTO);
         public Task<ApiResponse<LearningContent>> CreateQuizTitle(CreateQuizTitleRequestDTO createQuizTitleRequestDTO);
+        public  Task<ApiResponse<int>> SoftDeleteLearningContentAsync(long learningContentIdInput);
+
     }
 }

@@ -21,5 +21,6 @@ namespace Repositories.Interfaces
         public Task CreateLearningContentsAsync(List<LearningContent> learningContents);
         public Task<LearningContent?> GetLearningContentById(long learningContentId);
         public Task<int> UpdateCompleteCriteria(long learningContentId, decimal completeCriteria);
+        public Task<int> UpdateLearningContentIsActiveAsync(long learningContentIdInput);
     }
 }

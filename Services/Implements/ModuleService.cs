@@ -7,6 +7,7 @@ using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,6 +96,32 @@ namespace Services.Implements
                     Status = ResponseStatus.Error,
                     Code = 500,
                     Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<int>> SoftDeleteModuleByModuleId(long moduleId)
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                var responseData = await _moduleRepository.SoftDeleteModuleByModuleId(moduleId, userId);
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                    Message = "Delete success"
+                };
+            } catch (Exception ex)
+            {
+                _logger.LogError("Error at SoftDeleteModuleByModuleId at ModuleService.cs: {ex}", ex.Message);
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message,
+                    Data = 0
                 };
             }
         }

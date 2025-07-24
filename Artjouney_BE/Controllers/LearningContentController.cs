@@ -72,5 +72,12 @@ namespace Artjouney_BE.Controllers
             var responseData = await _learningContentService.CreateQuizTitle(createQuizTitleRequestDTO);
             return StatusCode(responseData.Code,responseData);
         }
+
+        [HttpDelete("/api/learning-contents/{learningContentId}")]
+        public async Task<IActionResult> RemoveLearningContent(long learningContentId)
+        {
+            var response = await _learningContentService.SoftDeleteLearningContentAsync(learningContentId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

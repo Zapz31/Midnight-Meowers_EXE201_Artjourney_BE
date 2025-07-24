@@ -100,5 +100,27 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<int>> SoftDeleteSubModuleByIdAsync(long subModuleId)
+        {
+            try
+            {
+                var responseData = await _subModuleRepository.SoftDeleteSubModuleByIdAsync(subModuleId);
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                };
+            } catch (Exception ex)
+            {
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

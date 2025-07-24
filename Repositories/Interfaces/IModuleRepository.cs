@@ -14,5 +14,7 @@ namespace Repositories.Interfaces
         public Task<IEnumerable<Module>> GetModulesByCourseId(long courseId);
         public Task<List<BasicModuleGetResponseDTO>> GetModulesByCourseIdCompletedAsync(long courseId);
         public Task<int> UpdateModuleProgress(long userId, long moduleId);
+        public Task<int> SoftDeleteModuleByModuleId(long moduleId, long userId);
+
     }
 }

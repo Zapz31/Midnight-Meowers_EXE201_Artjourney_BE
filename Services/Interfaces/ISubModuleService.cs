@@ -13,5 +13,6 @@ namespace Services.Interfaces
     {
         public Task<ApiResponse<SubModule>> CreateSubModuleAsync(CreateSubModuleRequestDTO requestDTO);
         public Task<ApiResponse<List<BasicSubModuleGetResponseDTO>>> GetSubmodulesByModuleId(long moduleId);
+        public Task<ApiResponse<int>> SoftDeleteSubModuleByIdAsync(long subModuleId);
     }
 }

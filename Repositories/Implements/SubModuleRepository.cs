@@ -2,6 +2,7 @@
 using DAOs;
 using Helpers.DTOs.SubModule;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -160,6 +161,34 @@ END $$;", userId, subModuleId, courseId);
                 throw new Exception($"Error when updating progress for sub_module: {ex.Message}", ex);
             }
 
+        }
+
+        public async Task<int> SoftDeleteSubModuleByIdAsync(long subModuleIdInput)
+        {
+            try
+            {
+                // Sử dụng raw query để update (PostgreSQL syntax)
+                string sqlQuery = @"
+                UPDATE sub_modules 
+                SET is_active = @isActive, updated_at = @updatedAt
+                WHERE sub_module_id = @subModuleId";
+
+                var parameters = new[]
+                {
+                new NpgsqlParameter("@subModuleId", subModuleIdInput),
+                new NpgsqlParameter("@isActive", false),
+                new NpgsqlParameter("@updatedAt", DateTime.UtcNow)
+            };
+
+                int result = await _context.Database.ExecuteSqlRawAsync(sqlQuery, parameters);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Log exception nếu cần
+                throw new Exception($"Error updating sub module with ID {subModuleIdInput}: {ex.Message}", ex);
+            }
         }
 
     }

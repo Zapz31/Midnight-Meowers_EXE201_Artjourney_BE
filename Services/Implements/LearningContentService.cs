@@ -332,5 +332,30 @@ namespace Services.Implements
                 };
             }
         }
+
+        public async Task<ApiResponse<int>> SoftDeleteLearningContentAsync(long learningContentIdInput)
+        {
+            try
+            {
+                var responseData = await _learningContentRepository.UpdateLearningContentIsActiveAsync(learningContentIdInput);
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = responseData,
+                    Message = "Remove success"
+                };
+            }catch (Exception ex) 
+            {
+                _logger.LogError("Error at SoftDeleteLearningContentAsync at LearningContentService.cs: {ex}", ex.Message);
+                return new ApiResponse<int>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = ex.Message,
+                    Data = 0
+                };
+            }
+        }
     }
 }

@@ -50,5 +50,19 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
+        [HttpDelete("/api/modules/{moduleId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> SoftDeleteModuleByModuleId(long moduleId)
+        {
+            var response = await _moduleService.SoftDeleteModuleByModuleId(moduleId);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpDelete("/api/submodule/{subModuleId}")]
+        public async Task<IActionResult> SoftDeleteSubModuleByIdAsync(long subModuleId)
+        {
+            var response = await _subModuleService.SoftDeleteSubModuleByIdAsync(subModuleId);
+            return StatusCode(response.Code, response);
+        }
     }
 }

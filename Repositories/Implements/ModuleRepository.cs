@@ -3,6 +3,7 @@ using DAOs;
 using Helpers.DTOs.Module;
 using Helpers.DTOs.SubModule;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -127,6 +128,30 @@ END $$;", userId, moduleId);
             {
                 
                 throw new Exception($"Error when updating progress for sub_module: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<int> SoftDeleteModuleByModuleId(long moduleId, long userId)
+        {
+            try
+            {
+                string sqlQuery = @"
+                    update modules
+                    set deleted_at = @deletedAt, deleted_by = @deletedBy
+                    where module_id = @moduleId";
+
+                var parameters = new[]
+                {
+                    new NpgsqlParameter("@deletedAt", DateTime.UtcNow),
+                    new NpgsqlParameter("@deletedBy", userId),
+                    new NpgsqlParameter("@moduleId", moduleId)
+                };
+                int result = await _context.Database.ExecuteSqlRawAsync(sqlQuery, parameters);
+
+                return result;
+            } catch (Exception ex)
+            {
+                throw new Exception($"Error updating module with ID {moduleId}: {ex.Message}");
             }
         }
     }

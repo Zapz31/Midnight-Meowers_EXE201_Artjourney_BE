@@ -5,6 +5,7 @@ using Helpers.DTOs.ChallengeItem;
 using Helpers.DTOs.LearningContent;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using System;
@@ -149,6 +150,36 @@ namespace Repositories.Implements
             return dtos;
 
         }
+
+        public async Task<int> UpdateLearningContentIsActiveAsync(long learningContentIdInput)
+        {
+            try
+            {
+                // Sử dụng raw query để update (PostgreSQL syntax)
+                string sqlQuery = @"
+                UPDATE learning_contents 
+                SET is_active = @isActive, updated_at = @updatedAt
+                WHERE learning_content_id = @learningContentId";
+
+                var parameters = new[]
+                {
+                new NpgsqlParameter("@learningContentId", learningContentIdInput),
+                new NpgsqlParameter("@isActive", false),
+                new NpgsqlParameter("@updatedAt", DateTime.UtcNow)
+            };
+
+                int result = await _context.Database.ExecuteSqlRawAsync(sqlQuery, parameters);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Log exception nếu cần
+                throw new Exception($"Error updating learning content with ID {learningContentIdInput}: {ex.Message}", ex);
+            }
+        }
+
+
 
     }
 }
