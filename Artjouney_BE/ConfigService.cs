@@ -165,6 +165,9 @@ namespace Artjouney_BE
             services.AddScoped<IUserChallengeHighestScoreRepository, UserChallengeHighestScoreRepository>();
             services.AddScoped<IUserPremiumInfoRepository, UserPremiumInfoRepository>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<ISurveyQuestionRepository, SurveyQuestionRepository>();
+            services.AddScoped<ISurveyOptionRepository, SurveyOptionRepository>();
+            services.AddScoped<IUserOptionChoiceRepository, UserOptionChoiceRepository>();
 
 
 
@@ -242,6 +245,7 @@ namespace Artjouney_BE
             services.AddScoped<IUserCourseInfoService, UserCourseInfoService>();
             services.AddScoped<IPayOSService, PayOSService>();
             services.AddScoped<IChallengeService, ChallengeService>();
+            services.AddScoped<ISurveyService, SurveyService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

@@ -24,8 +24,10 @@ namespace Helpers.DTOs.Users
         public AccountRole? Role { get; set; }
         public long LoginCount { get; set; }
         public string? PremiumStatus { get; set; }
+        
+        public Boolean? IsSurveyed { get; set; }
 
-        public NewUpdateUserDTO(User user) 
+        public NewUpdateUserDTO(User user)
         {
             UserId = user.UserId;
             Email = user.Email;
@@ -36,6 +38,7 @@ namespace Helpers.DTOs.Users
             Status = user.Status;
             Role = user.Role;
             AvatarUrl = user.AvatarUrl;
+            IsSurveyed = user.IsSurveyed;
         }
 
         public NewUpdateUserDTO() { }
