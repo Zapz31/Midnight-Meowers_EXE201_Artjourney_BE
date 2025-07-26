@@ -24,16 +24,18 @@ namespace Services.Implements
         private readonly ICourseRepository _courseRepository;
         private readonly IUserSubModuleInfoRepository _userSubModuleInfoRepository;
         private readonly IUserLearningProgressRepository _userLearningProgressRepository;
+        private readonly IUserPremiumInfoRepository _userPremiumInfoRepository;
 
-        public UserCourseInfoService(IUserCourseInfoRepository userCourseInfoRepository, 
-            ILogger<UserCourseInfoService> logger, 
-            ICurrentUserService currentUserService, 
+        public UserCourseInfoService(IUserCourseInfoRepository userCourseInfoRepository,
+            ILogger<UserCourseInfoService> logger,
+            ICurrentUserService currentUserService,
             IModuleRepository moduleRepository,
             IUnitOfWork unitOfWork,
             IUserRepository userRepository,
             ICourseRepository courseRepository,
             IUserSubModuleInfoRepository userSubModuleInfoRepository,
-            IUserLearningProgressRepository userLearningProgressRepository
+            IUserLearningProgressRepository userLearningProgressRepository,
+            IUserPremiumInfoRepository userPremiumInfoRepository
             )
         {
             _userCourseInfoRepository = userCourseInfoRepository;
@@ -45,6 +47,7 @@ namespace Services.Implements
             _courseRepository = courseRepository;
             _userSubModuleInfoRepository = userSubModuleInfoRepository;
             _userLearningProgressRepository = userLearningProgressRepository;
+            _userPremiumInfoRepository = userPremiumInfoRepository;
         }
 
         public async Task<ApiResponse<UserCourseInfo>> CreateUserCourseInfo(BasicCreateUserCourseInfoRequestDTO requestDTO)
@@ -64,12 +67,38 @@ namespace Services.Implements
                     };
                 }
 
+                // Get course and check if its premium or not
+                var course = await _courseRepository.GetSingleCourseAsync(requestDTO.CourseId);
+                if (course == null)
+                {
+                    return new ApiResponse<UserCourseInfo>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 404,
+                        Message = "Course not found"
+                    };
+                }
+                if (course.IsPremium)
+                {
+                    // Check if user is premium or not
+                    var userPremiumInfo = await _userPremiumInfoRepository.GetLatestPremiumInfoByUserIdAsync(requestDTO.UserId);
+                    if (userPremiumInfo == null || userPremiumInfo.Status != UserPremiumStatus.PremiumActive)
+                    {
+                        return new ApiResponse<UserCourseInfo>
+                        {
+                            Status = ResponseStatus.Error,
+                            Code = 403,
+                            Message = "You need to be a premium user to enroll in this course"
+                        };
+                    }
+                }
+
                 UserCourseInfo createUserCourseInfo = new()
                 {
                     EnrollmentStatus = requestDTO.EnrollmentStatus,
                     LearningStatus = requestDTO.LearningStatus,
                     UserId = requestDTO.UserId,
-                    CourseId = requestDTO.CourseId,
+                    CourseId = requestDTO.CourseId, 
                 };
 
                 var modules = await _moduleRepository.GetModulesByCourseIdCompletedAsync(requestDTO.CourseId);

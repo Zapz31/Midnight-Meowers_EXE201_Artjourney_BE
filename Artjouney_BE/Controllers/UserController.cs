@@ -122,6 +122,8 @@ namespace Artjouney_BE.Controllers
                     }
                 });
             }
+
+            
         }
     }
 }

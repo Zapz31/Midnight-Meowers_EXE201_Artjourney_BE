@@ -24,7 +24,7 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpGet("/api/user-course-infos/userId{userId}/courseId/{courseId}")]
-        public async Task<IActionResult>  GetUserCourseInfoByUserIdAndCourseId(long userId, long courseId)
+        public async Task<IActionResult> GetUserCourseInfoByUserIdAndCourseId(long userId, long courseId)
         {
             var response = await _userCourseInfoService.GetUserCourseInfo(userId, courseId);
             return StatusCode(response.Code, response);

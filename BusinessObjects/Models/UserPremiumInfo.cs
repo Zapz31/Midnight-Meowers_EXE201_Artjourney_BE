@@ -24,7 +24,7 @@ namespace BusinessObjects.Models
         public DateTime EndDate { get; set; } = DateTime.UtcNow.AddDays(30);
 
         [Column("status")]
-        public UserPremiumStatus Status { get; set; } = UserPremiumStatus.PremiumActive;
+        public UserPremiumStatus Status { get; set; } = UserPremiumStatus.PremiumActive; // FreeTier, PremiumActive, PremiumExpired, PremiumSuspended
 
         [Column("subcription_at")]
         public DateTime SubcriptionAt { get; set; } = DateTime.UtcNow;

@@ -46,7 +46,7 @@ namespace Services.Implements
                 IUserPremiumInfoRepository userPremiumInfoRepository,
                 IFileHandlerService fileHandlerService
             )
-        
+
         {
             _userRepository = userRepository;
             _loginHistoryRepository = loginHistoryRepository;
@@ -63,8 +63,8 @@ namespace Services.Implements
 
         public async Task<User> CreateAccount(RegisterDTO registerDTO)
         {
-            var user = new User() 
-            { 
+            var user = new User()
+            {
                 Email = registerDTO.Email,
                 Password = PasswordHasher.HashPassword(registerDTO.Password),
                 Role = registerDTO.Role,
@@ -111,7 +111,8 @@ namespace Services.Implements
                 if (userPremiumInfo != null)
                 {
                     newUpdateUserDTO.PremiumStatus = userPremiumInfo.Status.ToString();
-                } else
+                }
+                else
                 {
                     newUpdateUserDTO.PremiumStatus = UserPremiumStatus.FreeTier.ToString();
                 }
@@ -124,22 +125,23 @@ namespace Services.Implements
                     Data = newUpdateUserDTO,
                     Message = "2002"
                 };
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new ApiResponse<NewUpdateUserDTO?>() 
-                { 
+                return new ApiResponse<NewUpdateUserDTO?>()
+                {
                     Status = ResponseStatus.Error,
                     Code = 500,
                     Message = ex.Message
                 };
             }
-            
+
         }
 
         public async Task<ApiResponse<User>> UpdateUserAsync(NewUpdateUserDTO newUpdateUser)
         {
-            try 
+            try
             {
                 if (newUpdateUser.Email == null)
                 {
@@ -221,7 +223,7 @@ namespace Services.Implements
                     {
                         DateTime newUpdateUserBirthday = (DateTime)newUpdateUser.Birthday;
                         // Ensure DateTime is in UTC format for PostgreSQL compatibility
-                        updatedUser.Birthday = newUpdateUserBirthday.Kind == DateTimeKind.Unspecified 
+                        updatedUser.Birthday = newUpdateUserBirthday.Kind == DateTimeKind.Unspecified
                             ? DateTime.SpecifyKind(newUpdateUserBirthday, DateTimeKind.Utc)
                             : newUpdateUserBirthday.ToUniversalTime();
                         isUpdate = true;
@@ -251,15 +253,16 @@ namespace Services.Implements
                 {
                     updatedUser.UpdatedAt = DateTime.UtcNow;
                     await _userRepository.UpdateUserAsync(updatedUser);
-                    
+
                 }
-                return new ApiResponse<User> 
+                return new ApiResponse<User>
                 {
                     Status = ResponseStatus.Success,
                     Code = 200,
                     Data = updatedUser
                 };
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return new ApiResponse<User>
@@ -300,7 +303,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<ApiResponse<bool>> CreateUserLearningProgress (CreateULPRequestDTO requestDTO)
+        public async Task<ApiResponse<bool>> CreateUserLearningProgress(CreateULPRequestDTO requestDTO)
         {
             try
             {
@@ -317,7 +320,8 @@ namespace Services.Implements
                     userLearningProgress.CreatedAt = DateTime.UtcNow;
                     userLearningProgress.LearningContentId = requestDTO.LearningContentId;
                     userLearningProgress.UserId = userId;
-                } else
+                }
+                else
                 {
                     userLearningProgress.Status = requestDTO.Status ?? UserLearningProgressStatus.NotStarted;
                     userLearningProgress.Score = requestDTO.Score ?? 0;
@@ -341,7 +345,8 @@ namespace Services.Implements
                 //    LearningContentId = requestDTO.LearningContentId,
 
                 //};
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at CreateUserLearningProgress at UserService.cs: {ex}", ex.Message);
                 return new ApiResponse<bool>
@@ -349,7 +354,7 @@ namespace Services.Implements
                     Status = ResponseStatus.Error,
                     Code = 500,
                     Data = false,
-                    Message = ex.Message             
+                    Message = ex.Message
                 };
             }
         }
@@ -379,7 +384,8 @@ namespace Services.Implements
                     Message = "Create progresses success"
                 };
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at CreateUserLearningProgressesByUserIdAndLNId at UserService.cs: {ex}", ex.Message);
                 return new ApiResponse<bool>
@@ -402,10 +408,10 @@ namespace Services.Implements
                 var updatedUserLearningProgress = await _userLearningProgressRepository
                     .GetLearningProgressByUserIdAndLNCIdSingle(userId, userLearningProgressId);
 
-                if (updatedUserLearningProgress == null) 
+                if (updatedUserLearningProgress == null)
                 {
-                    return new ApiResponse<UserLearningProgress> 
-                    { 
+                    return new ApiResponse<UserLearningProgress>
+                    {
                         Status = ResponseStatus.Error,
                         Code = 400,
                         Message = "UserLearingProgress has not exist!"
@@ -417,7 +423,7 @@ namespace Services.Implements
                 if (updatedUserLearningProgress.Attempts < 2)
                 {
                     updatedUserLearningProgress.CompletedAt = DateTime.UtcNow;
-                    
+
                 }
                 updatedUserLearningProgress.CompletedIn = DateTime.UtcNow - updatedUserLearningProgress.StartedAt;
                 updatedUserLearningProgress.UpdatedAt = DateTime.UtcNow;
@@ -444,13 +450,14 @@ namespace Services.Implements
                 await _unitOfWork.CommitTransactionAsync();
                 return new ApiResponse<UserLearningProgress>
                 {
-                    Status= ResponseStatus.Success,
+                    Status = ResponseStatus.Success,
                     Code = 201,
                     Data = updatedUserLearningProgress,
                     Message = "Update user learning progress success"
                 };
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 await _unitOfWork.RollBackAsync();
                 _logger.LogError("Error at MarkAsCompleteUserLearningProgressSingleAsync at UserService.cs: {ex}", ex.Message);
@@ -496,8 +503,9 @@ namespace Services.Implements
                     Data = premiumInfoDTO,
                     Message = "Data retrieve success"
                 };
-                
-            } catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at GetLatestPremiumInfoByUserIdAsync at UserService.cs: {ex}", ex.Message);
                 return new ApiResponse<GetPremiumBasicDTO?>
@@ -515,7 +523,7 @@ namespace Services.Implements
             try
             {
                 var userId = _currentUserService.AccountId;
-                
+
                 // Get current user
                 var currentUser = await _userRepository.GetUserByIDAsync(userId);
                 if (currentUser == null)
@@ -531,15 +539,15 @@ namespace Services.Implements
 
                 string? avatarUrl = null;
                 string? realAvatarUrl = null;
-                
+
                 // Handle avatar file upload if provided
                 if (updateProfileRequest.Avatar != null)
                 {
                     List<IFormFile> avatarFiles = new List<IFormFile>();
                     avatarFiles.Add(updateProfileRequest.Avatar);
-                    
+
                     var uploadResult = await _fileHandlerService.UploadFiles(avatarFiles, "image", "AvatarImage");
-                    
+
                     if (uploadResult.Errors.Any())
                     {
                         return new ApiResponse<NewUpdateUserDTO?>
@@ -551,10 +559,10 @@ namespace Services.Implements
                             Errors = uploadResult.Errors.Select(e => new ApiError { Message = e }).ToList()
                         };
                     }
-                    
+
                     avatarUrl = uploadResult.SuccessfulUploads[0].PresignedUrl;
                 }
-                
+
                 if (!string.IsNullOrEmpty(avatarUrl))
                 {
                     Uri uri = new Uri(avatarUrl);
@@ -603,5 +611,7 @@ namespace Services.Implements
                 };
             }
         }
+        
+        
     }
 }

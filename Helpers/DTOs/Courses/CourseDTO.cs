@@ -36,6 +36,9 @@ namespace Helpers.DTOs.Courses
         [Display(Name = "course_level")] 
         public CourseLevel Level { get; set; } = CourseLevel.Easy;
 
+        [Display(Name = "price")]
+        public long Price { get; set; }
+
         [Display(Name = "status")]
         public CourseStatus Status { get; set; } = CourseStatus.Draft;
 

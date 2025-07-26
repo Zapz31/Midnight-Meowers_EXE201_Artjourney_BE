@@ -40,6 +40,16 @@ namespace Repositories.Implements
             return responseData;
         }
 
+        public async Task<List<UserPremiumInfo>> GetUserPremiumInfosByUserId(long userId)
+        {
+            var query = new QueryBuilder<UserPremiumInfo>()
+                .WithTracking(false)
+                .WithPredicate(ups => ups.UserId == userId)
+                .Build();
+            var responseData = await _unitOfWork.GetRepo<UserPremiumInfo>().GetAllAsync(query);
+            return responseData.ToList();
+        }
+
         public async Task<UserPremiumInfo?> GetLatestPremiumInfoByUserIdAsync(long inputUserId)
         {
             return await _context.UserPremiumInfos

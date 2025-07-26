@@ -134,7 +134,7 @@ namespace Services.Implements
                     Status = courseDTO.Status,
                     HistoricalPeriodId = courseDTO.HistoricalPeriodId,
                     RegionId = courseDTO.RegionId,
-                    Price = 0,
+                    Price = courseDTO.Price,
                     IsFeatured = false,
                     IsPremium = courseDTO.IsPremium ?? false,
                     CreatedAt = DateTime.UtcNow,
