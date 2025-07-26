@@ -68,6 +68,8 @@ namespace DAOs
         public DbSet<ModuleCourseHasEnrolledBasicViewDTO> ModuleCourseHasEnrolledBasicViewDTOs { get; set; }
         public DbSet<SubModuleCourseHasEnrolledBasicViewDTO> SubModuleCourseHasEnrolledBasicViewDTOs { get; set; }
         public DbSet<TotalScoreResult> TotalScoreResults { get; set; }
+        public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<UserCertificateInfo> UserCertificateInfos { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

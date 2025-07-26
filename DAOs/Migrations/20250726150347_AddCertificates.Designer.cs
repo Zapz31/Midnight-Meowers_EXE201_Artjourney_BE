@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250726150347_AddCertificates")]
+    partial class AddCertificates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,33 +104,6 @@ namespace DAOs.Migrations
                     b.HasIndex("ArtworkId");
 
                     b.ToTable("artwork_details");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.Certificate", b =>
-                {
-                    b.Property<long>("CertificateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("certificate_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CertificateId"));
-
-                    b.Property<long>("CourseId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("course_id");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("image_url");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.HasKey("CertificateId");
-
-                    b.ToTable("certificates");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Challenge", b =>
@@ -1239,36 +1215,6 @@ namespace DAOs.Migrations
                     b.HasIndex("SelectedOptionId");
 
                     b.ToTable("user_answers");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.UserCertificateInfo", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("CertificateId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("certificate_id");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
-                    b.Property<TimeSpan?>("CompletedIn")
-                        .HasColumnType("interval")
-                        .HasColumnName("completed_in");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("user_certificate_infos");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.UserChallengeHighestScore", b =>
