@@ -168,6 +168,8 @@ namespace Artjouney_BE
             services.AddScoped<ISurveyQuestionRepository, SurveyQuestionRepository>();
             services.AddScoped<ISurveyOptionRepository, SurveyOptionRepository>();
             services.AddScoped<IUserOptionChoiceRepository, UserOptionChoiceRepository>();
+            services.AddScoped<ICertificateRepository, CertificateRepository>();
+            services.AddScoped<IUserCertificateInfoRepository, UserCertificateInfoRepository>();
 
 
 
@@ -246,6 +248,7 @@ namespace Artjouney_BE
             services.AddScoped<IPayOSService, PayOSService>();
             services.AddScoped<IChallengeService, ChallengeService>();
             services.AddScoped<ISurveyService, SurveyService>();
+            services.AddScoped<ICertificateService, CertificateService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
