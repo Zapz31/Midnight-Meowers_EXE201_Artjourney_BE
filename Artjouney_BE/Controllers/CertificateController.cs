@@ -114,6 +114,26 @@ namespace Artjouney_BE.Controllers
         }
 
         /// <summary>
+        /// Get all certificates earned by users for a specific course (Admin only)
+        /// </summary>
+        /// <param name="courseId">Course ID to get certificates for</param>
+        /// <returns>List of certificates for the course</returns>
+        [HttpGet("course/{courseId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserCertificatesByCourseId([Required] long courseId)
+        {
+            var result = await _certificateService.GetUserCertificatesByCourseIdAsync(courseId);
+            
+            return result.Code switch
+            {
+                200 => Ok(result),
+                401 => Unauthorized(result),
+                500 => StatusCode(500, result),
+                _ => StatusCode(500, result)
+            };
+        }
+
+        /// <summary>
         /// Get certificate details by user certificate ID (Admin or certificate owner only)
         /// </summary>
         /// <param name="userCertificateId">User Certificate ID to retrieve details for (from user_certificate_infos table)</param>

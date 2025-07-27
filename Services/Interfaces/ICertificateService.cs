@@ -18,6 +18,7 @@ namespace Services.Interfaces
         Task<ApiResponse<List<UserCertificateDTO>>> GetUserCertificatesForCurrentUserAsync();
         Task<ApiResponse<List<UserCertificateDTO>>> GetAllUserCertificatesAsync();
         Task<ApiResponse<UserCertificateDTO>> GetCertificateDetailsByIdAsync(long userCertificateId);
+        Task<ApiResponse<List<UserCertificateDTO>>> GetUserCertificatesByCourseIdAsync(long courseId);
         Task<ApiResponse<UserCertificateDTO>> AwardCertificateToUserAsync(long userId, long courseId);
     }
 }

@@ -238,6 +238,77 @@ namespace Repositories.Implements
             return null;
         }
 
+        public async Task<List<UserCertificateDTO>> GetUserCertificatesByCourseIdAsync(long courseId)
+        {
+            var sql = @"
+                SELECT 
+                    c.certificate_id as Id,
+                    0 as UserId,
+                    c.certificate_id as CertificateId,
+                    c.image_url as CertificateImageUrl,
+                    c.course_id as CourseId,
+                    co.title as CourseName,
+                    NULL as CompletedAt,
+                    NULL as CompletedIn
+                FROM certificates c
+                INNER JOIN courses co ON c.course_id = co.course_id
+                WHERE c.course_id = @courseId 
+                  AND c.is_active = true 
+                ORDER BY c.certificate_id DESC";
+
+            var results = new List<UserCertificateDTO>();
+
+            try
+            {
+                var connection = _context.Database.GetDbConnection();
+                var wasConnectionClosed = connection.State == System.Data.ConnectionState.Closed;
+                
+                if (wasConnectionClosed)
+                {
+                    await _context.Database.OpenConnectionAsync();
+                }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@courseId";
+                    parameter.Value = courseId;
+                    command.Parameters.Add(parameter);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            results.Add(new UserCertificateDTO
+                            {
+                                Id = reader.GetInt64(0), // certificate_id as Id
+                                UserId = reader.GetInt64(1), // 0 as UserId (not applicable)
+                                CertificateId = reader.GetInt64(2), // certificate_id as CertificateId
+                                CertificateImageUrl = reader.IsDBNull(3) ? string.Empty : reader.GetString(3), // image_url
+                                CourseId = reader.GetInt64(4), // course_id
+                                CourseName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5), // course title
+                                CompletedAt = null, // NULL for course certificates
+                                CompletedIn = null // NULL for course certificates
+                            });
+                        }
+                    }
+                }
+
+                if (wasConnectionClosed)
+                {
+                    await _context.Database.CloseConnectionAsync();
+                }
+            }
+            catch (Exception)
+            {
+                // Let the exception bubble up to be handled by the service layer
+                throw;
+            }
+
+            return results;
+        }
+
         public async Task<bool> DeleteUserCertificateAsync(long userId, long certificateId)
         {
             var queryOption = new QueryBuilder<UserCertificateInfo>()

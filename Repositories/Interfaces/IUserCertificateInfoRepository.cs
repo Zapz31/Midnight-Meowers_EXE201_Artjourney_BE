@@ -15,6 +15,7 @@ namespace Repositories.Interfaces
         Task<List<UserCertificateDTO>> GetAllUserCertificatesAsync();
         Task<UserCertificateInfo?> GetUserCertificateByUserIdAndCourseIdAsync(long userId, long courseId);
         Task<UserCertificateDTO?> GetCertificateDetailsByIdAsync(long userCertificateId);
+        Task<List<UserCertificateDTO>> GetUserCertificatesByCourseIdAsync(long courseId);
         Task<bool> DeleteUserCertificateAsync(long userId, long certificateId);
     }
 }

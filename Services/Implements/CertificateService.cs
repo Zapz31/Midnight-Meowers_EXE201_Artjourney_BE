@@ -309,6 +309,45 @@ namespace Services.Implements
             }
         }
 
+        public async Task<ApiResponse<List<UserCertificateDTO>>> GetUserCertificatesByCourseIdAsync(long courseId)
+        {
+            try
+            {
+                var currentUserRole = _currentUserService.Role;
+                
+                // Only allow admin to view certificates by course ID
+                if (string.IsNullOrEmpty(currentUserRole) || !AccountRole.Admin.ToString().Equals(currentUserRole))
+                {
+                    return new ApiResponse<List<UserCertificateDTO>>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 401,
+                        Message = "You don't have permission to view certificates by course ID"
+                    };
+                }
+
+                var certificates = await _userCertificateInfoRepository.GetUserCertificatesByCourseIdAsync(courseId);
+
+                return new ApiResponse<List<UserCertificateDTO>>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = certificates,
+                    Message = certificates.Any() ? "Certificates retrieved successfully" : "No certificates found for this course"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error retrieving certificates for course {CourseId}: {Error}", courseId, ex.Message);
+                return new ApiResponse<List<UserCertificateDTO>>
+                {
+                    Status = ResponseStatus.Error,
+                    Code = 500,
+                    Message = "An error occurred while retrieving certificates"
+                };
+            }
+        }
+
         public async Task<ApiResponse<UserCertificateDTO>> GetCertificateDetailsByIdAsync(long userCertificateId)
         {
             try
