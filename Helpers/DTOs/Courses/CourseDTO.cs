@@ -58,5 +58,11 @@ namespace Helpers.DTOs.Courses
 
         public IFormFile? CoverImage { get; set; } // +
         public string? CoverImageUrl { get; set; }
+        
+        // Additional properties for recommendations
+        public string? ThumbnailUrl { get; set; }
+        public decimal AverageRating { get; set; } = 0;
+        public int EnrollmentCount { get; set; } = 0;
+        public int TotalFeedbacks { get; set; } = 0;
     }
 }

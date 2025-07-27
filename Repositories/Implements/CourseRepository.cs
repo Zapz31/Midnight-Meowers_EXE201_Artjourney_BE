@@ -99,9 +99,19 @@ namespace Repositories.Implements
                         {
                             CourseId = cd.Course.CourseId,
                             Title = cd.Course.Title,
+                            Description = cd.Course.Description,
                             ThumbnailImageUrl = cd.Course.ThumbnailUrl,
+                            CoverImageUrl = cd.Course.CoverImageUrl,
+                            Level = cd.Course.Level,
+                            Price = cd.Course.Price,
+                            IsPremium = cd.Course.IsPremium,
+                            AverageRating = cd.Course.AverageRating,
+                            TotalFeedbacks = cd.Course.TotalFeedbacks,
+                            EnrollmentCount = (int)cd.Course.EnrollmentCount,
                             RegionId = cd.RegionId,
-                            HistoricalPeriodId = cd.Course.HistoricalPeriodId
+                            RegionName = regionGroup.Key.RegionName,
+                            HistoricalPeriodId = cd.Course.HistoricalPeriodId,
+                            HistoricalPeriodName = regionGroup.FirstOrDefault()?.HistoricalPeriod.HistoricalPeriodName
                         })
                         .ToList()
                 })
@@ -290,6 +300,11 @@ where uci.user_id = {0} and c.status = 'Published'";
             }).ToList();
             return results;
 
+        }
+
+        public async Task<List<CourseHasEnrolledBasicViewReponseDTO>> GetCoursesHasEnrolledByUserIdAsync(long userId)
+        {
+            return await GetQueryResultBFlat(userId);
         }
 
         public async Task<List<ModuleCourseHasEnrolledBasicViewDTO>> GetModuleCourseHasEnrolledBasicViewDTsAsync(long userId, List<long>? courseIds)

@@ -249,6 +249,7 @@ namespace Artjouney_BE
             services.AddScoped<IChallengeService, ChallengeService>();
             services.AddScoped<ISurveyService, SurveyService>();
             services.AddScoped<ICertificateService, CertificateService>();
+            services.AddScoped<ICourseRecommendationService, CourseRecommendationService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

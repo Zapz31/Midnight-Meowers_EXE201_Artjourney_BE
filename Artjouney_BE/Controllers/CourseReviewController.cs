@@ -33,7 +33,7 @@ namespace Artjouney_BE.Controllers
         }
 
         [HttpGet("/api/course-reviews/course/{courseId}")]
-        public async Task<IActionResult> GGetBasicCourseReviewFlatResponseDTOs(long courseId)
+        public async Task<IActionResult> GetBasicCourseReviewFlatResponseDTOs(long courseId)
         {
             var response = await _courseReviewService.GetBasicCourseReviewFlatResponseDTOs(courseId);
             return StatusCode(response.Code, response);
