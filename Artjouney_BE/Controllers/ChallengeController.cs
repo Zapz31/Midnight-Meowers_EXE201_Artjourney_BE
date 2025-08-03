@@ -49,6 +49,13 @@ namespace Artjouney_BE.Controllers
             return StatusCode(response.Code, response);
         }
 
+        [HttpPost("/api/challenge/artwork")]
+        public async Task<IActionResult> CreateSingleArtwork([FromForm] ArtworkCreateSingleRequestDTO requestDTO)
+        {
+            var response = await _challengeService.CreateSingleArtwork(requestDTO);
+            return StatusCode(response.Code, response);
+        }
+
         [HttpPost("/api/challenge/artwork-details")]
         public async Task<IActionResult> CreateArtworks([FromBody] List<ArtworkDetailCreateRequestDTO> requestDTOs)
         {

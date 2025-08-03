@@ -4,6 +4,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Challenge;
 using Helpers.HelperClasses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
@@ -25,6 +26,7 @@ namespace Services.Implements
         private readonly IUserRepository _userRepository;
         private readonly IChallengeSessionRepository _challengeSessionRepository;
         private readonly IUserChallengeHighestScoreRepository _userChallengeHighestScoreRepository;
+        private readonly IFileHandlerService _fileHandlerService;
 
         public ChallengeService(ILogger<ChallengeService> logger, 
             IChallengeRepository challengeRepository,
@@ -32,7 +34,8 @@ namespace Services.Implements
             IArtworkDetailRepository artworkDetailRepository,
             IUserRepository userRepository,
             IChallengeSessionRepository challengeSessionRepository,
-            IUserChallengeHighestScoreRepository userChallengeHighestScoreRepository)
+            IUserChallengeHighestScoreRepository userChallengeHighestScoreRepository,
+            IFileHandlerService fileHandlerService)
         {
             _logger = logger;
             _challengeRepository = challengeRepository;
@@ -41,6 +44,7 @@ namespace Services.Implements
             _userRepository = userRepository;
             _challengeSessionRepository = challengeSessionRepository;
             _userChallengeHighestScoreRepository = userChallengeHighestScoreRepository;
+            _fileHandlerService = fileHandlerService;
         }
 
         public async Task<ApiResponse<List<Challenge>>> GetAllChallengesByCourseIdAsync(long courseId)
@@ -195,6 +199,64 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<bool>
+                {
+                    Code = 500,
+                    Status = ResponseStatus.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<Artwork>> CreateSingleArtwork(ArtworkCreateSingleRequestDTO requestDTO)
+        {
+            try
+            {
+                if (requestDTO.Image == null || requestDTO.Image.Length == 0)
+                {
+                    return new ApiResponse<Artwork> 
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Data = null,
+                        Message = "Please upload an image file"
+                    };
+                }
+                List<IFormFile> uploadFiles = new();
+                uploadFiles.Add(requestDTO.Image);
+                var uploadFilesResult = await _fileHandlerService.UploadFiles(uploadFiles, "a", "a");
+                if (uploadFilesResult.Errors.Any())
+                {
+                    ApiResponse<Artwork> UploadFileErrorResponse = new ApiResponse<Artwork>()
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 500,
+                        Message = "Upload file error"
+                    };
+                    return UploadFileErrorResponse;
+                }
+
+                var presignUrl = uploadFilesResult.SuccessfulUploads[0].PresignedUrl;
+                var minioFileUrl = Helpers.HelperClasses.Utils.GetDeployMinioURL(presignUrl);
+
+                var createArtWork = new Artwork
+                {
+                    Image = minioFileUrl,
+                    Title = requestDTO.Title,
+                    ChallengeId = requestDTO.ChallengeId,
+                };
+                var responseData = await _artworkRepository.CreateSingleArtwork(createArtWork);
+                return new ApiResponse<Artwork>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 201,
+                    Data = responseData,
+                    Message = "Create Success"
+                };
+
+            } catch(Exception ex)
+            {
+                _logger.LogError("Error at CreateSingleArtwork in ChallengeService: {ex}", ex.Message);
+                return new ApiResponse<Artwork>
                 {
                     Code = 500,
                     Status = ResponseStatus.Error,

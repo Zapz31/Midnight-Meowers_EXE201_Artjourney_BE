@@ -45,5 +45,12 @@ namespace Repositories.Implements
             await _unitOfWork.GetRepo<Artwork>().CreateAllAsync(artworks);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<Artwork> CreateSingleArtwork(Artwork artwork)
+        {
+            var createdData = await _unitOfWork.GetRepo<Artwork>().CreateAsync(artwork);
+            await _unitOfWork.SaveChangesAsync();
+            return createdData;
+        }
     }
 }
