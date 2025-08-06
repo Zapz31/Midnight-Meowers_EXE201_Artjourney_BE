@@ -17,6 +17,7 @@ namespace Services.Implements
         private readonly int _maxTokens;
         private readonly double _temperature;
         private readonly int _contextLength;
+        private string _authToken;
         
         // New optimization parameters
         private readonly int _shortMessageTokens;
@@ -31,12 +32,13 @@ namespace Services.Implements
         {
             _httpClient = httpClient;
             _logger = logger;
-            _aiServiceUrl = configuration.GetValue<string>("AIService:BaseUrl") ?? "https://yairozu.tail682e6a.ts.net/v1";
-            _modelName = configuration.GetValue<string>("AIService:ModelName") ?? "qwen2.5-7b-instruct";
+            _aiServiceUrl = configuration.GetValue<string>("AIService:BaseUrl") ?? "https://openrouter.ai/api/v1/chat/completions";
+            _modelName = configuration.GetValue<string>("AIService:ModelName") ?? "google/gemini-2.0-flash-exp:free";
             _maxTokens = configuration.GetValue<int>("AIService:MaxTokens", 1500);
             _temperature = configuration.GetValue<double>("AIService:Temperature", 0.7);
             _contextLength = configuration.GetValue<int>("AIService:ContextLength", 10);
-            
+            _authToken = configuration.GetValue<string>("AIService:AuthToken") ?? "none";
+
             // Optimization settings
             _shortMessageTokens = configuration.GetValue<int>("AIService:ShortMessageTokens", 500);
             _shortMessageThreshold = configuration.GetValue<int>("AIService:ShortMessageThreshold", 50);
@@ -100,8 +102,8 @@ namespace Services.Implements
                     presence_penalty = isShortMessage ? 0.0 : 0.1,
                     frequency_penalty = isShortMessage ? 0.0 : 0.1,
                     // Add these for better performance
-                    top_p = 0.9,
-                    stop = new[] { "\n\nUser:", "\n\nAssistant:" }
+                    top_p = 0.9
+                    //stop = new[] { "\n\nUser:", "\n\nAssistant:" }
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions 
@@ -109,12 +111,19 @@ namespace Services.Implements
                     WriteIndented = false 
                 });
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                
 
                 _logger.LogInformation("Sending {MessageType} request to AI service: {Length} chars, {MaxTokens} tokens, Context: {ContextStatus}", 
                     isShortMessage ? "optimized" : "full", userMessage.Length, maxTokens, contextStatus);
 
-                var response = await _httpClient.PostAsync($"{_aiServiceUrl}/chat/completions", content);
-                
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{_aiServiceUrl}")
+                {
+                    Content = content
+                };
+                request.Headers.Add("Authorization", $"Bearer {_authToken}");
+
+                var response = await _httpClient.SendAsync(request);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogError("AI service returned {StatusCode}: {Content}", response.StatusCode, await response.Content.ReadAsStringAsync());
@@ -167,8 +176,20 @@ namespace Services.Implements
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_aiServiceUrl}/models");
-                return response.IsSuccessStatusCode;
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://openrouter.ai/api/v1/credits");
+                request.Headers.Add("Authorization", $"Bearer {_authToken}");
+
+                _logger.LogInformation("Sending GET request to OpenRouter API to fetch credits");
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("OpenRouter API returned error: {StatusCode}", response.StatusCode);
+                    return false;
+                }
+                return true;
+
             }
             catch
             {
@@ -186,7 +207,7 @@ namespace Services.Implements
             prompt.AppendLine();
             prompt.AppendLine("🚨 CRITICAL PLATFORM INFORMATION - ALWAYS MENTION WHEN RELEVANT:");
             prompt.AppendLine("ARTJOURNEY HAS THREE PRICING OPTIONS - NEVER SAY IT'S COMPLETELY FREE:");
-            prompt.AppendLine("💰 PREMIUM SUBSCRIPTION: 90,000 VND/month (≈$3.7 USD) or 990,000 VND/year (≈$41 USD)");
+            prompt.AppendLine("💰 PREMIUM SUBSCRIPTION: 99,000 VND/month (≈$3.7 USD) or 990,000 VND/year (≈$41 USD)");
             prompt.AppendLine("📚 FREE ACCESS: Limited basic content available without payment");
             prompt.AppendLine("💎 PAY-PER-COURSE: Individual course purchases at varying prices");
             prompt.AppendLine("🎓 Premium subscription unlocks: All courses, advanced features, personalized learning paths");
@@ -457,8 +478,9 @@ namespace Services.Implements
 
                 _logger.LogInformation("Sending streaming {MessageType} request to AI service: {Length} chars, {MaxTokens} tokens", 
                     isShortMessage ? "short" : "full", userMessage.Length, maxTokens);
+                content.Headers.Add("Authorization", $"Bearer {_authToken}");
 
-                var response = await _httpClient.PostAsync($"{_aiServiceUrl}/chat/completions", content);
+                var response = await _httpClient.PostAsync($"{_aiServiceUrl}", content);
                 
                 if (!response.IsSuccessStatusCode)
                 {

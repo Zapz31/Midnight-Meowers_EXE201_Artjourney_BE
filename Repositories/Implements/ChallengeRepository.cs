@@ -47,5 +47,11 @@ namespace Repositories.Implements
             var data = await _unitOfWork.GetRepo<Challenge>().GetSingleAsync(queryOption);
             return data;
         }
+
+        public async Task DeleteChallengeById(Challenge challenge)
+        {
+            await _unitOfWork.GetRepo<Challenge>().DeleteAsync(challenge);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

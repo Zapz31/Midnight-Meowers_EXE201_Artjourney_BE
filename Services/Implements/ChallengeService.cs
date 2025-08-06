@@ -28,7 +28,7 @@ namespace Services.Implements
         private readonly IUserChallengeHighestScoreRepository _userChallengeHighestScoreRepository;
         private readonly IFileHandlerService _fileHandlerService;
 
-        public ChallengeService(ILogger<ChallengeService> logger, 
+        public ChallengeService(ILogger<ChallengeService> logger,
             IChallengeRepository challengeRepository,
             IArtworkRepository artworkRepository,
             IArtworkDetailRepository artworkDetailRepository,
@@ -59,10 +59,11 @@ namespace Services.Implements
                     Data = responesData,
                     Message = "Data retrieved successfully"
                 };
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at GetAllChallengesByCourseIdAsync in ChallengeService: {ex}", ex.Message);
-                return new ApiResponse<List<Challenge>> 
+                return new ApiResponse<List<Challenge>>
                 {
                     Code = 500,
                     Status = ResponseStatus.Error,
@@ -95,7 +96,8 @@ namespace Services.Implements
                     Status = ResponseStatus.Success,
                     Data = true
                 };
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at CreateChallengesAsync in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<bool>
@@ -160,7 +162,8 @@ namespace Services.Implements
                     Data = responseData,
                     Message = "OK"
                 };
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<DragDropChallengeDetailResponse>
@@ -179,7 +182,7 @@ namespace Services.Implements
                 List<Artwork> createArtworks = new();
                 foreach (var dto in requestDTOs)
                 {
-                    var artwork = new Artwork 
+                    var artwork = new Artwork
                     {
                         Image = dto.Image,
                         Title = dto.Title,
@@ -194,8 +197,9 @@ namespace Services.Implements
                     Code = 201,
                     Data = true,
                 };
-                
-            } catch(Exception ex) 
+
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at GetChallengeDetailbyChallengeId in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<bool>
@@ -213,7 +217,7 @@ namespace Services.Implements
             {
                 if (requestDTO.Image == null || requestDTO.Image.Length == 0)
                 {
-                    return new ApiResponse<Artwork> 
+                    return new ApiResponse<Artwork>
                     {
                         Status = ResponseStatus.Error,
                         Code = 400,
@@ -253,7 +257,8 @@ namespace Services.Implements
                     Message = "Create Success"
                 };
 
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error at CreateSingleArtwork in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<Artwork>
@@ -359,7 +364,7 @@ namespace Services.Implements
 
                 // Validate challenge existence
                 var challenge = await _challengeRepository.GetChallengeByIdAsync(saveGameSessionRequestDTO.ChallengeId);
-                if(challenge == null)
+                if (challenge == null)
                 {
                     return new ApiResponse<string>
                     {
@@ -384,7 +389,7 @@ namespace Services.Implements
 
                 var highestScoreRecord = await _userChallengeHighestScoreRepository.
                     GetHighestScoreByUserIdAndChallengeId(saveGameSessionRequestDTO.UserId, saveGameSessionRequestDTO.ChallengeId);
-                if(highestScoreRecord == null)
+                if (highestScoreRecord == null)
                 {
                     var newHighestScore = new UserChallengeHighestScore
                     {
@@ -396,8 +401,9 @@ namespace Services.Implements
                         UpdatedAt = DateTime.UtcNow,
                     };
                     await _userChallengeHighestScoreRepository.CreateUserChallengeHighestScoreAsync(newHighestScore);
-                } else if(saveGameSessionRequestDTO.Score > highestScoreRecord.HighestScore ||
-                        (saveGameSessionRequestDTO.Score == highestScoreRecord.HighestScore && 
+                }
+                else if (saveGameSessionRequestDTO.Score > highestScoreRecord.HighestScore ||
+                        (saveGameSessionRequestDTO.Score == highestScoreRecord.HighestScore &&
                         saveGameSessionRequestDTO.TimeTaken < highestScoreRecord.TimeTaken))
                 {
                     highestScoreRecord.HighestScore = saveGameSessionRequestDTO.Score;
@@ -470,6 +476,66 @@ namespace Services.Implements
             {
                 _logger.LogError("Error at GetChallengeLeaderboard in ChallengeService: {ex}", ex.Message);
                 return new ApiResponse<ChallengeLeaderboardResponseDTO>
+                {
+                    Code = 500,
+                    Status = ResponseStatus.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+        
+        public async Task<ApiResponse<bool>> DeleteChallengeById(long challengeId)
+        {
+            try
+            {
+                // Validate challenge existence
+                var challenge = await _challengeRepository.GetChallengeByIdAsync(challengeId);
+                if (challenge == null)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Status = ResponseStatus.Error,
+                        Code = 400,
+                        Message = "Challenge not exist"
+                    };
+                }
+
+                // Delete artworks and artwork details associated with the challenge
+                var artworks = await _artworkRepository.GetAllArtworksFullByChallengeIdAsync(challengeId);
+                if (artworks.Count > 0)
+                {
+                    await _artworkDetailRepository.DeleteArtworkDetailsByArtworkIds(artworks.Select(a => a.Id).ToList());
+                    await _artworkRepository.DeleteArtworks(artworks);
+                }
+
+                // Delete challenge sessions associated with the challenge
+                var challengeSessions = await _challengeSessionRepository.GetChallengeSessionByChallengeIdAsync(challengeId);
+                if (challengeSessions.Count > 0)
+                {
+                    await _challengeSessionRepository.DeleteAllChallengeSessionsAsync(challengeSessions);
+                }
+
+                // Delete user challenge highest scores associated with the challenge
+                var userChallengeHighestScores = await _userChallengeHighestScoreRepository.GetAllUserChallengeHighestScoresByChallengeIdAsync(challengeId);
+                if (userChallengeHighestScores.Count > 0)
+                {
+                    await _userChallengeHighestScoreRepository.DeleteAllUserChallengeHighestScoresAsync(userChallengeHighestScores);
+                }
+                // Delete the challenge
+                await _challengeRepository.DeleteChallengeById(challenge);
+
+                return new ApiResponse<bool>
+                {
+                    Status = ResponseStatus.Success,
+                    Code = 200,
+                    Data = true,
+                    Message = "Challenge deleted successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error at DeleteChallengeById in ChallengeService: {ex}", ex.Message);
+                return new ApiResponse<bool>
                 {
                     Code = 500,
                     Status = ResponseStatus.Error,

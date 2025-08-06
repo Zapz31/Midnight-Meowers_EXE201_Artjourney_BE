@@ -12,5 +12,6 @@ namespace Repositories.Interfaces
     {
         public Task<List<ArtworkDetailViewBasicResponseDTO>> GetArtworkDetailByArtworkIds(List<long> artworkIds);
         public Task CreateArtworkDetails(List<ArtworkDetail> artworkDetails);
+        public Task DeleteArtworkDetailsByArtworkIds(List<long> artworkIds);
     }
 }

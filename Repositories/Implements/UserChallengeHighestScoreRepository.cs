@@ -25,7 +25,7 @@ namespace Repositories.Implements
         {
             var queryOption = new QueryBuilder<UserChallengeHighestScore>()
                 .WithTracking(false)
-                .WithPredicate(u => u.UserId ==  userId && u.ChallengeId == challengeId)
+                .WithPredicate(u => u.UserId == userId && u.ChallengeId == challengeId)
                 .Build();
             var data = await _unitOfWork.GetRepo<UserChallengeHighestScore>().GetSingleAsync(queryOption);
             return data;
@@ -54,6 +54,32 @@ namespace Repositories.Implements
                     .ThenBy(x => x.TimeTaken)
                     .ToListAsync();
             return leaderboard;
+        }
+
+        public async Task<List<UserChallengeHighestScore>> GetAllUserChallengeHighestScoresByChallengeIdAsync(long challengeId)
+        {
+            var queryOption = new QueryBuilder<UserChallengeHighestScore>()
+                .WithTracking(false)
+                .WithPredicate(u => u.ChallengeId == challengeId)
+                .Build();
+            var data = await _unitOfWork.GetRepo<UserChallengeHighestScore>().GetAllAsync(queryOption);
+            return data.ToList();
+        }
+
+        public async Task<List<UserChallengeHighestScore>> GetAllUserChallengeHighestScoresByUserIdAsync(long userId)
+        {
+            var queryOption = new QueryBuilder<UserChallengeHighestScore>()
+                .WithTracking(false)
+                .WithPredicate(u => u.UserId == userId)
+                .Build();
+            var data = await _unitOfWork.GetRepo<UserChallengeHighestScore>().GetAllAsync(queryOption);
+            return data.ToList();
+        }
+        
+        public async Task DeleteAllUserChallengeHighestScoresAsync(List<UserChallengeHighestScore> userChallengeHighestScores)
+        {
+            await _unitOfWork.GetRepo<UserChallengeHighestScore>().DeleteAllAsync(userChallengeHighestScores);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

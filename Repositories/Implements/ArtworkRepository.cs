@@ -40,6 +40,17 @@ namespace Repositories.Implements
             return result;
         }
 
+        public async Task<List<Artwork>> GetAllArtworksFullByChallengeIdAsync(long challengeId)
+        {
+            var queryOption = new QueryBuilder<Artwork>()
+                .WithTracking(false)
+                .WithPredicate(a => a.ChallengeId == challengeId)
+                .Build();
+
+            var data = await _unitOfWork.GetRepo<Artwork>().GetAllAsync(queryOption);
+            return data.ToList();
+        }
+
         public async Task CreateArtworks(List<Artwork> artworks)
         {
             await _unitOfWork.GetRepo<Artwork>().CreateAllAsync(artworks);
@@ -51,6 +62,18 @@ namespace Repositories.Implements
             var createdData = await _unitOfWork.GetRepo<Artwork>().CreateAsync(artwork);
             await _unitOfWork.SaveChangesAsync();
             return createdData;
+        }
+
+        public async Task DeleteArtworks(List<Artwork> artworks)
+        {
+            await _unitOfWork.GetRepo<Artwork>().DeleteAllAsync(artworks);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteSingleArtwork(Artwork artwork)
+        {
+            await _unitOfWork.GetRepo<Artwork>().DeleteAsync(artwork);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

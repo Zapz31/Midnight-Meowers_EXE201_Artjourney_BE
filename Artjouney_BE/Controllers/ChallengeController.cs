@@ -128,5 +128,12 @@ namespace Artjouney_BE.Controllers
             }
         }
 
+        [HttpDelete("/api/challenge/{challengeId}")]
+        public async Task<IActionResult> DeleteChallengeById(long challengeId)
+        {
+            var response = await _challengeService.DeleteChallengeById(challengeId);
+            return StatusCode(response.Code, response);
+        }
+
     }
 }

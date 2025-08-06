@@ -10,5 +10,8 @@ namespace Repositories.Interfaces
     public interface IChallengeSessionRepository
     {
         public Task<ChallengeSession> CreateChallengeSessionAsync(ChallengeSession challengeSession);
+        public Task<List<ChallengeSession>> GetAllChallengeSessionsByUserIdAsync(long userId);
+        public Task<List<ChallengeSession>> GetChallengeSessionByChallengeIdAsync(long challengeId);
+        public Task DeleteAllChallengeSessionsAsync(List<ChallengeSession> challengeSessions);
     }
 }

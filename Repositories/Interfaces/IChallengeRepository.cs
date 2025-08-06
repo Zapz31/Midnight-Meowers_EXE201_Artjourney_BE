@@ -12,5 +12,6 @@ namespace Repositories.Interfaces
         public Task<List<Challenge>> GetAllChallengesByCourseIdAsync(long courseId);
         public Task CreateChallengesAsync(List<Challenge> challenges);
         public Task<Challenge?> GetChallengeByIdAsync(long challengeId);
+        public Task DeleteChallengeById(Challenge challenge);
     }
 }

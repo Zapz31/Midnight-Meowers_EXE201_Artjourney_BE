@@ -13,5 +13,9 @@ namespace Repositories.Interfaces
         public Task<UserChallengeHighestScore> CreateUserChallengeHighestScoreAsync(UserChallengeHighestScore userChallengeHighestScore);
         public Task UpdateUserChallengeHighestScoreAsync(UserChallengeHighestScore userChallengeHighestScore);
         public Task<List<UserChallengeHighestScore>> GetChallengeLearboardAsync(long challengeId);
+        public Task<List<UserChallengeHighestScore>> GetAllUserChallengeHighestScoresByChallengeIdAsync(long challengeId);
+        public Task<List<UserChallengeHighestScore>> GetAllUserChallengeHighestScoresByUserIdAsync(long userId);
+        public Task DeleteAllUserChallengeHighestScoresAsync(List<UserChallengeHighestScore> userChallengeHighestScores);
+        
     }
 }

@@ -45,5 +45,16 @@ namespace Repositories.Implements
             await _unitOfWork.GetRepo<ArtworkDetail>().CreateAllAsync(artworkDetails);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task DeleteArtworkDetailsByArtworkIds(List<long> artworkIds)
+        {
+            var queryOption = new QueryBuilder<ArtworkDetail>()
+                .WithTracking(false)
+                .WithPredicate(ad => artworkIds.Contains(ad.ArtworkId))
+                .Build();
+            var artworkDetails = await _unitOfWork.GetRepo<ArtworkDetail>().GetAllAsync(queryOption);
+            await _unitOfWork.GetRepo<ArtworkDetail>().DeleteAllAsync(artworkDetails.ToList());
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
