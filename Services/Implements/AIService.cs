@@ -235,7 +235,7 @@ namespace Services.Implements
             prompt.AppendLine("ARTJOURNEY PLATFORM INFO:");
             prompt.AppendLine("🔑 THREE PRICING OPTIONS (CRITICAL - ALWAYS MENTION):");
             prompt.AppendLine("1️⃣ FREE ACCESS: Limited basic content only (not full courses)");
-            prompt.AppendLine("2️⃣ PREMIUM SUBSCRIPTION: 90,000 VND/month or 990,000 VND/year");
+            prompt.AppendLine("2️⃣ PREMIUM SUBSCRIPTION: 99,000 VND/month or 990,000 VND/year");
             prompt.AppendLine("   - This equals roughly $3.7 USD/month or $41 USD/year - VERY AFFORDABLE!");
             prompt.AppendLine("   - Full access to ALL courses and advanced features");
             prompt.AppendLine("   - Premium includes: Deep course content, interactive materials, personalized paths");
